@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BF6 Weapons Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
+  .card{width:380px;background:rgba(0,0,0,0.82);border-radius:12px;border-left:3px solid #3ecf6e;overflow:hidden;backdrop-filter:blur(6px);box-shadow:0 4px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);position:relative}
+  .card::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;z-index:1}
+  .card-inner{position:relative;z-index:2;padding:14px 16px 12px}
+  .header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .player-name{font-size:16px;font-weight:800;color:#fff;letter-spacing:.04em;text-transform:uppercase;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .section-label{font-size:10px;font-weight:700;letter-spacing:.15em;color:#3ecf6e;text-transform:uppercase;white-space:nowrap}
+  .divider{height:1px;background:linear-gradient(90deg,#3ecf6e 0%,rgba(62,207,110,.15) 60%,transparent 100%);margin-bottom:10px}
+  .weapon-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+  .weapon-row:last-child{border-bottom:none}
+  .weapon-rank{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);width:14px;flex-shrink:0;text-align:right}
+  .weapon-img{width:52px;height:28px;object-fit:contain;flex-shrink:0;filter:brightness(.9)}
+  .weapon-img-err{width:52px;height:28px;flex-shrink:0;background:rgba(255,255,255,.04);border-radius:3px}
+  .weapon-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  .weapon-name{font-size:12px;font-weight:700;color:#fff;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+  .weapon-bar-row{display:flex;align-items:center;gap:6px}
+  .weapon-bar-bg{flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+  .weapon-bar-fill{height:100%;background:#3ecf6e;border-radius:2px;transition:width .4s ease}
+  .weapon-meta{display:flex;gap:8px;align-items:center}
+  .weapon-kills{font-family:'Share Tech Mono',monospace;font-size:12px;color:#fff;white-space:nowrap}
+  .weapon-hs{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(62,207,110,.7);white-space:nowrap}
+  .weapon-acc{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);white-space:nowrap}
+  .footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+  .footer-brand{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(62,207,110,.45);text-transform:uppercase}
+  .footer-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,.2)}
+  .loading{display:flex;align-items:center;gap:8px;justify-content:center;min-height:140px}
+  .loading-dot{width:6px;height:6px;border-radius:50%;background:#3ecf6e;animation:pulse 1.2s ease-in-out infinite}
+  .loading-dot:nth-child(2){animation-delay:.2s}
+  .loading-dot:nth-child(3){animation-delay:.4s}
+  @keyframes pulse{0%,80%,100%{opacity:.15;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+  .error-msg{font-size:11px;color:rgba(255,80,80,.7);text-align:center;min-height:140px;display:flex;align-items:center;justify-content:center}
+  @keyframes flash-border{0%{border-left-color:#3ecf6e}50%{border-left-color:rgba(62,207,110,.3)}100%{border-left-color:#3ecf6e}}
+  .card.refreshing{animation:flash-border .5s ease}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="card-inner" id="content">
+    <div class="loading"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
+  </div>
+</div>
+<script>
+const p = new URLSearchParams(location.search);
+const PLAYER = p.get('name') || 'katat0nia';
+const PLATFORM = p.get('platform') || 'ea';
+const TOP = parseInt(p.get('top') || '5');
+const API = `https://corillo.live/api/bf6/stats?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
+const INTERVAL = 60000;
+
+function nowTime(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})}
+function fmt(n,d=0){if(n==null||isNaN(Number(n)))return'—';return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
+
+function renderWeapons(data){
+  const name = data.userName || PLAYER;
+  const weapons = (data.weapons || [])
+    .filter(w => w.kills > 0)
+    .sort((a,b) => b.kills - a.kills)
+    .slice(0, TOP);
+  const maxKills = weapons[0]?.kills || 1;
+
+  const rows = weapons.map((w,i) => {
+    const pct = Math.round((w.kills / maxKills) * 100);
+    const imgSrc = w.altImage || w.image || '';
+    const imgEl = imgSrc
+      ? `<img class="weapon-img" src="${imgSrc}" alt="${w.name}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'weapon-img-err'}))">`
+      : `<div class="weapon-img-err"></div>`;
+    return `
+    <div class="weapon-row">
+      <span class="weapon-rank">${i+1}</span>
+      ${imgEl}
+      <div class="weapon-info">
+        <span class="weapon-name">${w.name}</span>
+        <div class="weapon-bar-row">
+          <div class="weapon-bar-bg"><div class="weapon-bar-fill" style="width:${pct}%"></div></div>
+          <div class="weapon-meta">
+            <span class="weapon-kills">${fmt(w.kills)}</span>
+            <span class="weapon-hs">${w.headshots||'0%'} HS</span>
+            <span class="weapon-acc">${w.accuracy||'—'}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div class="header">
+      <span class="player-name">${name}</span>
+      <span class="section-label">TOP WEAPONS</span>
+    </div>
+    <div class="divider"></div>
+    ${rows || '<div class="error-msg">Sin datos de armas</div>'}
+    <div class="footer"><span class="footer-brand">CORILLO.LIVE · BF6</span><span class="footer-time">Updated ${nowTime()}</span></div>`;
+}
+
+function renderError(msg){document.getElementById('content').innerHTML=`<div class="error-msg">${msg}</div>`}
+
+async function fetchStats(isRefresh=false){
+  const card=document.getElementById('card');
+  if(isRefresh){card.classList.add('refreshing');setTimeout(()=>card.classList.remove('refreshing'),500)}
+  try{
+    const res=await fetch(API);
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    if(data.error)throw new Error(JSON.stringify(data.errors||data.error));
+    renderWeapons(data);
+  }catch(e){if(!isRefresh)renderError('Stats unavailable');console.warn('BF6 weapons:',e.message)}
+}
+fetchStats();
+setInterval(()=>fetchStats(true),INTERVAL);
+</script>
+</body>
+</html>

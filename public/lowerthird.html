@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BF6 Lower Third — CORILLO</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:transparent;width:1920px;height:80px;overflow:hidden;font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
+.bar{width:1920px;height:80px;background:rgba(0,0,0,0.86);border-top:3px solid #3ecf6e;display:flex;align-items:stretch;position:relative;overflow:hidden}
+.bar::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:10}
+.left{display:flex;align-items:center;gap:14px;padding:0 24px;width:272px;flex-shrink:0;border-right:1px solid rgba(62,207,110,.22);position:relative;z-index:5}
+.game-tag{background:rgba(62,207,110,.1);border:1px solid rgba(62,207,110,.32);color:#3ecf6e;font-size:10px;font-weight:800;letter-spacing:.14em;padding:3px 9px;border-radius:4px;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.player-col{display:flex;flex-direction:column;gap:2px;min-width:0}
+.player-name{font-size:18px;font-weight:800;color:#fff;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1}
+.platform-badge{font-size:10px;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase}
+.right{flex:1;position:relative;overflow:hidden;z-index:5}
+.blk{position:absolute;inset:0;display:flex;align-items:center;padding:0 20px;opacity:0;transform:translateX(20px);transition:opacity .4s ease,transform .4s ease;pointer-events:none}
+.blk.active{opacity:1;transform:translateX(0);pointer-events:auto}
+.blk.out{opacity:0;transform:translateX(-20px)}
+.sc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0 8px;border-right:1px solid rgba(255,255,255,.05);height:100%}
+.sc:last-child{border-right:none}
+.sl{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(255,255,255,.27);text-transform:uppercase}
+.sv{font-family:'Share Tech Mono',monospace;font-size:21px;color:#fff;line-height:1;letter-spacing:.01em}
+.sv.g{color:#3ecf6e}
+.wc{flex:1;display:flex;align-items:center;gap:12px;padding:0 16px;border-right:1px solid rgba(255,255,255,.05);height:100%}
+.wc:last-child{border-right:none}
+.wi{height:32px;width:auto;max-width:88px;object-fit:contain;filter:brightness(.88);flex-shrink:0}
+.winfo{display:flex;flex-direction:column;gap:2px;min-width:0}
+.wk{font-family:'Share Tech Mono',monospace;font-size:19px;color:#fff;line-height:1}
+.wn{font-size:11px;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.5);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.wh{font-size:10px;color:rgba(62,207,110,.6);letter-spacing:.04em}
+.prog{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.04);z-index:6}
+.prog-fill{height:100%;width:0%;background:rgba(62,207,110,.5);transition:none}
+.blbl{position:absolute;top:7px;right:13px;font-size:8px;font-weight:700;letter-spacing:.18em;color:rgba(62,207,110,.3);text-transform:uppercase;z-index:6}
+.dots{position:absolute;bottom:8px;right:13px;display:flex;gap:4px;z-index:6}
+.dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.14);transition:background .3s}
+.dot.on{background:#3ecf6e}
+.ldg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;z-index:7}
+.ld{width:5px;height:5px;border-radius:50%;background:#3ecf6e;animation:pulse 1.2s ease-in-out infinite}
+.ld:nth-child(2){animation-delay:.2s}
+.ld:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,80%,100%{opacity:.15;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="left">
+    <span class="game-tag">BF6</span>
+    <div class="player-col">
+      <span class="player-name" id="pname">—</span>
+      <span class="platform-badge" id="pbadge">—</span>
+    </div>
+  </div>
+  <div class="right">
+    <div class="ldg" id="ldg"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>
+    <div class="blk" id="blk0">
+      <div class="sc"><span class="sl">Total Kills</span><span class="sv g" id="b0k">—</span></div>
+      <div class="sc"><span class="sl">K/D Ratio</span><span class="sv g" id="b0kd">—</span></div>
+      <div class="sc"><span class="sl">KPM</span><span class="sv" id="b0kpm">—</span></div>
+      <div class="sc"><span class="sl">DPM</span><span class="sv" id="b0dpm">—</span></div>
+      <div class="sc"><span class="sl">Win Rate</span><span class="sv" id="b0win">—</span></div>
+      <div class="sc"><span class="sl">Matches</span><span class="sv" id="b0mat">—</span></div>
+    </div>
+    <div class="blk" id="blk1">
+      <div class="wc"><img class="wi" id="w0i" src="" alt=""><div class="winfo"><span class="wk" id="w0k">—</span><span class="wn" id="w0n">—</span><span class="wh" id="w0h">—</span></div></div>
+      <div class="wc"><img class="wi" id="w1i" src="" alt=""><div class="winfo"><span class="wk" id="w1k">—</span><span class="wn" id="w1n">—</span><span class="wh" id="w1h">—</span></div></div>
+      <div class="wc"><img class="wi" id="w2i" src="" alt=""><div class="winfo"><span class="wk" id="w2k">—</span><span class="wn" id="w2n">—</span><span class="wh" id="w2h">—</span></div></div>
+    </div>
+    <div class="blk" id="blk2">
+      <div class="sc"><span class="sl">Accuracy</span><span class="sv g" id="b2ac">—</span></div>
+      <div class="sc"><span class="sl">Headshots</span><span class="sv" id="b2hs">—</span></div>
+      <div class="sc"><span class="sl">Shots Hit</span><span class="sv" id="b2sh">—</span></div>
+      <div class="sc"><span class="sl">Shots Fired</span><span class="sv" id="b2sf">—</span></div>
+      <div class="sc"><span class="sl">ADS Kills</span><span class="sv" id="b2ad">—</span></div>
+      <div class="sc"><span class="sl">Hipfire Kills</span><span class="sv" id="b2hp">—</span></div>
+    </div>
+    <div class="blk" id="blk3">
+      <div class="sc"><span class="sl">Obj. Captured</span><span class="sv g" id="b3cp">—</span></div>
+      <div class="sc"><span class="sl">Time on Obj</span><span class="sv" id="b3tm">—</span></div>
+      <div class="sc"><span class="sl">Revives</span><span class="sv" id="b3rv">—</span></div>
+      <div class="sc"><span class="sl">Assists</span><span class="sv" id="b3as">—</span></div>
+      <div class="sc"><span class="sl">Spotted</span><span class="sv" id="b3sp">—</span></div>
+      <div class="sc"><span class="sl">Resupplies</span><span class="sv" id="b3rs">—</span></div>
+    </div>
+    <div class="prog"><div class="prog-fill" id="pbar"></div></div>
+    <span class="blbl" id="blbl">GENERAL</span>
+    <div class="dots"><div class="dot on" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div></div>
+  </div>
+</div>
+<script>
+const p=new URLSearchParams(location.search);
+const PLAYER=p.get('name')||'katat0nia';
+const PLATFORM=p.get('platform')||'ea';
+const PLAT_LABEL={ea:'EA App',steam:'Steam',psn:'PSN',xbox:'Xbox',ps5:'PS5',epic:'Epic'}[PLATFORM]||PLATFORM.toUpperCase();
+const API=`https://corillo.live/api/bf6/stats?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
+const ROTATE_MS=8000,DATA_MS=60000;
+const LABELS=['GENERAL','ARMAS','ACCURACY','OBJETIVO'];
+let cur=0,loaded=false,rotTimer=null;
+function fmt(n,d=0){if(n==null||isNaN(+n))return'—';return(+n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmtWin(v){if(v==null)return'—';if(typeof v==='string')return v.includes('%')?v:v+'%';return(+v).toFixed(1)+'%'}
+function fmtObjTime(s){if(!s)return'0m';const m=Math.floor(+s/60);return m>=60?Math.floor(m/60)+'h '+(m%60)+'m':m+'m'}
+function startProgress(){const b=document.getElementById('pbar');b.style.transition='none';b.style.width='0%';b.offsetWidth;b.style.transition=`width ${ROTATE_MS}ms linear`;b.style.width='100%'}
+function showBlock(idx){
+  document.querySelectorAll('.blk').forEach((b,i)=>{
+    if(i===cur&&i!==idx){b.classList.remove('active');b.classList.add('out');setTimeout(()=>b.classList.remove('out'),500)}
+    else if(i===idx){b.classList.remove('out');b.classList.add('active')}
+  });
+  [0,1,2,3].forEach(i=>document.getElementById('d'+i).classList.toggle('on',i===idx));
+  document.getElementById('blbl').textContent=LABELS[idx];
+  cur=idx;startProgress();
+}
+function startRotation(){if(rotTimer)clearInterval(rotTimer);rotTimer=setInterval(()=>showBlock((cur+1)%4),ROTATE_MS)}
+function fillData(d){
+  document.getElementById('pname').textContent=(d.userName||PLAYER).toUpperCase();
+  document.getElementById('pbadge').textContent=PLAT_LABEL;
+  document.getElementById('b0k').textContent=fmt(d.kills);
+  document.getElementById('b0kd').textContent=fmt(d.killDeath,2);
+  document.getElementById('b0kpm').textContent=fmt(d.killsPerMinute,2);
+  document.getElementById('b0dpm').textContent=fmt(d.damagePerMinute,0);
+  document.getElementById('b0win').textContent=fmtWin(d.winPercent);
+  document.getElementById('b0mat').textContent=fmt(d.matchesPlayed);
+  const wps=(d.weapons||[]).filter(w=>w.kills>0).sort((a,b)=>b.kills-a.kills).slice(0,3);
+  [0,1,2].forEach(i=>{const w=wps[i];if(!w)return;document.getElementById('w'+i+'i').src=w.imageUrl||w.image||'';document.getElementById('w'+i+'k').textContent=fmt(w.kills);document.getElementById('w'+i+'n').textContent=(w.weaponName||w.name||'—').toUpperCase();document.getElementById('w'+i+'h').textContent=w.headshotsPercent!=null?fmt(w.headshotsPercent,1)+'% HS':'—'});
+  document.getElementById('b2ac').textContent=d.accuracy||'—';
+  document.getElementById('b2hs').textContent=d.headshots||'—';
+  document.getElementById('b2sh').textContent=fmt(d.shotsHit);
+  document.getElementById('b2sf').textContent=fmt(d.shotsFired);
+  document.getElementById('b2ad').textContent=fmt(d.dividedKills?.ads);
+  document.getElementById('b2hp').textContent=fmt(d.dividedKills?.hipfire);
+  document.getElementById('b3cp').textContent=fmt(d.objective?.captured);
+  document.getElementById('b3tm').textContent=fmtObjTime(d.objective?.time?.total);
+  document.getElementById('b3rv').textContent=fmt(d.revives);
+  document.getElementById('b3as').textContent=fmt(d.killAssists);
+  document.getElementById('b3sp').textContent=fmt(d.enemiesSpotted);
+  document.getElementById('b3rs').textContent=fmt(d.resupplies);
+}
+async function fetchData(){
+  try{
+    const r=await fetch(API);if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    const d=await r.json();if(d.error)throw new Error('api error');
+    fillData(d);
+    if(!loaded){document.getElementById('ldg').style.display='none';showBlock(0);startRotation();loaded=true;}
+  }catch(e){
+    if(!loaded)document.getElementById('ldg').innerHTML='<span style="font-size:11px;color:rgba(255,80,80,.6);letter-spacing:.08em">STATS UNAVAILABLE</span>';
+    console.warn('BF6 lower-third:',e.message);
+  }
+}
+fetchData();
+setInterval(fetchData,DATA_MS);
+</script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BF6 Overlay Generator — CORILLO</title>
+<meta name="description" content="Crea tu overlay de Battlefield 6 para OBS gratis. Stats, armas, accuracy y más — sin registro, listo en segundos.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://corillo.live/overlay/bf6/">
+<meta property="og:title" content="BF6 Overlay Generator — CORILLO">
+<meta property="og:description" content="Crea tu overlay de Battlefield 6 para OBS gratis. Stats, armas, accuracy y más — sin registro, listo en segundos.">
+<meta property="og:image" content="https://corillo.live/overlay/bf6/og-bf6.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_PR">
+<meta property="og:site_name" content="CORILLO">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BF6 Overlay Generator — CORILLO">
+<meta name="twitter:description" content="Crea tu overlay de Battlefield 6 para OBS gratis. Stats, armas, accuracy y más — sin registro, listo en segundos.">
+<meta name="twitter:image" content="https://corillo.live/overlay/bf6/og-bf6.png">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--green:#3ecf6e;--green-dim:rgba(62,207,110,.15);--green-border:rgba(62,207,110,.3);--bg:#0b0b0b;--card:#141414;--card2:#1a1a1a;--text:#fff;--muted:rgba(255,255,255,.4);--border:rgba(255,255,255,.07)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
+body{background-image:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(62,207,110,.06) 0%,transparent 70%)}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid var(--border)}
+.nav-brand{display:flex;align-items:center;gap:12px}
+.nav-logo{font-size:20px;font-weight:900;letter-spacing:.1em}
+.nav-logo span{color:var(--green)}
+.nav-badge{background:var(--green-dim);border:1px solid var(--green-border);color:var(--green);font-size:10px;font-weight:700;letter-spacing:.12em;padding:3px 10px;border-radius:20px}
+.nav-link{font-size:12px;color:var(--muted);letter-spacing:.06em;text-decoration:none}
+.nav-link:hover{color:var(--text)}
+
+.hero{text-align:center;padding:44px 40px 36px}
+.hero-title{font-size:clamp(36px,5.5vw,60px);font-weight:900;letter-spacing:.02em;line-height:.95;text-transform:uppercase}
+.hero-title span{color:var(--green)}
+.hero-sub{margin-top:12px;font-size:16px;color:var(--muted);letter-spacing:.04em}
+
+.main{max-width:960px;margin:0 auto;padding:0 24px 64px;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+@media(max-width:720px){.main{grid-template-columns:1fr}}
+
+.form-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:28px;display:flex;flex-direction:column;gap:22px}
+
+.section-title{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.field-input{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;letter-spacing:.04em;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.field-input:focus{border-color:var(--green-border);box-shadow:0 0 0 3px rgba(62,207,110,.08)}
+.field-input::placeholder{color:rgba(255,255,255,.2)}
+
+.platform-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.plat-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 4px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;cursor:pointer;transition:all .15s;text-transform:uppercase}
+.plat-btn:hover{border-color:var(--green-border);color:#fff}
+.plat-btn.active{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+
+/* type grid */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.type-btn.full{grid-column:span 2}
+.type-btn{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 12px;cursor:pointer;transition:all .15s;text-align:left;display:flex;flex-direction:column;gap:3px}
+.type-btn:hover{border-color:var(--green-border)}
+.type-btn.active{background:var(--green-dim);border-color:var(--green)}
+.type-icon{font-size:18px}
+.type-name{font-size:13px;font-weight:800;color:#fff;letter-spacing:.04em;text-transform:uppercase}
+.type-desc{font-size:10px;color:var(--muted);font-weight:400;line-height:1.3}
+.type-size{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);margin-top:1px}
+
+.preview-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:28px;display:flex;flex-direction:column;gap:18px;position:sticky;top:24px}
+.preview-frame-wrap{background:#1a1a1a;border-radius:10px;padding:16px;display:flex;justify-content:center;align-items:flex-start;min-height:190px;border:1px solid var(--border)}
+iframe{border:none;background:transparent;display:block}
+.preview-empty{font-size:12px;color:var(--muted);text-align:center;padding:40px 0;letter-spacing:.06em;width:100%}
+
+.url-section{display:flex;flex-direction:column;gap:10px}
+.url-box{display:flex;gap:8px}
+.url-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:#fff;font-family:'Share Tech Mono',monospace;font-size:10px;outline:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.copy-btn{background:var(--green);color:#000;border:none;border-radius:8px;padding:10px 16px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.08em;cursor:pointer;white-space:nowrap;transition:all .15s;text-transform:uppercase;flex-shrink:0}
+.copy-btn:hover{background:#4de87c}
+.copy-btn.copied{background:rgba(62,207,110,.2);color:var(--green);border:1px solid var(--green)}
+
+.obs-box{background:rgba(62,207,110,.05);border:1px solid var(--green-border);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.obs-title{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--green);text-transform:uppercase;margin-bottom:2px}
+.obs-steps{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+.obs-steps span{display:flex;align-items:baseline;gap:6px}
+.obs-steps b{color:#fff;font-family:'Share Tech Mono',monospace;font-size:10px}
+
+footer{text-align:center;padding:20px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);letter-spacing:.08em}
+footer a{color:var(--green);text-decoration:none}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <span class="nav-logo">CORILLO<span>.LIVE</span></span>
+    <span class="nav-badge">BF6 OVERLAYS</span>
+  </div>
+  <a class="nav-link" href="https://corillo.live">← Inicio</a>
+</nav>
+
+<div class="hero">
+  <h1 class="hero-title">Overlays de<br><span>Battlefield 6</span></h1>
+  <p class="hero-sub">Stats en vivo para OBS · Gratis · Sin registro</p>
+</div>
+
+<div class="main">
+  <div class="form-card">
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="section-title">Jugador</div>
+      <input class="field-input" id="nameInput" type="text" placeholder="Tu nombre de usuario en BF6" autocomplete="off" spellcheck="false">
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="section-title">Plataforma</div>
+      <div class="platform-grid">
+        <button class="plat-btn active" data-plat="ea">EA App</button>
+        <button class="plat-btn" data-plat="steam">Steam</button>
+        <button class="plat-btn" data-plat="psn">PlayStation</button>
+        <button class="plat-btn" data-plat="xbox">Xbox</button>
+        <button class="plat-btn" data-plat="ps5">PS5</button>
+        <button class="plat-btn" data-plat="epic">Epic</button>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="section-title">Tipo de overlay</div>
+      <div class="type-grid">
+        <button class="type-btn active" data-type="overlay" data-w="380" data-h="175">
+          <span class="type-icon">📊</span>
+          <span class="type-name">Stats</span>
+          <span class="type-desc">Kills, K/D, Win Rate, DPM y más</span>
+          <span class="type-size">380 × 175</span>
+        </button>
+        <button class="type-btn" data-type="weapons" data-w="380" data-h="255">
+          <span class="type-icon">🔫</span>
+          <span class="type-name">Armas</span>
+          <span class="type-desc">Top 5 armas más usadas con barras</span>
+          <span class="type-size">380 × 255</span>
+        </button>
+        <button class="type-btn" data-type="accuracy" data-w="380" data-h="195">
+          <span class="type-icon">🎯</span>
+          <span class="type-name">Accuracy</span>
+          <span class="type-desc">Precisión, headshots, ADS vs hipfire</span>
+          <span class="type-size">380 × 195</span>
+        </button>
+        <button class="type-btn" data-type="objective" data-w="380" data-h="225">
+          <span class="type-icon">🏆</span>
+          <span class="type-name">Objective</span>
+          <span class="type-desc">Revives, heals, capturas, assists</span>
+          <span class="type-size">380 × 225</span>
+        </button>
+        <button class="type-btn full" data-type="lowerthird" data-w="1920" data-h="80">
+          <span class="type-icon">📺</span>
+          <span class="type-name">Lower Third</span>
+          <span class="type-desc">Barra de stats en la parte inferior — 4 bloques rotativos · General · Armas · Accuracy · Objetivo</span>
+          <span class="type-size">1920 × 80</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="preview-card">
+    <div class="section-title">Vista previa</div>
+
+    <div class="preview-frame-wrap" id="previewWrap">
+      <div class="preview-empty" id="previewEmpty">Escribe tu nombre para ver la preview</div>
+      <iframe id="previewFrame" style="display:none" scrolling="no"></iframe>
+    </div>
+    <div id="ltNote" style="display:none;font-size:10px;color:var(--muted);text-align:center;letter-spacing:.05em;margin-top:-8px">
+      Vista parcial a 50% · En OBS usar <span style="font-family:'Share Tech Mono',monospace;color:var(--green)">1920 × 80</span> px · Ubicar en la parte inferior de la escena
+    </div>
+
+    <div class="url-section" id="urlSection" style="display:none">
+      <div class="section-title">Tu URL para OBS</div>
+      <div class="url-box">
+        <input class="url-input" id="urlOutput" readonly>
+        <button class="copy-btn" id="copyBtn">Copiar</button>
+      </div>
+      <div class="obs-box">
+        <div class="obs-title">Cómo agregarlo en OBS</div>
+        <div class="obs-steps">
+          <span>1 — Fuente: <b>Browser Source</b></span>
+          <span>2 — Pega la URL copiada</span>
+          <span>3 — Tamaño: <b id="obsDims">380 × 175</b> px</span>
+          <span>4 — Activa: <b>Allow Transparency</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Powered by <a href="https://corillo.live">CORILLO.LIVE</a> · Datos via <a href="https://gametools.network" target="_blank">gametools.network</a>
+</footer>
+
+<script>
+const BASE='https://corillo.live/overlay/bf6/';
+let currentPlat='ea', currentType='overlay', currentW=380, currentH=175;
+let debounceTimer=null;
+
+const nameInput=document.getElementById('nameInput');
+const previewFrame=document.getElementById('previewFrame');
+const previewEmpty=document.getElementById('previewEmpty');
+const previewWrap=document.getElementById('previewWrap');
+const urlSection=document.getElementById('urlSection');
+const urlOutput=document.getElementById('urlOutput');
+const copyBtn=document.getElementById('copyBtn');
+const obsDims=document.getElementById('obsDims');
+const ltNote=document.getElementById('ltNote');
+
+function buildURL(name){
+  return `${BASE}${currentType}.html?name=${encodeURIComponent(name)}&platform=${encodeURIComponent(currentPlat)}`;
+}
+
+function updatePreview(){
+  const name=nameInput.value.trim();
+  if(!name){
+    previewFrame.style.display='none';
+    previewEmpty.style.display='block';
+    urlSection.style.display='none';
+    ltNote.style.display='none';
+    return;
+  }
+  const url=buildURL(name);
+  const isLT=currentW===1920;
+  previewEmpty.style.display='none';
+  previewFrame.style.display='block';
+  if(isLT){
+    // Mostrar al ancho del contenedor — el overflow del body de 1920px queda oculto
+    const wrapW=previewWrap.clientWidth-32;
+    previewFrame.style.width=wrapW+'px';
+    previewFrame.style.height='80px';
+    previewFrame.style.transform='';
+    previewFrame.style.transformOrigin='';
+    previewWrap.style.padding='16px';
+    previewWrap.style.minHeight='0';
+    previewWrap.style.height='auto';
+    previewWrap.style.overflow='hidden';
+    previewWrap.style.display='';
+    previewFrame.onload=null;
+    ltNote.style.display='block';
+  }else{
+    previewFrame.style.width='';
+    previewFrame.style.height='';
+    previewFrame.style.transform='';
+    previewFrame.style.transformOrigin='';
+    previewWrap.style.padding='';
+    previewWrap.style.minHeight='190px';
+    previewWrap.style.height='';
+    previewWrap.style.overflow='';
+    previewWrap.style.display='';
+    previewFrame.width=currentW;
+    previewFrame.height=currentH;
+    ltNote.style.display='none';
+    previewFrame.onload=function(){
+      const frame=this;let tries=0;
+      const poll=setInterval(()=>{
+        try{const h=frame.contentDocument.body.scrollHeight;if(h>80){frame.height=h;frame.style.height=h+'px';}}catch(e){}
+        if(++tries>=20)clearInterval(poll);
+      },300);
+    };
+  }
+  previewFrame.src=url;
+  urlOutput.value=url;
+  urlSection.style.display='flex';
+  urlSection.style.flexDirection='column';
+  obsDims.textContent=`${currentW} × ${currentH}`;
+}
+
+function schedule(){clearTimeout(debounceTimer);debounceTimer=setTimeout(updatePreview,700)}
+
+nameInput.addEventListener('input',schedule);
+
+document.querySelectorAll('.plat-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.plat-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');currentPlat=btn.dataset.plat;schedule();
+  });
+});
+
+document.querySelectorAll('.type-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentType=btn.dataset.type;
+    currentW=parseInt(btn.dataset.w);
+    currentH=parseInt(btn.dataset.h);
+    updatePreview();
+  });
+});
+
+copyBtn.addEventListener('click',()=>{
+  navigator.clipboard.writeText(urlOutput.value).then(()=>{
+    copyBtn.textContent='¡Copiado!';copyBtn.classList.add('copied');
+    setTimeout(()=>{copyBtn.textContent='Copiar';copyBtn.classList.remove('copied')},2000);
+  });
+});
+</script>
+</body>
+</html>
