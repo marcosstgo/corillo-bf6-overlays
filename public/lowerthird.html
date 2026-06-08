@@ -42,6 +42,11 @@ body{background:transparent;width:1920px;height:80px;overflow:hidden;font-family
 .ld:nth-child(2){animation-delay:.2s}
 .ld:nth-child(3){animation-delay:.4s}
 @keyframes pulse{0%,80%,100%{opacity:.15;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+@keyframes stale-border{0%,100%{border-top-color:rgba(255,180,0,.6)}50%{border-top-color:rgba(255,180,0,.2)}}
+.bar.stale{animation:stale-border 2s ease-in-out infinite}
+.err-panel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;z-index:7}
+.err-panel span{font-size:11px;letter-spacing:.1em;color:rgba(255,80,80,.65)}
+.err-panel .err-sub{font-size:9px;color:rgba(255,255,255,.25);letter-spacing:.08em}
 </style>
 </head>
 <body>
@@ -55,6 +60,7 @@ body{background:transparent;width:1920px;height:80px;overflow:hidden;font-family
   </div>
   <div class="right">
     <div class="ldg" id="ldg"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>
+    <div class="err-panel" id="errp" style="display:none"></div>
     <div class="blk" id="blk0">
       <div class="sc"><span class="sl">Total Kills</span><span class="sv g" id="b0k">—</span></div>
       <div class="sc"><span class="sl">K/D Ratio</span><span class="sv g" id="b0kd">—</span></div>
@@ -106,7 +112,7 @@ const API=`${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=
 const ROTATE_MS=8000,DATA_MS=60000;
 const LABELS=['GENERAL','ARMAS','ACCURACY','OBJETIVO','SESIÓN'];
 const STORAGE_KEY=`bf6_session_${PLAYER}_${PLATFORM}`;
-let cur=0,loaded=false,rotTimer=null;
+let cur=0,loaded=false,rotTimer=null,lastGoodData=null;
 function fmt(n,d=0){if(n==null||isNaN(+n))return'—';return(+n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function fmtWin(v){if(v==null)return'—';if(typeof v==='string')return v.includes('%')?v:v+'%';return(+v).toFixed(1)+'%'}
 function fmtObjTime(s){if(!s)return'0m';const m=Math.floor(+s/60);return m>=60?Math.floor(m/60)+'h '+(m%60)+'m':m+'m'}
@@ -150,10 +156,32 @@ function fillData(d){
   document.getElementById('b3sp').textContent=fmt(d.enemiesSpotted);
   document.getElementById('b3rs').textContent=fmt(d.resupplies);
 }
+function getErrType(status,data){
+  const msg=(data?.errors?.[0]?.message||data?.message||'').toLowerCase();
+  if(status===404||msg.includes('not found'))return'not_found';
+  if(status===504||status===502)return'timeout';
+  return'generic';
+}
+function showInitialError(type){
+  const line1=type==='not_found'?`Jugador "${PLAYER}" no encontrado`:type==='timeout'?'API sin respuesta':'Stats no disponibles';
+  const sub=type==='not_found'?'Verifica nombre y plataforma':'Reintentando en 60 seg';
+  document.getElementById('ldg').style.display='none';
+  const ep=document.getElementById('errp');
+  ep.innerHTML=`<div style="text-align:center"><span style="font-size:11px;color:rgba(255,80,80,.65);letter-spacing:.1em">${line1}</span><br><span style="font-size:9px;color:rgba(255,255,255,.25);letter-spacing:.08em">${sub}</span></div>`;
+  ep.style.display='flex';
+}
+function markStale(){document.querySelector('.bar').classList.add('stale')}
+function unmarkStale(){document.querySelector('.bar').classList.remove('stale')}
 async function fetchData(){
   try{
-    const r=await fetch(API);if(!r.ok)throw new Error(`HTTP ${r.status}`);
-    const d=await r.json();if(d.error)throw new Error('api error');
+    const r=await fetch(API);
+    const d=await r.json();
+    if(!r.ok||d.error){
+      if(loaded&&lastGoodData){markStale();return}
+      showInitialError(getErrType(r.status,d));return;
+    }
+    lastGoodData=d;
+    if(loaded)unmarkStale();
     fillData(d);
     if(!getBaseline())saveBaseline(d);
     const bl=getBaseline();
@@ -165,9 +193,10 @@ async function fetchData(){
     document.getElementById('b4mt').textContent=fmt(Math.max(0,(Number(d.matchesPlayed)||0)-bl.matches));
     document.getElementById('b4wn').textContent=fmt(Math.max(0,calcWins(d)-bl.wins));
     document.getElementById('b4tm').textContent=fmtSecs(Math.max(0,(Number(d.secondsPlayed)||0)-bl.seconds));
-    if(!loaded){document.getElementById('ldg').style.display='none';showBlock(0);startRotation();loaded=true;}
+    if(!loaded){document.getElementById('ldg').style.display='none';document.getElementById('errp').style.display='none';showBlock(0);startRotation();loaded=true;}
   }catch(e){
-    if(!loaded)document.getElementById('ldg').innerHTML='<span style="font-size:11px;color:rgba(255,80,80,.6);letter-spacing:.08em">STATS UNAVAILABLE</span>';
+    if(loaded&&lastGoodData){markStale();return}
+    showInitialError('timeout');
     console.warn('BF6 lower-third:',e.message);
   }
 }
