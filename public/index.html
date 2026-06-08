@@ -10,8 +10,6 @@
 <meta property="og:title" content="BF6 Overlay Generator — CORILLO">
 <meta property="og:description" content="Crea tu overlay de Battlefield 6 para OBS gratis. Stats, armas, accuracy y más — sin registro, listo en segundos.">
 <meta property="og:image" content="https://corillo.live/overlay/bf6/og-bf6.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
 <meta property="og:locale" content="es_PR">
 <meta property="og:site_name" content="CORILLO">
 <meta name="twitter:card" content="summary_large_image">
@@ -21,112 +19,177 @@
 <script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-:root{--green:#3ecf6e;--green-dim:rgba(62,207,110,.15);--green-border:rgba(62,207,110,.3);--bg:#0b0b0b;--card:#141414;--card2:#1a1a1a;--text:#fff;--muted:rgba(255,255,255,.4);--border:rgba(255,255,255,.07)}
+:root{
+  --green:#3ecf6e;
+  --green-dim:rgba(62,207,110,.12);
+  --green-border:rgba(62,207,110,.28);
+  --bg:#090909;
+  --card:#111;
+  --card2:#171717;
+  --card3:#1e1e1e;
+  --text:#fff;
+  --muted:rgba(255,255,255,.38);
+  --subtle:rgba(255,255,255,.14);
+  --border:rgba(255,255,255,.06);
+  --border2:rgba(255,255,255,.1);
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
-body{background-image:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(62,207,110,.06) 0%,transparent 70%)}
+body{background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(62,207,110,.07) 0%,transparent 65%)}
 
-nav{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid var(--border)}
-.nav-brand{display:flex;align-items:center;gap:12px}
-.nav-logo{font-size:20px;font-weight:900;letter-spacing:.1em}
-.nav-logo span{color:var(--green)}
-.nav-badge{background:var(--green-dim);border:1px solid var(--green-border);color:var(--green);font-size:10px;font-weight:700;letter-spacing:.12em;padding:3px 10px;border-radius:20px}
-.nav-link{font-size:12px;color:var(--muted);letter-spacing:.06em;text-decoration:none}
-.nav-link:hover{color:var(--text)}
+/* ── NAV ───────────────────────────────────────────────────────────── */
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid var(--border)}
+.nav-brand{display:flex;align-items:center;gap:14px}
+.nav-logo{font-size:18px;font-weight:900;letter-spacing:.12em;color:#fff}
+.nav-logo em{color:var(--green);font-style:normal}
+.nav-tag{background:var(--green-dim);border:1px solid var(--green-border);color:var(--green);font-size:9px;font-weight:800;letter-spacing:.18em;padding:3px 10px;border-radius:3px;text-transform:uppercase}
+.nav-back{font-size:11px;color:var(--muted);letter-spacing:.06em;text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .15s}
+.nav-back:hover{color:#fff}
 
-.hero{text-align:center;padding:44px 40px 36px}
-.hero-title{font-size:clamp(36px,5.5vw,60px);font-weight:900;letter-spacing:.02em;line-height:.95;text-transform:uppercase}
-.hero-title span{color:var(--green)}
-.hero-sub{margin-top:12px;font-size:16px;color:var(--muted);letter-spacing:.04em}
+/* ── HERO ──────────────────────────────────────────────────────────── */
+.hero{text-align:center;padding:52px 24px 44px;position:relative}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:.22em;color:var(--green);text-transform:uppercase;margin-bottom:14px;opacity:.8}
+.hero-title{font-size:clamp(42px,6vw,68px);font-weight:900;letter-spacing:.01em;line-height:.92;text-transform:uppercase;margin-bottom:16px}
+.hero-title em{color:var(--green);font-style:normal}
+.hero-sub{font-size:15px;color:var(--muted);letter-spacing:.04em;font-weight:400}
+.hero-pills{display:flex;justify-content:center;gap:8px;margin-top:20px;flex-wrap:wrap}
+.hero-pill{background:var(--card2);border:1px solid var(--border2);color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.1em;padding:5px 14px;border-radius:20px;text-transform:uppercase}
 
-.main{max-width:960px;margin:0 auto;padding:0 24px 64px;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
-@media(max-width:720px){.main{grid-template-columns:1fr}}
+/* ── LAYOUT ─────────────────────────────────────────────────────────── */
+.main{max-width:1020px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:1fr 400px;gap:24px;align-items:start}
+@media(max-width:780px){.main{grid-template-columns:1fr}}
 
-.form-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:28px;display:flex;flex-direction:column;gap:22px}
+/* ── FORM CARD ──────────────────────────────────────────────────────── */
+.form-card{background:var(--card);border-radius:16px;border:1px solid var(--border);overflow:hidden}
+.form-section{padding:24px 24px 0}
+.form-section:last-child{padding-bottom:24px}
+.sep{height:1px;background:var(--border);margin:0 24px}
 
-.section-title{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:8px}
-.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field-label{font-size:9px;font-weight:800;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:block}
+.field-input{background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:13px 15px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;letter-spacing:.04em;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.field-input:focus{border-color:var(--green-border);box-shadow:0 0 0 3px rgba(62,207,110,.07)}
+.field-input::placeholder{color:rgba(255,255,255,.18)}
 
-.field-input{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;letter-spacing:.04em;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
-.field-input:focus{border-color:var(--green-border);box-shadow:0 0 0 3px rgba(62,207,110,.08)}
-.field-input::placeholder{color:rgba(255,255,255,.2)}
-
-.platform-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.plat-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 4px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;cursor:pointer;transition:all .15s;text-transform:uppercase}
+/* platforms */
+.plat-row{display:flex;gap:6px;flex-wrap:wrap}
+.plat-btn{background:var(--card2);border:1px solid var(--border2);border-radius:6px;padding:7px 14px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;cursor:pointer;transition:all .15s;text-transform:uppercase}
 .plat-btn:hover{border-color:var(--green-border);color:#fff}
 .plat-btn.active{background:var(--green-dim);border-color:var(--green);color:var(--green)}
 
-/* type grid */
-.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.type-btn.full{grid-column:span 2}
-.type-btn{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 12px;cursor:pointer;transition:all .15s;text-align:left;display:flex;flex-direction:column;gap:3px}
-.type-btn:hover{border-color:var(--green-border)}
-.type-btn.active{background:var(--green-dim);border-color:var(--green)}
-.type-icon{font-size:18px}
-.type-name{font-size:13px;font-weight:800;color:#fff;letter-spacing:.04em;text-transform:uppercase}
-.type-desc{font-size:10px;color:var(--muted);font-weight:400;line-height:1.3}
-.type-size{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);margin-top:1px}
+/* ── TYPE GROUPS ────────────────────────────────────────────────────── */
+.type-groups{display:flex;flex-direction:column;gap:0}
+.type-group{padding:20px 24px}
+.type-group+.type-group{border-top:1px solid var(--border)}
+.group-label{font-size:8px;font-weight:800;letter-spacing:.22em;color:var(--subtle);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.group-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.type-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.type-grid-1{display:flex;flex-direction:column;gap:6px}
+
+/* type card */
+.type-btn{background:var(--card2);border:1px solid var(--border);border-left:3px solid transparent;border-radius:8px;padding:11px 13px;cursor:pointer;transition:all .15s;text-align:left;display:flex;flex-direction:column;gap:3px;position:relative}
+.type-btn:hover{border-color:var(--border2);border-left-color:rgba(62,207,110,.35);background:var(--card3)}
+.type-btn.active{background:var(--green-dim);border-color:var(--green-border);border-left-color:var(--green)}
+.type-btn-h{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.type-name{font-size:13px;font-weight:800;color:#fff;letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.type-btn.active .type-name{color:var(--green)}
+.type-size{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--subtle);letter-spacing:.04em;white-space:nowrap;flex-shrink:0}
+.type-btn.active .type-size{color:var(--green)}
+.type-desc{font-size:10px;color:var(--muted);font-weight:400;line-height:1.35}
+.type-source{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:3px;margin-top:2px;display:inline-block;width:fit-content}
+.type-source.ea{background:rgba(30,120,220,.15);border:1px solid rgba(30,120,220,.3);color:rgba(80,160,255,.8)}
+.type-source.gt{background:rgba(255,255,255,.05);border:1px solid var(--border2);color:var(--subtle)}
+
+/* horizontal full type cards */
+.type-btn-h-card{flex-direction:row;align-items:center;gap:12px;padding:13px 16px}
+.type-btn-h-card .type-main{flex:1;display:flex;flex-direction:column;gap:3px}
+.type-btn-h-card .type-size{font-size:10px;color:var(--muted);flex-shrink:0}
+.type-btn-h-card.active .type-size{color:var(--green)}
 
 /* multi-player section */
 .player-row{display:flex;align-items:center;gap:8px}
-.player-row .field-input{flex:1}
-.plat-select{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 8px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;letter-spacing:.04em;outline:none;cursor:pointer;transition:border-color .2s;flex-shrink:0}
+.player-row .field-input{flex:1;font-size:14px;padding:9px 12px}
+.plat-select{background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:9px 8px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;outline:none;cursor:pointer;transition:border-color .2s;flex-shrink:0}
 .plat-select:focus{border-color:var(--green-border)}
 .plat-select option{background:#1a1a1a}
-.remove-row-btn{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);width:32px;height:32px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;margin-top:0}
-.remove-row-btn:hover{border-color:rgba(255,80,80,.5);color:rgba(255,80,80,.8)}
-.add-player-btn{background:transparent;border:1px dashed var(--border);border-radius:8px;color:var(--muted);padding:8px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;cursor:pointer;transition:all .15s;text-align:center;width:100%}
+.remove-row-btn{background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--muted);width:30px;height:30px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.remove-row-btn:hover{border-color:rgba(255,80,80,.4);color:rgba(255,80,80,.7)}
+.add-player-btn{background:transparent;border:1px dashed var(--border2);border-radius:8px;color:var(--muted);padding:8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;cursor:pointer;transition:all .15s;text-align:center;width:100%;text-transform:uppercase}
 .add-player-btn:hover{border-color:var(--green-border);color:var(--green)}
 
-.preview-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:28px;display:flex;flex-direction:column;gap:18px;position:sticky;top:24px}
-.preview-frame-wrap{background:#1a1a1a;border-radius:10px;padding:16px;display:flex;justify-content:center;align-items:flex-start;min-height:190px;border:1px solid var(--border)}
+/* ── PREVIEW CARD ───────────────────────────────────────────────────── */
+.preview-card{background:var(--card);border-radius:16px;border:1px solid var(--border);overflow:hidden;position:sticky;top:24px}
+.preview-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.preview-header-label{font-size:9px;font-weight:800;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+.preview-dot{width:7px;height:7px;border-radius:50%;background:rgba(62,207,110,.4)}
+.preview-body{padding:20px}
+
+.preview-frame-wrap{background:#0d0d0d;border-radius:10px;border:1px solid var(--border);display:flex;justify-content:center;align-items:flex-start;min-height:180px;overflow:hidden}
 iframe{border:none;background:transparent;display:block}
-.preview-empty{font-size:12px;color:var(--muted);text-align:center;padding:40px 0;letter-spacing:.06em;width:100%}
+.preview-empty{font-size:11px;color:var(--subtle);text-align:center;padding:52px 20px;letter-spacing:.08em;width:100%;line-height:1.8}
+.preview-empty strong{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
 
-.url-section{display:flex;flex-direction:column;gap:10px}
+.lt-note{display:none;font-size:10px;color:var(--muted);text-align:center;padding:8px 0 0;letter-spacing:.04em}
+.lt-note code{font-family:'Share Tech Mono',monospace;color:var(--green);font-size:10px}
+
+/* url section */
+.url-section{display:none;flex-direction:column;gap:14px;padding:0 20px 20px}
+.url-label{font-size:9px;font-weight:800;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
 .url-box{display:flex;gap:8px}
-.url-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:#fff;font-family:'Share Tech Mono',monospace;font-size:10px;outline:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.copy-btn{background:var(--green);color:#000;border:none;border-radius:8px;padding:10px 16px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.08em;cursor:pointer;white-space:nowrap;transition:all .15s;text-transform:uppercase;flex-shrink:0}
+.url-input{flex:1;background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:rgba(255,255,255,.7);font-family:'Share Tech Mono',monospace;font-size:10px;outline:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.copy-btn{background:var(--green);color:#000;border:none;border-radius:8px;padding:10px 18px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:900;letter-spacing:.1em;cursor:pointer;white-space:nowrap;transition:all .15s;text-transform:uppercase;flex-shrink:0}
 .copy-btn:hover{background:#4de87c}
-.copy-btn.copied{background:rgba(62,207,110,.2);color:var(--green);border:1px solid var(--green)}
+.copy-btn.copied{background:var(--green-dim);color:var(--green);border:1px solid var(--green-border)}
 
-.obs-box{background:rgba(62,207,110,.05);border:1px solid var(--green-border);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
-.obs-title{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--green);text-transform:uppercase;margin-bottom:2px}
-.obs-steps{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
-.obs-steps span{display:flex;align-items:baseline;gap:6px}
-.obs-steps b{color:#fff;font-family:'Share Tech Mono',monospace;font-size:10px}
+/* obs instructions */
+.obs-box{background:var(--card2);border:1px solid var(--border);border-left:3px solid var(--green-border);border-radius:8px;padding:14px 16px}
+.obs-title{font-size:9px;font-weight:800;letter-spacing:.18em;color:var(--green);text-transform:uppercase;margin-bottom:10px}
+.obs-steps{display:flex;flex-direction:column;gap:7px}
+.obs-step{display:flex;align-items:baseline;gap:10px;font-size:11px;color:var(--muted)}
+.obs-step-num{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--subtle);flex-shrink:0;width:14px}
+.obs-step strong{color:#fff;font-family:'Share Tech Mono',monospace;font-size:10px;font-weight:400}
 
-footer{text-align:center;padding:20px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);letter-spacing:.08em}
-footer a{color:var(--green);text-decoration:none}
+/* ── FOOTER ─────────────────────────────────────────────────────────── */
+footer{text-align:center;padding:24px;border-top:1px solid var(--border);font-size:10px;color:var(--subtle);letter-spacing:.08em}
+footer a{color:var(--muted);text-decoration:none;transition:color .15s}
+footer a:hover{color:var(--green)}
 </style>
 </head>
 <body>
 
 <nav>
   <div class="nav-brand">
-    <span class="nav-logo">CORILLO<span>.LIVE</span></span>
-    <span class="nav-badge">BF6 OVERLAYS</span>
+    <span class="nav-logo">CORILLO<em>.LIVE</em></span>
+    <span class="nav-tag">BF6</span>
   </div>
-  <a class="nav-link" href="https://corillo.live">← Inicio</a>
+  <a class="nav-back" href="https://corillo.live">← Inicio</a>
 </nav>
 
 <div class="hero">
-  <h1 class="hero-title">Overlays de<br><span>Battlefield 6</span></h1>
-  <p class="hero-sub">Stats en vivo para OBS · Gratis · Sin registro</p>
+  <div class="hero-eyebrow">Overlay Generator</div>
+  <h1 class="hero-title">Stats en vivo para<br><em>Battlefield 6</em></h1>
+  <p class="hero-sub">Para OBS · Sin registro · Gratis</p>
+  <div class="hero-pills">
+    <span class="hero-pill">Datos en tiempo real</span>
+    <span class="hero-pill">Transparente</span>
+    <span class="hero-pill">Listo en segundos</span>
+  </div>
 </div>
 
 <div class="main">
   <div class="form-card">
 
-    <!-- Sección jugador único -->
+    <!-- Jugador -->
+    <div class="form-section" style="padding-bottom:20px">
+      <label class="field-label" for="nameInput">Jugador</label>
+      <input class="field-input" id="nameInput" type="text" placeholder="Nombre de usuario en BF6" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="sep"></div>
+
+    <!-- Plataforma -->
     <div id="singleSection">
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div class="section-title">Jugador</div>
-        <input class="field-input" id="nameInput" type="text" placeholder="Tu nombre de usuario en BF6" autocomplete="off" spellcheck="false">
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:22px">
-        <div class="section-title">Plataforma</div>
-        <div class="platform-grid">
+      <div class="form-section" style="padding-bottom:20px">
+        <label class="field-label">Plataforma</label>
+        <div class="plat-row">
           <button class="plat-btn active" data-plat="ea">EA App</button>
           <button class="plat-btn" data-plat="steam">Steam</button>
           <button class="plat-btn" data-plat="psn">PlayStation</button>
@@ -135,101 +198,150 @@ footer a{color:var(--green);text-decoration:none}
           <button class="plat-btn" data-plat="epic">Epic</button>
         </div>
       </div>
+      <div class="sep"></div>
     </div>
 
-    <!-- Sección squad -->
-    <div id="multiSection" style="display:none;flex-direction:column;gap:10px">
-      <div class="section-title">Jugadores del squad</div>
-      <div id="playerRows" style="display:flex;flex-direction:column;gap:8px"></div>
-      <button class="add-player-btn" id="addPlayerBtn">+ Agregar jugador (máx. 4)</button>
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <div class="section-title">Tipo de overlay</div>
-      <div class="type-grid">
-        <button class="type-btn active" data-type="overlay" data-w="380" data-h="175" data-mode="single">
-          <span class="type-icon">📊</span>
-          <span class="type-name">Stats</span>
-          <span class="type-desc">Kills, K/D, Win Rate, DPM y más</span>
-          <span class="type-size">380 × 175</span>
-        </button>
-        <button class="type-btn" data-type="weapons" data-w="380" data-h="255" data-mode="single">
-          <span class="type-icon">🔫</span>
-          <span class="type-name">Armas</span>
-          <span class="type-desc">Top 5 armas más usadas con barras</span>
-          <span class="type-size">380 × 255</span>
-        </button>
-        <button class="type-btn" data-type="accuracy" data-w="380" data-h="195" data-mode="single">
-          <span class="type-icon">🎯</span>
-          <span class="type-name">Accuracy</span>
-          <span class="type-desc">Precisión, headshots, ADS vs hipfire</span>
-          <span class="type-size">380 × 195</span>
-        </button>
-        <button class="type-btn" data-type="objective" data-w="380" data-h="225" data-mode="single">
-          <span class="type-icon">🏆</span>
-          <span class="type-name">Objective</span>
-          <span class="type-desc">Revives, heals, capturas, assists</span>
-          <span class="type-size">380 × 225</span>
-        </button>
-        <button class="type-btn" data-type="session" data-w="380" data-h="175" data-mode="single">
-          <span class="type-icon">⚡</span>
-          <span class="type-name">Sesión</span>
-          <span class="type-desc">Kills, K/D y victorias de esta sesión — se reinicia con OBS</span>
-          <span class="type-size">380 × 175</span>
-        </button>
-        <button class="type-btn" data-type="season" data-w="380" data-h="175" data-mode="single">
-          <span class="type-icon">🗓</span>
-          <span class="type-name">Temporada</span>
-          <span class="type-desc">K/D, Kills, Win%, Accuracy y HS Rate de la temporada activa · EA oficial · Modo y clase favorita</span>
-          <span class="type-size">380 × 175</span>
-        </button>
-        <button class="type-btn full" data-type="lowerthird" data-w="1920" data-h="80" data-mode="single">
-          <span class="type-icon">📺</span>
-          <span class="type-name">Lower Third</span>
-          <span class="type-desc">Barra de stats en la parte inferior — 5 bloques rotativos · General · Armas · Accuracy · Objetivo · Sesión</span>
-          <span class="type-size">1920 × 80</span>
-        </button>
-        <button class="type-btn full" data-type="dashboard" data-w="1920" data-h="1080" data-mode="single">
-          <span class="type-icon">📊</span>
-          <span class="type-name">Dashboard</span>
-          <span class="type-desc">Pantalla completa con todos los stats · Combate, Accuracy, Objetivo, Top Armas y Sesión</span>
-          <span class="type-size">1920 × 1080</span>
-        </button>
-        <button class="type-btn full" data-type="multi" data-w="548" data-h="175" data-mode="multi">
-          <span class="type-icon">👥</span>
-          <span class="type-name">Squad</span>
-          <span class="type-desc">Stats de 2–4 jugadores en paralelo · K/D, Kills, KPM, Win% y DPM por jugador</span>
-          <span class="type-size" id="multiSizeLabel">548 × 175</span>
-        </button>
+    <!-- Squad section -->
+    <div id="multiSection" style="display:none">
+      <div class="form-section" style="padding-bottom:20px">
+        <label class="field-label">Jugadores del squad</label>
+        <div id="playerRows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+        <button class="add-player-btn" id="addPlayerBtn">+ Agregar jugador (máx. 4)</button>
       </div>
+      <div class="sep"></div>
     </div>
 
+    <!-- Tipo de overlay -->
+    <div class="form-section" style="padding:16px 24px 4px">
+      <label class="field-label">Tipo de overlay</label>
+    </div>
+
+    <div class="type-groups">
+
+      <!-- COMPACTOS -->
+      <div class="type-group">
+        <div class="group-label">Compactos · 380 px</div>
+        <div class="type-grid-3">
+          <button class="type-btn active" data-type="overlay" data-w="380" data-h="175" data-mode="single">
+            <div class="type-btn-h">
+              <span class="type-name">Stats</span>
+              <span class="type-size">380×175</span>
+            </div>
+            <span class="type-desc">K/D, Kills, Win Rate, KPM, DPM</span>
+            <span class="type-source gt">Gametools</span>
+          </button>
+          <button class="type-btn" data-type="weapons" data-w="380" data-h="255" data-mode="single">
+            <div class="type-btn-h">
+              <span class="type-name">Armas</span>
+              <span class="type-size">380×255</span>
+            </div>
+            <span class="type-desc">Top 5 armas con barras y HS%</span>
+            <span class="type-source gt">Gametools</span>
+          </button>
+          <button class="type-btn" data-type="accuracy" data-w="380" data-h="195" data-mode="single">
+            <div class="type-btn-h">
+              <span class="type-name">Accuracy</span>
+              <span class="type-size">380×195</span>
+            </div>
+            <span class="type-desc">Precisión, headshots, ADS, hipfire</span>
+            <span class="type-source gt">Gametools</span>
+          </button>
+          <button class="type-btn" data-type="objective" data-w="380" data-h="225" data-mode="single">
+            <div class="type-btn-h">
+              <span class="type-name">Objetivo</span>
+              <span class="type-size">380×225</span>
+            </div>
+            <span class="type-desc">Capturas, tiempo, revives, assists</span>
+            <span class="type-source gt">Gametools</span>
+          </button>
+          <button class="type-btn" data-type="session" data-w="380" data-h="175" data-mode="single">
+            <div class="type-btn-h">
+              <span class="type-name">Sesión</span>
+              <span class="type-size">380×175</span>
+            </div>
+            <span class="type-desc">Delta de kills y K/D desde que abriste OBS</span>
+            <span class="type-source gt">Gametools</span>
+          </button>
+          <button class="type-btn" data-type="season" data-w="380" data-h="175" data-mode="single">
+            <div class="type-btn-h">
+              <span class="type-name">Temporada</span>
+              <span class="type-size">380×175</span>
+            </div>
+            <span class="type-desc">K/D, Win%, Accuracy y clase favorita de la season activa</span>
+            <span class="type-source ea">EA Oficial</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- PANTALLA COMPLETA -->
+      <div class="type-group">
+        <div class="group-label">Pantalla completa</div>
+        <div class="type-grid-1">
+          <button class="type-btn type-btn-h-card" data-type="lowerthird" data-w="1920" data-h="80" data-mode="single">
+            <div class="type-main">
+              <span class="type-name">Lower Third</span>
+              <span class="type-desc">Barra inferior con 5 bloques rotativos — General, Armas, Accuracy, Objetivo, Sesión</span>
+            </div>
+            <span class="type-size">1920 × 80</span>
+          </button>
+          <button class="type-btn type-btn-h-card" data-type="dashboard" data-w="1920" data-h="1080" data-mode="single">
+            <div class="type-main">
+              <span class="type-name">Dashboard</span>
+              <span class="type-desc">Vista completa — Combate, Accuracy, Objetivo, Top Armas, Sesión · Toggle Lifetime / Temporada</span>
+            </div>
+            <span class="type-size">1920 × 1080</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- SQUAD -->
+      <div class="type-group">
+        <div class="group-label">Squad</div>
+        <div class="type-grid-1">
+          <button class="type-btn type-btn-h-card" data-type="multi" data-w="548" data-h="175" data-mode="multi">
+            <div class="type-main">
+              <span class="type-name">Multi-jugador</span>
+              <span class="type-desc">Stats de 2–4 jugadores en paralelo — K/D, Kills, KPM, Win% y DPM por jugador</span>
+            </div>
+            <span class="type-size" id="multiSizeLabel">548 × 175</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
   </div>
 
+  <!-- Preview -->
   <div class="preview-card">
-    <div class="section-title">Vista previa</div>
-
-    <div class="preview-frame-wrap" id="previewWrap">
-      <div class="preview-empty" id="previewEmpty">Escribe tu nombre para ver la preview</div>
-      <iframe id="previewFrame" style="display:none" scrolling="no"></iframe>
+    <div class="preview-header">
+      <span class="preview-header-label">Vista previa</span>
+      <span class="preview-dot"></span>
     </div>
-    <div id="ltNote" style="display:none;font-size:10px;color:var(--muted);text-align:center;letter-spacing:.05em;margin-top:-8px">
-      Vista parcial a 50% · En OBS usar <span style="font-family:'Share Tech Mono',monospace;color:var(--green)">1920 × 80</span> px · Ubicar en la parte inferior de la escena
+    <div class="preview-body">
+      <div class="preview-frame-wrap" id="previewWrap">
+        <div class="preview-empty" id="previewEmpty">
+          <strong>Ingresa tu nombre de usuario</strong>
+          El overlay aparecerá aquí
+        </div>
+        <iframe id="previewFrame" style="display:none" scrolling="no"></iframe>
+      </div>
+      <div class="lt-note" id="ltNote">
+        Vista a escala · En OBS usar <code>1920 × 80</code> px al pie de la escena
+      </div>
     </div>
-
-    <div class="url-section" id="urlSection" style="display:none">
-      <div class="section-title">Tu URL para OBS</div>
+    <div class="url-section" id="urlSection">
+      <span class="url-label">URL para OBS</span>
       <div class="url-box">
         <input class="url-input" id="urlOutput" readonly>
         <button class="copy-btn" id="copyBtn">Copiar</button>
       </div>
       <div class="obs-box">
-        <div class="obs-title">Cómo agregarlo en OBS</div>
+        <div class="obs-title">Agregar en OBS</div>
         <div class="obs-steps">
-          <span>1 — Fuente: <b>Browser Source</b></span>
-          <span>2 — Pega la URL copiada</span>
-          <span>3 — Tamaño: <b id="obsDims">380 × 175</b> px</span>
-          <span>4 — Activa: <b>Allow Transparency</b></span>
+          <div class="obs-step"><span class="obs-step-num">1</span><span>Fuentes → <strong>Browser Source</strong></span></div>
+          <div class="obs-step"><span class="obs-step-num">2</span><span>Pega la URL copiada</span></div>
+          <div class="obs-step"><span class="obs-step-num">3</span><span>Tamaño: <strong id="obsDims">380 × 175</strong> px</span></div>
+          <div class="obs-step"><span class="obs-step-num">4</span><span>Activa <strong>Allow Transparency</strong></span></div>
         </div>
       </div>
     </div>
@@ -237,11 +349,13 @@ footer a{color:var(--green);text-decoration:none}
 </div>
 
 <footer>
-  Powered by <a href="https://corillo.live">CORILLO.LIVE</a> · Datos via <a href="https://gametools.network" target="_blank">gametools.network</a>
+  <a href="https://corillo.live">CORILLO.LIVE</a> &nbsp;·&nbsp;
+  Datos via <a href="https://gametools.network" target="_blank">gametools.network</a> y EA oficial &nbsp;·&nbsp;
+  Código en <a href="https://github.com/marcosstgo/corillo-bf6-overlays" target="_blank">GitHub</a>
 </footer>
 
 <script>
-const BASE = window.BF6_CONFIG?.base || 'https://corillo.live/overlay/bf6/';
+const BASE = window.BF6_CONFIG?.base ? window.BF6_CONFIG.base + '/overlay/bf6/' : 'https://corillo.live/overlay/bf6/';
 const PLAT_OPTS = [{v:'ea',l:'EA App'},{v:'steam',l:'Steam'},{v:'psn',l:'PlayStation'},{v:'xbox',l:'Xbox'},{v:'ps5',l:'PS5'},{v:'epic',l:'Epic'}];
 let currentPlat='ea', currentType='overlay', currentW=380, currentH=175, currentMode='single';
 let debounceTimer=null;
@@ -330,7 +444,7 @@ function updatePreview(){
     return;
   }
   const isWide=currentW>600;
-  const isLT=currentW===1920;
+  const isLT=currentW===1920&&currentH===80;
   previewEmpty.style.display='none';
   previewFrame.style.display='block';
 
@@ -347,7 +461,6 @@ function updatePreview(){
     previewFrame.onload=null;
     ltNote.style.display='block';
   }else if(isWide){
-    // Escalar para caber en el contenedor manteniendo aspect ratio
     const wrapW=previewWrap.clientWidth-32;
     const scale=Math.min(1,wrapW/currentW);
     const scaledH=Math.round(currentH*scale);
@@ -372,7 +485,7 @@ function updatePreview(){
     previewFrame.style.transformOrigin='';
     previewWrap.style.padding='';
     previewWrap.style.width='';
-    previewWrap.style.minHeight='190px';
+    previewWrap.style.minHeight='180px';
     previewWrap.style.height='';
     previewWrap.style.overflow='';
     previewWrap.style.display='';
@@ -432,7 +545,7 @@ addPlayerBtn.addEventListener('click',()=>{addPlayerRow();schedule();});
 
 copyBtn.addEventListener('click',()=>{
   navigator.clipboard.writeText(urlOutput.value).then(()=>{
-    copyBtn.textContent='¡Copiado!';copyBtn.classList.add('copied');
+    copyBtn.textContent='Copiado';copyBtn.classList.add('copied');
     setTimeout(()=>{copyBtn.textContent='Copiar';copyBtn.classList.remove('copied')},2000);
   });
 });
