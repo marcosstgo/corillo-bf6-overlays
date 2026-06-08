@@ -55,7 +55,9 @@ const PLATFORM = p.get('platform') || 'ea';
 const PLATFORM_LABEL = {ea:'EA',steam:'STEAM',psn:'PSN',xbox:'XBOX',ps5:'PS5',epic:'EPIC'}[PLATFORM] || PLATFORM.toUpperCase();
 const API = `${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
 const INTERVAL = 60000;
-let lastGoodData = null;
+let lastGoodData=null,lastUpdatedAt=null,ftTimer=null,isStale=false;
+function relTime(){if(!lastUpdatedAt)return'↻ ahora';const m=Math.floor((Date.now()-lastUpdatedAt)/60000);return m<1?'↻ ahora':m===1?'↻ 1 min':`↻ ${m} min`}
+function tickFooter(){if(isStale)return;const ft=document.querySelector('.footer-time');if(ft)ft.textContent=relTime()}
 
 function fmt(n,d=0){if(n==null||isNaN(Number(n)))return'—';return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function fmtTime(v){if(!v||v==='0:00:00')return'0h';if(typeof v==='string'){const dm=v.match(/(\d+)\s*days?,\s*(\d+):(\d+)/);if(dm){const t=parseInt(dm[1])*24+parseInt(dm[2]);return t>=100?`${t}h`:`${t}h ${dm[3]}m`}if(v.includes(':')){const pts=v.split(':').map(Number);const h=pts[0],m=pts[1]||0;return h>=100?`${h}h`:h>0?`${h}h ${m}m`:`${m}m`}}const s=Number(v);if(isNaN(s))return v;const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h>=100?`${h}h`:h>0?`${h}h ${m}m`:`${m}m`}
@@ -80,7 +82,7 @@ function renderStats(data){
       <div class="stat-minor"><span class="stat-minor-label">Win Rate</span><span class="stat-minor-value">${fmtWin(data.winPercent)}</span></div>
       <div class="stat-minor"><span class="stat-minor-label">Matches</span><span class="stat-minor-value">${fmt(data.matchesPlayed)}</span></div>
     </div>
-    <div class="footer"><span class="footer-brand">CORILLO.LIVE · BF6</span><span class="footer-time">Updated ${nowTime()}</span></div>`;
+    <div class="footer"><span class="footer-brand">CORILLO.LIVE · BF6</span><span class="footer-time">↻ ahora</span></div>`;
 }
 function getErrType(status, data){
   const msg=(data?.errors?.[0]?.message||data?.message||'').toLowerCase();
@@ -94,8 +96,8 @@ function renderError(type){
   const sub=type==='not_found'?'Verifica nombre y plataforma en la URL':'Reintentando en 60 seg';
   document.getElementById('content').innerHTML=`<div class="error-msg"><div><div style="font-size:20px;margin-bottom:5px;opacity:.4">${icon}</div><div>${line1}</div><span class="err-sub">${sub}</span></div></div>`;
 }
-function markStale(){const ft=document.querySelector('.footer-time');if(!ft)return;ft.textContent='⚠ sin actualizar';ft.style.color='rgba(255,180,0,.65)'}
-function unmarkStale(){const ft=document.querySelector('.footer-time');if(!ft)return;ft.style.color=''}
+function markStale(){isStale=true;const ft=document.querySelector('.footer-time');if(!ft)return;ft.textContent='⚠ sin actualizar';ft.style.color='rgba(255,180,0,.65)'}
+function unmarkStale(){isStale=false;const ft=document.querySelector('.footer-time');if(!ft)return;ft.style.color='';ft.textContent=relTime()}
 async function fetchStats(isRefresh=false){
   const card=document.getElementById('card');
   if(isRefresh&&lastGoodData){card.classList.add('refreshing');setTimeout(()=>card.classList.remove('refreshing'),500)}
@@ -106,7 +108,8 @@ async function fetchStats(isRefresh=false){
       if(isRefresh&&lastGoodData){markStale();return}
       renderError(getErrType(res.status,data));return;
     }
-    lastGoodData=data;
+    lastGoodData=data;lastUpdatedAt=Date.now();
+    if(!ftTimer)ftTimer=setInterval(tickFooter,30000);
     if(isRefresh)unmarkStale();
     renderStats(data);
   }catch(e){

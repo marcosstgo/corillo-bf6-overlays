@@ -52,7 +52,7 @@ const BASE_API=window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats';
 
 function fmt(n,d=0){if(n==null||isNaN(+n))return'—';return(+n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function fmtWin(v){if(v==null)return'—';if(typeof v==='string')return v.includes('%')?v:v+'%';return(+v).toFixed(1)+'%'}
-function nowTime(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})}
+function relTime(ts){if(!ts)return'↻ ahora';const m=Math.floor((Date.now()-ts)/60000);return m<1?'↻ ahora':m===1?'↻ 1 min':`↻ ${m} min`}
 function getErrType(status,data){
   const msg=(data?.errors?.[0]?.message||data?.message||'').toLowerCase();
   if(status===404||msg.includes('not found'))return'not_found';
@@ -63,7 +63,7 @@ function getErrType(status,data){
 NAMES.forEach((name,i)=>{
   const plat=PLATS[i]||PLATS[0]||'ea';
   const API=`${BASE_API}?name=${encodeURIComponent(name)}&platform=${encodeURIComponent(plat)}`;
-  let lastGood=null;
+  let lastGood=null,lastUpdatedAt=null,ltTimer=null,isStale=false;
 
   const card=document.createElement('div');
   card.className='pcard';card.id=`pc${i}`;
@@ -89,7 +89,7 @@ NAMES.forEach((name,i)=>{
       </div>
       <div class="pfooter">
         <span class="pfbrand">CORILLO · BF6</span>
-        <span class="pftime" id="pft${i}">Updated ${nowTime()}</span>
+        <span class="pftime" id="pft${i}">↻ ahora</span>
       </div>`;
   }
 
@@ -100,8 +100,9 @@ NAMES.forEach((name,i)=>{
     document.getElementById(`pi${i}`).innerHTML=`<div class="perr"><div><div style="font-size:18px;margin-bottom:5px;opacity:.4">${icon}</div><div>${line1}</div><span class="err-sub">${sub}</span></div></div>`;
   }
 
-  function markStale(){const ft=document.getElementById(`pft${i}`);if(!ft)return;ft.textContent='⚠ sin actualizar';ft.style.color='rgba(255,180,0,.65)'}
-  function unmarkStale(){const ft=document.getElementById(`pft${i}`);if(!ft)return;ft.style.color=''}
+  function tickFooter(){if(isStale)return;const ft=document.getElementById(`pft${i}`);if(ft)ft.textContent=relTime(lastUpdatedAt)}
+  function markStale(){isStale=true;const ft=document.getElementById(`pft${i}`);if(!ft)return;ft.textContent='⚠ sin actualizar';ft.style.color='rgba(255,180,0,.65)'}
+  function unmarkStale(){isStale=false;const ft=document.getElementById(`pft${i}`);if(!ft)return;ft.style.color='';ft.textContent=relTime(lastUpdatedAt)}
 
   async function fetchPlayer(isRefresh=false){
     const c=document.getElementById(`pc${i}`);
@@ -113,7 +114,8 @@ NAMES.forEach((name,i)=>{
         if(isRefresh&&lastGood){markStale();return}
         renderError(getErrType(res.status,data));return;
       }
-      lastGood=data;
+      lastGood=data;lastUpdatedAt=Date.now();
+      if(!ltTimer)ltTimer=setInterval(tickFooter,30000);
       if(isRefresh)unmarkStale();
       renderStats(data);
     }catch(e){

@@ -47,6 +47,7 @@ body{background:transparent;width:1920px;height:80px;overflow:hidden;font-family
 .err-panel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;z-index:7}
 .err-panel span{font-size:11px;letter-spacing:.1em;color:rgba(255,80,80,.65)}
 .err-panel .err-sub{font-size:9px;color:rgba(255,255,255,.25);letter-spacing:.08em}
+#ltts{position:absolute;top:8px;left:290px;font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(255,255,255,.18);letter-spacing:.06em;z-index:6}
 </style>
 </head>
 <body>
@@ -101,6 +102,7 @@ body{background:transparent;width:1920px;height:80px;overflow:hidden;font-family
     <div class="prog"><div class="prog-fill" id="pbar"></div></div>
     <span class="blbl" id="blbl">GENERAL</span>
     <div class="dots"><div class="dot on" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div><div class="dot" id="d4"></div></div>
+    <span id="ltts"></span>
   </div>
 </div>
 <script>
@@ -112,7 +114,9 @@ const API=`${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=
 const ROTATE_MS=8000,DATA_MS=60000;
 const LABELS=['GENERAL','ARMAS','ACCURACY','OBJETIVO','SESIÓN'];
 const STORAGE_KEY=`bf6_session_${PLAYER}_${PLATFORM}`;
-let cur=0,loaded=false,rotTimer=null,lastGoodData=null;
+let cur=0,loaded=false,rotTimer=null,lastGoodData=null,lastUpdatedAt=null,ltTimer=null;
+function relTime(){if(!lastUpdatedAt)return'';const m=Math.floor((Date.now()-lastUpdatedAt)/60000);return m<1?'↻ ahora':m===1?'↻ 1 min':`↻ ${m} min`}
+function tickLt(){const el=document.getElementById('ltts');if(el&&!document.querySelector('.bar').classList.contains('stale'))el.textContent=relTime()}
 function fmt(n,d=0){if(n==null||isNaN(+n))return'—';return(+n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function fmtWin(v){if(v==null)return'—';if(typeof v==='string')return v.includes('%')?v:v+'%';return(+v).toFixed(1)+'%'}
 function fmtObjTime(s){if(!s)return'0m';const m=Math.floor(+s/60);return m>=60?Math.floor(m/60)+'h '+(m%60)+'m':m+'m'}
@@ -170,8 +174,8 @@ function showInitialError(type){
   ep.innerHTML=`<div style="text-align:center"><span style="font-size:11px;color:rgba(255,80,80,.65);letter-spacing:.1em">${line1}</span><br><span style="font-size:9px;color:rgba(255,255,255,.25);letter-spacing:.08em">${sub}</span></div>`;
   ep.style.display='flex';
 }
-function markStale(){document.querySelector('.bar').classList.add('stale')}
-function unmarkStale(){document.querySelector('.bar').classList.remove('stale')}
+function markStale(){document.querySelector('.bar').classList.add('stale');const el=document.getElementById('ltts');if(el){el.textContent='⚠ sin actualizar';el.style.color='rgba(255,180,0,.55)'}}
+function unmarkStale(){document.querySelector('.bar').classList.remove('stale');const el=document.getElementById('ltts');if(el){el.style.color='';el.textContent=relTime()}}
 async function fetchData(){
   try{
     const r=await fetch(API);
@@ -180,7 +184,9 @@ async function fetchData(){
       if(loaded&&lastGoodData){markStale();return}
       showInitialError(getErrType(r.status,d));return;
     }
-    lastGoodData=d;
+    lastGoodData=d;lastUpdatedAt=Date.now();
+    if(!ltTimer)ltTimer=setInterval(tickLt,30000);
+    const ltel=document.getElementById('ltts');if(ltel){ltel.style.color='';ltel.textContent=relTime()}
     if(loaded)unmarkStale();
     fillData(d);
     if(!getBaseline())saveBaseline(d);
