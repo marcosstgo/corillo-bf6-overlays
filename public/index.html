@@ -47,7 +47,7 @@ body{background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(62,207,11
 .mil-scan{position:fixed;inset:0;pointer-events:none;z-index:0;
   background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.065) 3px,rgba(0,0,0,.065) 4px)}
 
-.mil-radar{position:fixed;top:-320px;right:-320px;width:780px;height:780px;
+.mil-radar{position:fixed;top:-280px;right:-280px;width:720px;height:720px;
   border-radius:50%;pointer-events:none;z-index:0;overflow:hidden}
 .mil-radar::before{content:'';position:absolute;inset:0;border-radius:50%;
   background:conic-gradient(from 0deg,rgba(62,207,110,.11) 0deg,rgba(62,207,110,.03) 55deg,transparent 85deg);
@@ -59,20 +59,30 @@ body{background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(62,207,11
     radial-gradient(circle,transparent 74%,rgba(62,207,110,.015) 74.5%,transparent 75%)}
 @keyframes radar-sweep{to{transform:rotate(360deg)}}
 
-.mil-corner{position:fixed;pointer-events:none;z-index:0}
-.mil-corner::before,.mil-corner::after{content:'';position:absolute;width:36px;height:36px;border-color:rgba(62,207,110,.18);border-style:solid;animation:corner-pulse 4s ease-in-out infinite}
-.mil-corner.tl{top:20px;left:20px}
+.mil-corner{position:fixed;pointer-events:none;z-index:0;width:48px;height:48px}
+.mil-corner::before,.mil-corner::after{content:'';position:absolute;border-color:rgba(62,207,110,.2);border-style:solid}
+.mil-corner::before{width:40px;height:40px;animation:corner-pulse 4s ease-in-out infinite}
+.mil-corner::after{width:22px;height:22px;opacity:.45;animation:corner-pulse 4s ease-in-out infinite .6s}
+.mil-corner.tl{top:18px;left:18px}
 .mil-corner.tl::before{top:0;left:0;border-width:2px 0 0 2px}
-.mil-corner.tl::after{top:8px;left:8px;border-width:1px 0 0 1px;width:20px;height:20px;opacity:.5}
-.mil-corner.br{bottom:20px;right:20px}
+.mil-corner.tl::after{top:9px;left:9px;border-width:1px 0 0 1px}
+.mil-corner.tr{top:18px;right:18px}
+.mil-corner.tr::before{top:0;right:0;border-width:2px 2px 0 0}
+.mil-corner.tr::after{top:9px;right:9px;border-width:1px 1px 0 0}
+.mil-corner.bl{bottom:18px;left:18px}
+.mil-corner.bl::before{bottom:0;left:0;border-width:0 0 2px 2px}
+.mil-corner.bl::after{bottom:9px;left:9px;border-width:0 0 1px 1px}
+.mil-corner.br{bottom:18px;right:18px}
 .mil-corner.br::before{bottom:0;right:0;border-width:0 2px 2px 0}
-.mil-corner.br::after{bottom:8px;right:8px;border-width:0 1px 1px 0;width:20px;height:20px;opacity:.5}
-@keyframes corner-pulse{0%,100%{opacity:.7}50%{opacity:.25}}
+.mil-corner.br::after{bottom:9px;right:9px;border-width:0 1px 1px 0}
+@keyframes corner-pulse{0%,100%{opacity:.8}50%{opacity:.2}}
 
 nav,footer,.hero,.main{position:relative;z-index:1}
 
 /* ── NAV ───────────────────────────────────────────────────────────── */
 nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1240px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between}
+@media(min-width:1280px){nav{padding-left:max(40px,calc((100vw - 1240px)/2 + 40px));padding-right:max(40px,calc((100vw - 1240px)/2 + 40px))}}
 .nav-brand{display:flex;align-items:center;gap:14px}
 .nav-logo{font-size:18px;font-weight:900;letter-spacing:.12em;color:#fff}
 .nav-logo em{color:var(--green);font-style:normal}
@@ -81,7 +91,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:18px 4
 .nav-back:hover{color:#fff}
 
 /* ── HERO ──────────────────────────────────────────────────────────── */
-.hero{text-align:center;padding:52px 24px 44px;position:relative}
+.hero{text-align:center;padding:64px 40px 52px;position:relative}
 .hero::before,.hero::after{content:'';position:absolute;width:44px;height:44px;border-color:rgba(62,207,110,.22);border-style:solid;pointer-events:none}
 .hero::before{top:16px;left:36px;border-width:2px 0 0 2px}
 .hero::after{bottom:0;right:36px;border-width:0 2px 2px 0}
@@ -89,14 +99,15 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:18px 4
 .hero-status span{color:rgba(62,207,110,.6);animation:blink 2s step-end infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 .hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:.22em;color:var(--green);text-transform:uppercase;margin-bottom:14px;opacity:.8}
-.hero-title{font-size:clamp(42px,6vw,68px);font-weight:900;letter-spacing:.01em;line-height:.92;text-transform:uppercase;margin-bottom:16px}
+.hero-title{font-size:clamp(48px,6.5vw,96px);font-weight:900;letter-spacing:.01em;line-height:.92;text-transform:uppercase;margin-bottom:20px}
 .hero-title em{color:var(--green);font-style:normal}
-.hero-sub{font-size:15px;color:var(--muted);letter-spacing:.04em;font-weight:400}
+.hero-sub{font-size:16px;color:var(--muted);letter-spacing:.06em;font-weight:400}
 .hero-pills{display:flex;justify-content:center;gap:8px;margin-top:20px;flex-wrap:wrap}
 .hero-pill{background:var(--card2);border:1px solid var(--border2);color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.1em;padding:5px 14px;border-radius:20px;text-transform:uppercase}
 
 /* ── LAYOUT ─────────────────────────────────────────────────────────── */
-.main{max-width:1060px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:1fr 440px;gap:24px;align-items:start}
+.main{max-width:1240px;margin:0 auto;padding:0 40px 80px;display:grid;grid-template-columns:1fr 460px;gap:28px;align-items:start}
+@media(max-width:960px){.main{padding:0 24px 80px;grid-template-columns:1fr 440px;gap:24px}}
 @media(max-width:780px){.main{grid-template-columns:1fr}}
 
 /* ── FORM CARD ──────────────────────────────────────────────────────── */
@@ -201,6 +212,8 @@ footer a:hover{color:var(--green)}
 <div class="mil-scan" aria-hidden="true"></div>
 <div class="mil-radar" aria-hidden="true"></div>
 <div class="mil-corner tl" aria-hidden="true"></div>
+<div class="mil-corner tr" aria-hidden="true"></div>
+<div class="mil-corner bl" aria-hidden="true"></div>
 <div class="mil-corner br" aria-hidden="true"></div>
 
 <nav>
