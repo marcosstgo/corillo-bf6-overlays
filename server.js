@@ -59,6 +59,83 @@ app.get('/bf6/stats', async (req, res) => {
   }
 });
 
+app.get('/bf6/eastats', async (req, res) => {
+  const { name } = req.query;
+  if (!name) return res.status(400).json({ error: 'name is required' });
+
+  const cacheKey = `ea:${name}`;
+  const cached = getCached(cacheKey);
+  if (cached) return res.json(cached);
+
+  const url = `https://www.ea.com/games/battlefield/battlefield-6/player-stats/${encodeURIComponent(name)}`;
+
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    const upstream = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+      }
+    });
+    clearTimeout(timer);
+
+    const html = await upstream.text();
+    const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+    if (!match) return res.status(502).json({ error: 'Could not parse EA stats page' });
+
+    const nextData = JSON.parse(match[1]);
+    const summary = nextData?.props?.pageProps?.statsResponse?.playerStatsSummary;
+    if (!summary) return res.status(404).json({ error: 'Player not found on EA' });
+
+    // Flatten all stat sections into a single lookup
+    const flat = {};
+    for (const section of summary.basicStats || []) {
+      for (const s of [...(section.stats || []), ...(section.highlightedStats || [])]) {
+        flat[s.id] = s.value;
+      }
+    }
+    for (const arr of [summary.extendedStats, summary.playerRoleStats, summary.featuredStats, summary.gameModeStats, summary.achievementStats]) {
+      for (const s of arr || []) flat[s.id] = s.value;
+    }
+
+    const result = {
+      playerTag: summary.playerTag,
+      displayName: summary.playerDisplayName,
+      favoriteMode: summary.gameMode?.name || null,
+      favoriteModeId: summary.gameMode?.id || null,
+      favoriteClass: summary.playerRole?.name || null,
+      favoriteClassId: summary.playerRole?.id || null,
+      season: {
+        hoursPlayed:      flat['total_time_played']            || null,
+        matchesPlayed:    flat['total_matches_played']         || null,
+        matchesWon:       flat['total_matches_won']            || null,
+        xp:               flat['total_xp']                     || null,
+        winRate:          flat['matches_win_rate']             || null,
+        killDeath:        flat['kill_death_ratio']             || null,
+        kills:            flat['total_kills']                  || null,
+        headshotKills:    flat['total_kills_headshots']        || null,
+        assists:          flat['total_assists']                || null,
+        revives:          flat['total_revives']                || null,
+        damage:           flat['total_damage_dealt']           || null,
+        shotAccuracy:     flat['shot_accuracy']                || null,
+        headshotRate:     flat['headshot_rate']                || null,
+        grenadeKills:     flat['total_grenade_kills']          || null,
+        objectiveTimeMin: flat['total_objective_time']         || null,
+        resupplies:       flat['total_teammates_resupplied']   || null,
+      },
+    };
+
+    setCached(cacheKey, result);
+    res.json(result);
+  } catch (err) {
+    if (err.name === 'AbortError') return res.status(504).json({ error: 'EA page timeout' });
+    res.status(502).json({ error: 'EA stats unavailable', detail: err.message });
+  }
+});
+
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`BF6 proxy listening on 127.0.0.1:${PORT}`);
 });
