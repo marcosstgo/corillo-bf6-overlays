@@ -83,6 +83,8 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:18px 4
 .group-label{font-size:8px;font-weight:800;letter-spacing:.22em;color:var(--subtle);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
 .group-label::after{content:'';flex:1;height:1px;background:var(--border)}
 .type-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+@media(max-width:540px){.type-grid-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:360px){.type-grid-3{grid-template-columns:1fr}}
 .type-grid-1{display:flex;flex-direction:column;gap:6px}
 
 /* type card */
@@ -443,8 +445,8 @@ function updatePreview(){
     ltNote.style.display='none';
     return;
   }
-  const isWide=currentW>600;
   const isLT=currentW===1920&&currentH===80;
+  const isWide=!isLT&&currentW>(previewWrap.clientWidth||360);
   previewEmpty.style.display='none';
   previewFrame.style.display='block';
 
