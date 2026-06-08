@@ -84,9 +84,17 @@ body{background:transparent;width:1920px;height:80px;overflow:hidden;font-family
       <div class="sc"><span class="sl">Spotted</span><span class="sv" id="b3sp">—</span></div>
       <div class="sc"><span class="sl">Resupplies</span><span class="sv" id="b3rs">—</span></div>
     </div>
+    <div class="blk" id="blk4">
+      <div class="sc"><span class="sl">Kills Sesión</span><span class="sv g" id="b4sk">—</span></div>
+      <div class="sc"><span class="sl">K/D Sesión</span><span class="sv" id="b4kd">—</span></div>
+      <div class="sc"><span class="sl">Muertes</span><span class="sv" id="b4dt">—</span></div>
+      <div class="sc"><span class="sl">Partidas</span><span class="sv" id="b4mt">—</span></div>
+      <div class="sc"><span class="sl">Victorias</span><span class="sv" id="b4wn">—</span></div>
+      <div class="sc"><span class="sl">Tiempo</span><span class="sv" id="b4tm">—</span></div>
+    </div>
     <div class="prog"><div class="prog-fill" id="pbar"></div></div>
     <span class="blbl" id="blbl">GENERAL</span>
-    <div class="dots"><div class="dot on" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div></div>
+    <div class="dots"><div class="dot on" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div><div class="dot" id="d4"></div></div>
   </div>
 </div>
 <script>
@@ -96,22 +104,28 @@ const PLATFORM=p.get('platform')||'ea';
 const PLAT_LABEL={ea:'EA App',steam:'Steam',psn:'PSN',xbox:'Xbox',ps5:'PS5',epic:'Epic'}[PLATFORM]||PLATFORM.toUpperCase();
 const API=`${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
 const ROTATE_MS=8000,DATA_MS=60000;
-const LABELS=['GENERAL','ARMAS','ACCURACY','OBJETIVO'];
+const LABELS=['GENERAL','ARMAS','ACCURACY','OBJETIVO','SESIÓN'];
+const STORAGE_KEY=`bf6_session_${PLAYER}_${PLATFORM}`;
 let cur=0,loaded=false,rotTimer=null;
 function fmt(n,d=0){if(n==null||isNaN(+n))return'—';return(+n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function fmtWin(v){if(v==null)return'—';if(typeof v==='string')return v.includes('%')?v:v+'%';return(+v).toFixed(1)+'%'}
 function fmtObjTime(s){if(!s)return'0m';const m=Math.floor(+s/60);return m>=60?Math.floor(m/60)+'h '+(m%60)+'m':m+'m'}
+function fmtSecs(s){if(!s)return'0m';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h>=100?`${h}h`:h>0?`${h}h ${m}m`:`${m}m`}
+function calcDeaths(d){const k=Number(d.kills)||0,kd=Number(d.killDeath)||0;return kd>0?Math.round(k/kd):0}
+function calcWins(d){const m=Number(d.matchesPlayed)||0,wp=parseFloat(String(d.winPercent).replace('%',''))||0;return Math.round(m*wp/100)}
+function getBaseline(){try{return JSON.parse(sessionStorage.getItem(STORAGE_KEY))||null}catch{return null}}
+function saveBaseline(d){try{sessionStorage.setItem(STORAGE_KEY,JSON.stringify({kills:Number(d.kills)||0,deaths:calcDeaths(d),matches:Number(d.matchesPlayed)||0,wins:calcWins(d),seconds:Number(d.secondsPlayed)||0}))}catch{}}
 function startProgress(){const b=document.getElementById('pbar');b.style.transition='none';b.style.width='0%';b.offsetWidth;b.style.transition=`width ${ROTATE_MS}ms linear`;b.style.width='100%'}
 function showBlock(idx){
   document.querySelectorAll('.blk').forEach((b,i)=>{
     if(i===cur&&i!==idx){b.classList.remove('active');b.classList.add('out');setTimeout(()=>b.classList.remove('out'),500)}
     else if(i===idx){b.classList.remove('out');b.classList.add('active')}
   });
-  [0,1,2,3].forEach(i=>document.getElementById('d'+i).classList.toggle('on',i===idx));
+  [0,1,2,3,4].forEach(i=>document.getElementById('d'+i).classList.toggle('on',i===idx));
   document.getElementById('blbl').textContent=LABELS[idx];
   cur=idx;startProgress();
 }
-function startRotation(){if(rotTimer)clearInterval(rotTimer);rotTimer=setInterval(()=>showBlock((cur+1)%4),ROTATE_MS)}
+function startRotation(){if(rotTimer)clearInterval(rotTimer);rotTimer=setInterval(()=>showBlock((cur+1)%5),ROTATE_MS)}
 function fillData(d){
   document.getElementById('pname').textContent=(d.userName||PLAYER).toUpperCase();
   document.getElementById('pbadge').textContent=PLAT_LABEL;
@@ -141,6 +155,16 @@ async function fetchData(){
     const r=await fetch(API);if(!r.ok)throw new Error(`HTTP ${r.status}`);
     const d=await r.json();if(d.error)throw new Error('api error');
     fillData(d);
+    if(!getBaseline())saveBaseline(d);
+    const bl=getBaseline();
+    const sk=Math.max(0,(Number(d.kills)||0)-bl.kills);
+    const sd=Math.max(0,calcDeaths(d)-bl.deaths);
+    document.getElementById('b4sk').textContent='+'+fmt(sk);
+    document.getElementById('b4kd').textContent=sd>0?(sk/sd).toFixed(2):sk>0?'∞':'—';
+    document.getElementById('b4dt').textContent=fmt(sd);
+    document.getElementById('b4mt').textContent=fmt(Math.max(0,(Number(d.matchesPlayed)||0)-bl.matches));
+    document.getElementById('b4wn').textContent=fmt(Math.max(0,calcWins(d)-bl.wins));
+    document.getElementById('b4tm').textContent=fmtSecs(Math.max(0,(Number(d.secondsPlayed)||0)-bl.seconds));
     if(!loaded){document.getElementById('ldg').style.display='none';showBlock(0);startRotation();loaded=true;}
   }catch(e){
     if(!loaded)document.getElementById('ldg').innerHTML='<span style="font-size:11px;color:rgba(255,80,80,.6);letter-spacing:.08em">STATS UNAVAILABLE</span>';
