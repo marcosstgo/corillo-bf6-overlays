@@ -355,7 +355,7 @@ footer a:hover{color:var(--green)}
 </footer>
 
 <script>
-const BASE = window.BF6_CONFIG?.base ? window.BF6_CONFIG.base + '/overlay/bf6/' : 'https://corillo.live/overlay/bf6/';
+const BASE = window.BF6_CONFIG?.base || 'https://corillo.live/overlay/bf6/';
 const PLAT_OPTS = [{v:'ea',l:'EA App'},{v:'steam',l:'Steam'},{v:'psn',l:'PlayStation'},{v:'xbox',l:'Xbox'},{v:'ps5',l:'PS5'},{v:'epic',l:'Epic'}];
 let currentPlat='ea', currentType='overlay', currentW=380, currentH=175, currentMode='single';
 let debounceTimer=null;
