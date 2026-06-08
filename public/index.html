@@ -18,6 +18,7 @@
 <meta name="twitter:title" content="BF6 Overlay Generator — CORILLO">
 <meta name="twitter:description" content="Crea tu overlay de Battlefield 6 para OBS gratis. Stats, armas, accuracy y más — sin registro, listo en segundos.">
 <meta name="twitter:image" content="https://corillo.live/overlay/bf6/og-bf6.png">
+<script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root{--green:#3ecf6e;--green-dim:rgba(62,207,110,.15);--green-border:rgba(62,207,110,.3);--bg:#0b0b0b;--card:#141414;--card2:#1a1a1a;--text:#fff;--muted:rgba(255,255,255,.4);--border:rgba(255,255,255,.07)}
@@ -150,6 +151,12 @@ footer a{color:var(--green);text-decoration:none}
           <span class="type-desc">Revives, heals, capturas, assists</span>
           <span class="type-size">380 × 225</span>
         </button>
+        <button class="type-btn" data-type="session" data-w="380" data-h="175">
+          <span class="type-icon">⚡</span>
+          <span class="type-name">Sesión</span>
+          <span class="type-desc">Kills, K/D y victorias de esta sesión — se reinicia con OBS</span>
+          <span class="type-size">380 × 175</span>
+        </button>
         <button class="type-btn full" data-type="lowerthird" data-w="1920" data-h="80">
           <span class="type-icon">📺</span>
           <span class="type-name">Lower Third</span>
@@ -196,7 +203,7 @@ footer a{color:var(--green);text-decoration:none}
 </footer>
 
 <script>
-const BASE='https://corillo.live/overlay/bf6/';
+const BASE = window.BF6_CONFIG?.base || 'https://corillo.live/overlay/bf6/';
 let currentPlat='ea', currentType='overlay', currentW=380, currentH=175;
 let debounceTimer=null;
 

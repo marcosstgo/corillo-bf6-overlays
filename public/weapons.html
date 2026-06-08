@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>BF6 Weapons Overlay</title>
+<script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -52,7 +53,7 @@ const p = new URLSearchParams(location.search);
 const PLAYER = p.get('name') || 'katat0nia';
 const PLATFORM = p.get('platform') || 'ea';
 const TOP = parseInt(p.get('top') || '5');
-const API = `https://corillo.live/api/bf6/stats?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
+const API = `${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
 const INTERVAL = 60000;
 
 function nowTime(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})}

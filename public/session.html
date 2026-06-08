@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BF6 Session Overlay</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
+  .card{width:380px;background:rgba(0,0,0,0.82);border-radius:12px;border-left:3px solid #3ecf6e;overflow:hidden;backdrop-filter:blur(6px);box-shadow:0 4px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);position:relative}
+  .card::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;border-radius:12px;z-index:1}
+  .card-inner{position:relative;z-index:2;padding:14px 16px 12px}
+  .header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .player-name{font-size:18px;font-weight:800;color:#fff;letter-spacing:.04em;text-transform:uppercase;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .session-badge{background:rgba(62,207,110,.15);border:1px solid rgba(62,207,110,.4);color:#3ecf6e;font-size:10px;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:20px;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+  .divider{height:1px;background:linear-gradient(90deg,#3ecf6e 0%,rgba(62,207,110,.15) 60%,transparent 100%);margin-bottom:12px}
+  .center-stats{display:flex;gap:0;margin-bottom:14px}
+  .stat-main{flex:1;display:flex;flex-direction:column;gap:2px}
+  .stat-main+.stat-main{border-left:1px solid rgba(255,255,255,.07);padding-left:20px}
+  .stat-main:first-child{padding-right:20px}
+  .stat-label-main{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.35);text-transform:uppercase}
+  .stat-value-main{font-family:'Share Tech Mono',monospace;font-size:52px;line-height:1;font-weight:400;letter-spacing:-.02em}
+  .stat-value-main.kills{color:#3ecf6e}
+  .stat-value-main.kd{color:#fff}
+  .bottom-row{display:flex;justify-content:space-between;background:rgba(255,255,255,.03);border-radius:6px;padding:8px 12px;margin-bottom:10px;border:1px solid rgba(255,255,255,.05)}
+  .stat-minor{display:flex;flex-direction:column;align-items:center;gap:3px}
+  .stat-minor-label{font-size:9px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.3);text-transform:uppercase}
+  .stat-minor-value{font-family:'Share Tech Mono',monospace;font-size:15px;color:#fff;letter-spacing:.02em}
+  .footer{display:flex;justify-content:space-between;align-items:center}
+  .footer-brand{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(62,207,110,.45);text-transform:uppercase}
+  .footer-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,.2);letter-spacing:.05em}
+  .loading{display:flex;align-items:center;gap:8px;justify-content:center;min-height:120px}
+  .loading-dot{width:6px;height:6px;border-radius:50%;background:#3ecf6e;animation:pulse 1.2s ease-in-out infinite}
+  .loading-dot:nth-child(2){animation-delay:.2s}
+  .loading-dot:nth-child(3){animation-delay:.4s}
+  @keyframes pulse{0%,80%,100%{opacity:.15;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+  .error-msg{font-size:11px;color:rgba(255,80,80,.7);text-align:center;min-height:120px;display:flex;align-items:center;justify-content:center;letter-spacing:.05em}
+  @keyframes flash-border{0%{border-left-color:#3ecf6e}50%{border-left-color:rgba(62,207,110,.3)}100%{border-left-color:#3ecf6e}}
+  .card.refreshing{animation:flash-border .5s ease}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="card-inner" id="content">
+    <div class="loading"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
+  </div>
+</div>
+<script>
+const p = new URLSearchParams(location.search);
+const PLAYER = p.get('name') || 'katat0nia';
+const PLATFORM = p.get('platform') || 'ea';
+const PLAT_LABEL = {ea:'EA',steam:'STEAM',psn:'PSN',xbox:'XBOX',ps5:'PS5',epic:'EPIC'}[PLATFORM] || PLATFORM.toUpperCase();
+const API = `${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
+const INTERVAL = 60000;
+const STORAGE_KEY = `bf6_session_${PLAYER}_${PLATFORM}`;
+
+function calcDeaths(d) {
+  const k = Number(d.kills) || 0, kd = Number(d.killDeath) || 0;
+  return kd > 0 ? Math.round(k / kd) : 0;
+}
+function calcWins(d) {
+  const m = Number(d.matchesPlayed) || 0;
+  const wp = parseFloat(String(d.winPercent).replace('%', '')) || 0;
+  return Math.round(m * wp / 100);
+}
+function fmt(n, dec=0) {
+  if (n == null || isNaN(Number(n))) return '—';
+  return Number(n).toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+function fmtSecs(s) {
+  if (!s) return '0m';
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60);
+  return h >= 100 ? `${h}h` : h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+function getBaseline() {
+  try { return JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || null; } catch { return null; }
+}
+function saveBaseline(data) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      kills:   Number(data.kills) || 0,
+      deaths:  calcDeaths(data),
+      matches: Number(data.matchesPlayed) || 0,
+      wins:    calcWins(data),
+      seconds: Number(data.secondsPlayed) || 0,
+      startedAt: Date.now()
+    }));
+  } catch {}
+}
+
+function renderSession(data, bl) {
+  const kills   = Math.max(0, (Number(data.kills) || 0) - bl.kills);
+  const deaths  = Math.max(0, calcDeaths(data) - bl.deaths);
+  const matches = Math.max(0, (Number(data.matchesPlayed) || 0) - bl.matches);
+  const wins    = Math.max(0, calcWins(data) - bl.wins);
+  const kd      = deaths > 0 ? fmt(kills / deaths, 2) : kills > 0 ? '∞' : '—';
+  const secs    = Math.max(0, (Number(data.secondsPlayed) || 0) - bl.seconds);
+  const startHH = new Date(bl.startedAt).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', hour12:false});
+
+  document.getElementById('content').innerHTML = `
+    <div class="header">
+      <span class="player-name">${data.userName || PLAYER}</span>
+      <span class="session-badge">${PLAT_LABEL} · SESIÓN</span>
+    </div>
+    <div class="divider"></div>
+    <div class="center-stats">
+      <div class="stat-main">
+        <span class="stat-label-main">Kills Sesión</span>
+        <span class="stat-value-main kills">+${fmt(kills)}</span>
+      </div>
+      <div class="stat-main">
+        <span class="stat-label-main">K/D Sesión</span>
+        <span class="stat-value-main kd">${kd}</span>
+      </div>
+    </div>
+    <div class="bottom-row">
+      <div class="stat-minor"><span class="stat-minor-label">Muertes</span><span class="stat-minor-value">${fmt(deaths)}</span></div>
+      <div class="stat-minor"><span class="stat-minor-label">Partidas</span><span class="stat-minor-value">${fmt(matches)}</span></div>
+      <div class="stat-minor"><span class="stat-minor-label">Victorias</span><span class="stat-minor-value">${fmt(wins)}</span></div>
+      <div class="stat-minor"><span class="stat-minor-label">Tiempo</span><span class="stat-minor-value">${fmtSecs(secs)}</span></div>
+    </div>
+    <div class="footer">
+      <span class="footer-brand">CORILLO.LIVE · BF6</span>
+      <span class="footer-time">desde ${startHH}</span>
+    </div>`;
+}
+
+function renderError(msg) {
+  document.getElementById('content').innerHTML = `<div class="error-msg">${msg}</div>`;
+}
+
+async function fetchStats(isRefresh = false) {
+  const card = document.getElementById('card');
+  if (isRefresh) { card.classList.add('refreshing'); setTimeout(() => card.classList.remove('refreshing'), 500); }
+  try {
+    const res = await fetch(API);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(JSON.stringify(data.errors || data.error));
+    if (!getBaseline()) saveBaseline(data);
+    renderSession(data, getBaseline());
+  } catch(e) {
+    if (!isRefresh) renderError('Stats unavailable');
+    console.warn('BF6 session:', e.message);
+  }
+}
+
+fetchStats();
+setInterval(() => fetchStats(true), INTERVAL);
+</script>
+</body>
+</html>
