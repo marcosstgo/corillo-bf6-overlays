@@ -35,7 +35,41 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
-body{background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(62,207,110,.07) 0%,transparent 65%)}
+body{background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(62,207,110,.08) 0%,transparent 65%)}
+
+/* ── MILITARY BACKGROUND ─────────────────────────────────────────── */
+.mil-grid{position:fixed;inset:-80px;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(62,207,110,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(62,207,110,.032) 1px,transparent 1px);
+  background-size:54px 54px;
+  animation:grid-drift 35s linear infinite}
+@keyframes grid-drift{to{background-position:54px 54px}}
+
+.mil-scan{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.065) 3px,rgba(0,0,0,.065) 4px)}
+
+.mil-radar{position:fixed;top:-320px;right:-320px;width:780px;height:780px;
+  border-radius:50%;pointer-events:none;z-index:0;overflow:hidden}
+.mil-radar::before{content:'';position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,rgba(62,207,110,.11) 0deg,rgba(62,207,110,.03) 55deg,transparent 85deg);
+  animation:radar-sweep 9s linear infinite}
+.mil-radar::after{content:'';position:absolute;inset:0;border-radius:50%;
+  background:
+    radial-gradient(circle,transparent 28%,rgba(62,207,110,.025) 28.5%,transparent 29%),
+    radial-gradient(circle,transparent 52%,rgba(62,207,110,.02) 52.5%,transparent 53%),
+    radial-gradient(circle,transparent 74%,rgba(62,207,110,.015) 74.5%,transparent 75%)}
+@keyframes radar-sweep{to{transform:rotate(360deg)}}
+
+.mil-corner{position:fixed;pointer-events:none;z-index:0}
+.mil-corner::before,.mil-corner::after{content:'';position:absolute;width:36px;height:36px;border-color:rgba(62,207,110,.18);border-style:solid;animation:corner-pulse 4s ease-in-out infinite}
+.mil-corner.tl{top:20px;left:20px}
+.mil-corner.tl::before{top:0;left:0;border-width:2px 0 0 2px}
+.mil-corner.tl::after{top:8px;left:8px;border-width:1px 0 0 1px;width:20px;height:20px;opacity:.5}
+.mil-corner.br{bottom:20px;right:20px}
+.mil-corner.br::before{bottom:0;right:0;border-width:0 2px 2px 0}
+.mil-corner.br::after{bottom:8px;right:8px;border-width:0 1px 1px 0;width:20px;height:20px;opacity:.5}
+@keyframes corner-pulse{0%,100%{opacity:.7}50%{opacity:.25}}
+
+nav,footer,.hero,.main{position:relative;z-index:1}
 
 /* ── NAV ───────────────────────────────────────────────────────────── */
 nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid var(--border)}
@@ -48,6 +82,12 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:18px 4
 
 /* ── HERO ──────────────────────────────────────────────────────────── */
 .hero{text-align:center;padding:52px 24px 44px;position:relative}
+.hero::before,.hero::after{content:'';position:absolute;width:44px;height:44px;border-color:rgba(62,207,110,.22);border-style:solid;pointer-events:none}
+.hero::before{top:16px;left:36px;border-width:2px 0 0 2px}
+.hero::after{bottom:0;right:36px;border-width:0 2px 2px 0}
+.hero-status{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(62,207,110,.3);letter-spacing:.18em;margin-bottom:10px;text-transform:uppercase}
+.hero-status span{color:rgba(62,207,110,.6);animation:blink 2s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 .hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:.22em;color:var(--green);text-transform:uppercase;margin-bottom:14px;opacity:.8}
 .hero-title{font-size:clamp(42px,6vw,68px);font-weight:900;letter-spacing:.01em;line-height:.92;text-transform:uppercase;margin-bottom:16px}
 .hero-title em{color:var(--green);font-style:normal}
@@ -157,6 +197,11 @@ footer a:hover{color:var(--green)}
 </style>
 </head>
 <body>
+<div class="mil-grid" aria-hidden="true"></div>
+<div class="mil-scan" aria-hidden="true"></div>
+<div class="mil-radar" aria-hidden="true"></div>
+<div class="mil-corner tl" aria-hidden="true"></div>
+<div class="mil-corner br" aria-hidden="true"></div>
 
 <nav>
   <div class="nav-brand">
@@ -167,6 +212,7 @@ footer a:hover{color:var(--green)}
 </nav>
 
 <div class="hero">
+  <div class="hero-status">SYS ONLINE &nbsp;·&nbsp; CORILLO.LIVE &nbsp;·&nbsp; <span>▮</span></div>
   <div class="hero-eyebrow">Overlay Generator</div>
   <h1 class="hero-title">Battlefield 6<br><em>Stats Overlays</em></h1>
   <p class="hero-sub">For OBS · No sign-up · Free</p>
