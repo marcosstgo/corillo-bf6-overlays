@@ -123,8 +123,8 @@ function fmtObjTime(s){if(!s)return'0m';const m=Math.floor(+s/60);return m>=60?M
 function fmtSecs(s){if(!s)return'0m';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h>=100?`${h}h`:h>0?`${h}h ${m}m`:`${m}m`}
 function calcDeaths(d){const k=Number(d.kills)||0,kd=Number(d.killDeath)||0;return kd>0?Math.round(k/kd):0}
 function calcWins(d){const m=Number(d.matchesPlayed)||0,wp=parseFloat(String(d.winPercent).replace('%',''))||0;return Math.round(m*wp/100)}
-function getBaseline(){try{return JSON.parse(sessionStorage.getItem(STORAGE_KEY))||null}catch{return null}}
-function saveBaseline(d){try{sessionStorage.setItem(STORAGE_KEY,JSON.stringify({kills:Number(d.kills)||0,deaths:calcDeaths(d),matches:Number(d.matchesPlayed)||0,wins:calcWins(d),seconds:Number(d.secondsPlayed)||0}))}catch{}}
+function getBaseline(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||null}catch{return null}}
+function saveBaseline(d){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({kills:Number(d.kills)||0,deaths:calcDeaths(d),matches:Number(d.matchesPlayed)||0,wins:calcWins(d),seconds:Number(d.secondsPlayed)||0}))}catch{}}
 function startProgress(){const b=document.getElementById('pbar');b.style.transition='none';b.style.width='0%';b.offsetWidth;b.style.transition=`width ${ROTATE_MS}ms linear`;b.style.width='100%'}
 function showBlock(idx){
   document.querySelectorAll('.blk').forEach((b,i)=>{

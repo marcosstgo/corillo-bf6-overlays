@@ -55,6 +55,7 @@ const PLAT_LABEL = {ea:'EA',steam:'STEAM',psn:'PSN',xbox:'XBOX',ps5:'PS5',epic:'
 const API = `${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
 const INTERVAL = 60000;
 const STORAGE_KEY = `bf6_session_${PLAYER}_${PLATFORM}`;
+if (p.get('reset') === '1') { try { localStorage.removeItem(STORAGE_KEY); } catch {} }
 let lastGoodData = null;
 
 function calcDeaths(d) {
@@ -77,11 +78,11 @@ function fmtSecs(s) {
 }
 
 function getBaseline() {
-  try { return JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || null; } catch { return null; }
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; } catch { return null; }
 }
 function saveBaseline(data) {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
       kills:   Number(data.kills) || 0,
       deaths:  calcDeaths(data),
       matches: Number(data.matchesPlayed) || 0,
@@ -90,6 +91,9 @@ function saveBaseline(data) {
       startedAt: Date.now()
     }));
   } catch {}
+}
+function clearBaseline() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
 }
 
 function renderSession(data, bl) {
