@@ -307,6 +307,7 @@ function buildURL(){
 
 // ── Preview ───────────────────────────────────────────────────────────────────
 function updatePreview(){
+  if(currentMode==='multi')updateMultiSizeLabel();
   const url=buildURL();
   if(!url){
     previewFrame.style.display='none';
@@ -344,6 +345,7 @@ function updatePreview(){
     previewFrame.style.transform=`scale(${scale})`;
     previewFrame.style.transformOrigin='top left';
     previewWrap.style.padding='16px';
+    previewWrap.style.width=(wrapW+32)+'px';
     previewWrap.style.minHeight=(scaledH+32)+'px';
     previewWrap.style.height='auto';
     previewWrap.style.overflow='hidden';
@@ -356,6 +358,7 @@ function updatePreview(){
     previewFrame.style.transform='';
     previewFrame.style.transformOrigin='';
     previewWrap.style.padding='';
+    previewWrap.style.width='';
     previewWrap.style.minHeight='190px';
     previewWrap.style.height='';
     previewWrap.style.overflow='';
