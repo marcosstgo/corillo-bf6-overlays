@@ -21,6 +21,14 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .hdr-meta{font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(255,255,255,.28);letter-spacing:.05em}
 .hdr-sep{width:1px;height:24px;background:rgba(255,255,255,.1)}
 .hdr-ts{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(62,207,110,.55);letter-spacing:.06em;min-width:80px;text-align:right}
+.toggle-wrap{display:flex;background:rgba(255,255,255,.06);border-radius:6px;padding:2px;gap:2px;flex-shrink:0}
+.tbtn{font-size:9px;font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.28);padding:6px 18px;border-radius:4px;border:none;background:none;cursor:pointer;text-transform:uppercase;transition:background .2s,color .2s;font-family:'Barlow Condensed',sans-serif}
+.tbtn.active{background:rgba(62,207,110,.15);color:#3ecf6e;border:1px solid rgba(62,207,110,.25)}
+.fav-big{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;line-height:1.1}
+.fav-big.g{color:#3ecf6e}
+.fav-big.w{color:#fff}
+.season-note{font-size:10px;color:rgba(255,255,255,.18);letter-spacing:.08em;line-height:1.7;text-align:center}
+.season-note span{color:rgba(62,207,110,.35)}
 
 /* CONTENT */
 .content{flex:1;display:flex;min-height:0}
@@ -112,6 +120,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="hdr">
   <span class="game-tag">BF6</span>
   <span class="hdr-name" id="hname">—</span>
+  <div class="toggle-wrap">
+    <button class="tbtn active" id="tbLife" onclick="switchMode('lifetime')">Lifetime</button>
+    <button class="tbtn" id="tbSeason" onclick="switchMode('season')">Temporada</button>
+  </div>
   <div class="hdr-right">
     <span class="plat-badge" id="hplat">—</span>
     <span class="hdr-meta" id="htime">—</span>
@@ -128,12 +140,14 @@ const p=new URLSearchParams(location.search);
 const PLAYER=p.get('name')||'katat0nia';
 const PLATFORM=p.get('platform')||'ea';
 const PLAT_LABEL={ea:'EA',steam:'STEAM',psn:'PSN',xbox:'XBOX',ps5:'PS5',epic:'EPIC'}[PLATFORM]||PLATFORM.toUpperCase();
-const API=`${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
+const BASE_API=window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats';
+const API=`${BASE_API}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
+const EA_API=`${BASE_API.replace('/bf6/stats','/bf6/eastats')}?name=${encodeURIComponent(PLAYER)}`;
 const INTERVAL=60000;
 const STORAGE_KEY=`bf6_session_${PLAYER}_${PLATFORM}`;
 if(p.get('reset')==='1'){try{localStorage.removeItem(STORAGE_KEY)}catch{}}
 
-let lastGoodData=null,lastUpdatedAt=null,tsTimer=null,isStale=false;
+let lastGoodData=null,eaData=null,lastUpdatedAt=null,tsTimer=null,isStale=false,currentMode='lifetime';
 
 function fmt(n,d=0){if(n==null||isNaN(+n))return'—';return(+n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function fmtWin(v){if(v==null)return'—';if(typeof v==='string')return v.includes('%')?v:v+'%';return(+v).toFixed(1)+'%'}
@@ -287,6 +301,88 @@ function renderSession(d){
     <span class="sess-from">desde ${startHH}</span>`;
 }
 
+function renderSeasonContent(d){
+  const s=d.season;
+  document.getElementById('htime').textContent=s.hoursPlayed?s.hoursPlayed+'h jugadas':'—';
+  document.getElementById('content').innerHTML=`
+    <div class="col col-combat">
+      <div class="col-title">COMBATE · TEMPORADA</div>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="hsl">K/D Ratio</span><span class="hsv g">${s.killDeath||'—'}</span></div>
+        <div class="hero-stat"><span class="hsl">Total Kills</span><span class="hsv w">${s.kills||'—'}</span></div>
+      </div>
+      <div class="minor-grid">
+        <div class="mb"><span class="mbl">Win Rate</span><span class="mbv g">${s.winRate||'—'}</span></div>
+        <div class="mb"><span class="mbl">Partidas</span><span class="mbv">${s.matchesPlayed||'—'}</span></div>
+        <div class="mb"><span class="mbl">Victorias</span><span class="mbv g">${s.matchesWon||'—'}</span></div>
+        <div class="mb"><span class="mbl">Horas</span><span class="mbv">${s.hoursPlayed||'—'}h</span></div>
+        <div class="mb"><span class="mbl">HS Kills</span><span class="mbv">${s.headshotKills||'—'}</span></div>
+        <div class="mb"><span class="mbl">Assists</span><span class="mbv">${s.assists||'—'}</span></div>
+        <div class="mb"><span class="mbl">Revives</span><span class="mbv g">${s.revives||'—'}</span></div>
+        <div class="mb"><span class="mbl">Daño Total</span><span class="mbv">${s.damage||'—'}</span></div>
+      </div>
+    </div>
+    <div class="col col-mid">
+      <div class="sec-title">ACCURACY · TEMPORADA</div>
+      <div class="dual-big">
+        <div class="db-stat"><span class="dbl">Shot Accuracy</span><span class="dbv w">${s.shotAccuracy||'—'}</span></div>
+        <div class="db-stat"><span class="dbl">Headshot Rate</span><span class="dbv g">${s.headshotRate||'—'}</span></div>
+      </div>
+      <div class="quad-grid" style="min-height:112px;margin-bottom:0">
+        <div class="mb"><span class="mbl">Grenade Kills</span><span class="mbv">${s.grenadeKills||'—'}</span></div>
+        <div class="mb"><span class="mbl">Tiempo Obj.</span><span class="mbv">${s.objectiveTimeMin||'—'} min</span></div>
+        <div class="mb"><span class="mbl">Resupplies</span><span class="mbv">${s.resupplies||'—'}</span></div>
+        <div class="mb"><span class="mbl">XP Total</span><span class="mbv">${s.xp||'—'}</span></div>
+      </div>
+      <div class="mid-sep"></div>
+      <div class="sec-title">FAVORITOS</div>
+      <div class="dual-big" style="margin-bottom:20px">
+        <div class="db-stat"><span class="dbl">Modo</span><span class="fav-big g">${d.favoriteMode||'—'}</span></div>
+        <div class="db-stat"><span class="dbl">Clase</span><span class="fav-big w">${d.favoriteClass||'—'}</span></div>
+      </div>
+      <div style="flex:1"></div>
+    </div>
+    <div class="col col-weapons">
+      <div class="col-title">TOP ARMAS</div>
+      <div style="display:flex;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:20px;text-align:center;padding:20px">
+        <div style="font-size:48px;opacity:.07">⚔</div>
+        <div class="season-note">
+          Stats de armas no disponibles<br>en datos de temporada.<br><br>
+          <span>Cambia a LIFETIME para ver<br>el desglose completo por arma.</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function switchMode(mode){
+  currentMode=mode;
+  document.getElementById('tbLife').classList.toggle('active',mode==='lifetime');
+  document.getElementById('tbSeason').classList.toggle('active',mode==='season');
+  if(mode==='lifetime'){
+    if(lastGoodData){renderDashboard(lastGoodData);renderSession(lastGoodData)}
+  }else{
+    if(eaData){renderSeasonContent(eaData)}
+    else{
+      document.getElementById('content').innerHTML='<div class="loading"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>';
+      fetchEAStats();
+    }
+  }
+}
+
+async function fetchEAStats(){
+  try{
+    const res=await fetch(EA_API);
+    const data=await res.json();
+    if(!res.ok||data.error){
+      if(currentMode==='season'&&!eaData)
+        document.getElementById('content').innerHTML='<div class="err-full"><span class="e1">Stats de temporada no disponibles</span><span class="e2">Reintentando en 60 seg</span></div>';
+      return;
+    }
+    eaData=data;
+    if(currentMode==='season')renderSeasonContent(data);
+  }catch(e){console.warn('EA stats:',e.message)}
+}
+
 function getErrType(status,data){
   const msg=(data?.errors?.[0]?.message||data?.message||'').toLowerCase();
   if(status===404||msg.includes('not found'))return'not_found';
@@ -321,8 +417,8 @@ async function fetchStats(isRefresh=false){
     if(isRefresh)unmarkStale();
     else{const el=document.getElementById('hts');if(el){el.style.color='';el.textContent=relTime()}}
     if(!getBaseline())saveBaseline(data);
-    renderDashboard(data);
-    renderSession(data);
+    if(currentMode==='lifetime'){renderDashboard(data);renderSession(data);}
+    fetchEAStats();
   }catch(e){
     if(isRefresh&&lastGoodData){markStale();return}
     renderError('timeout');
@@ -330,7 +426,7 @@ async function fetchStats(isRefresh=false){
   }
 }
 fetchStats();
-setInterval(()=>fetchStats(true),INTERVAL);
+setInterval(()=>{fetchStats(true);fetchEAStats();},INTERVAL);
 </script>
 </body>
 </html>
