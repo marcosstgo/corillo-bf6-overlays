@@ -169,11 +169,11 @@ footer a:hover{color:var(--green)}
 <div class="hero">
   <div class="hero-eyebrow">Overlay Generator</div>
   <h1 class="hero-title">Battlefield 6<br><em>Stats Overlays</em></h1>
-  <p class="hero-sub">Para OBS · Sin registro · Gratis</p>
+  <p class="hero-sub">For OBS · No sign-up · Free</p>
   <div class="hero-pills">
-    <span class="hero-pill">Stats cada 5 min</span>
-    <span class="hero-pill">Transparente</span>
-    <span class="hero-pill">Listo en segundos</span>
+    <span class="hero-pill">Stats every 5 min</span>
+    <span class="hero-pill">Transparent</span>
+    <span class="hero-pill">Ready in seconds</span>
   </div>
 </div>
 
@@ -182,15 +182,15 @@ footer a:hover{color:var(--green)}
 
     <!-- Jugador -->
     <div class="form-section" style="padding-bottom:20px">
-      <label class="field-label" for="nameInput">Jugador</label>
-      <input class="field-input" id="nameInput" type="text" placeholder="Nombre de usuario en BF6" autocomplete="off" spellcheck="false">
+      <label class="field-label" for="nameInput">Player</label>
+      <input class="field-input" id="nameInput" type="text" placeholder="BF6 username" autocomplete="off" spellcheck="false">
     </div>
     <div class="sep"></div>
 
     <!-- Plataforma -->
     <div id="singleSection">
       <div class="form-section" style="padding-bottom:20px">
-        <label class="field-label">Plataforma</label>
+        <label class="field-label">Platform</label>
         <div class="plat-row">
           <button class="plat-btn active" data-plat="ea">EA App</button>
           <button class="plat-btn" data-plat="steam">Steam</button>
@@ -206,23 +206,23 @@ footer a:hover{color:var(--green)}
     <!-- Squad section -->
     <div id="multiSection" style="display:none">
       <div class="form-section" style="padding-bottom:20px">
-        <label class="field-label">Jugadores del squad</label>
+        <label class="field-label">Squad players</label>
         <div id="playerRows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
-        <button class="add-player-btn" id="addPlayerBtn">+ Agregar jugador (máx. 4)</button>
+        <button class="add-player-btn" id="addPlayerBtn">+ Add player (max 4)</button>
       </div>
       <div class="sep"></div>
     </div>
 
     <!-- Tipo de overlay -->
     <div class="form-section" style="padding:16px 24px 4px">
-      <label class="field-label">Tipo de overlay</label>
+      <label class="field-label">Overlay type</label>
     </div>
 
     <div class="type-groups">
 
       <!-- COMPACTOS -->
       <div class="type-group">
-        <div class="group-label">Compactos · 380 px</div>
+        <div class="group-label">Compact · 380 px</div>
         <div class="type-grid-3">
           <button class="type-btn active" data-type="overlay" data-w="380" data-h="175" data-mode="single">
             <div class="type-btn-h">
@@ -234,10 +234,10 @@ footer a:hover{color:var(--green)}
           </button>
           <button class="type-btn" data-type="weapons" data-w="380" data-h="255" data-mode="single">
             <div class="type-btn-h">
-              <span class="type-name">Armas</span>
+              <span class="type-name">Weapons</span>
               <span class="type-size">380×255</span>
             </div>
-            <span class="type-desc">Top 5 armas con barras y HS%</span>
+            <span class="type-desc">Top 5 weapons with kill bars and HS%</span>
             <span class="type-source gt">Gametools</span>
           </button>
           <button class="type-btn" data-type="accuracy" data-w="380" data-h="195" data-mode="single">
@@ -245,31 +245,31 @@ footer a:hover{color:var(--green)}
               <span class="type-name">Accuracy</span>
               <span class="type-size">380×195</span>
             </div>
-            <span class="type-desc">Precisión, headshots, ADS, hipfire</span>
+            <span class="type-desc">Shot accuracy, headshots, ADS, hipfire</span>
             <span class="type-source gt">Gametools</span>
           </button>
           <button class="type-btn" data-type="objective" data-w="380" data-h="225" data-mode="single">
             <div class="type-btn-h">
-              <span class="type-name">Objetivo</span>
+              <span class="type-name">Objective</span>
               <span class="type-size">380×225</span>
             </div>
-            <span class="type-desc">Capturas, tiempo, revives, assists</span>
+            <span class="type-desc">Captures, time on obj, revives, assists</span>
             <span class="type-source gt">Gametools</span>
           </button>
           <button class="type-btn" data-type="session" data-w="380" data-h="175" data-mode="single">
             <div class="type-btn-h">
-              <span class="type-name">Sesión</span>
+              <span class="type-name">Session</span>
               <span class="type-size">380×175</span>
             </div>
-            <span class="type-desc">Delta de kills y K/D desde que abriste OBS</span>
+            <span class="type-desc">Kill and K/D delta since you opened OBS</span>
             <span class="type-source gt">Gametools</span>
           </button>
           <button class="type-btn" data-type="season" data-w="380" data-h="175" data-mode="single">
             <div class="type-btn-h">
-              <span class="type-name">Temporada</span>
+              <span class="type-name">Season</span>
               <span class="type-size">380×175</span>
             </div>
-            <span class="type-desc">K/D, Win%, Accuracy y clase favorita de la season activa</span>
+            <span class="type-desc">K/D, Win%, Accuracy and favorite class from the current season</span>
             <span class="type-source ea">EA Oficial</span>
           </button>
         </div>
@@ -277,19 +277,19 @@ footer a:hover{color:var(--green)}
 
       <!-- PANTALLA COMPLETA -->
       <div class="type-group">
-        <div class="group-label">Pantalla completa</div>
+        <div class="group-label">Full Screen</div>
         <div class="type-grid-1">
           <button class="type-btn type-btn-h-card" data-type="lowerthird" data-w="1920" data-h="80" data-mode="single">
             <div class="type-main">
               <span class="type-name">Lower Third</span>
-              <span class="type-desc">Barra inferior con 5 bloques rotativos — General, Armas, Accuracy, Objetivo, Sesión</span>
+              <span class="type-desc">Bottom bar with 5 rotating blocks — General, Weapons, Accuracy, Objective, Session</span>
             </div>
             <span class="type-size">1920 × 80</span>
           </button>
           <button class="type-btn type-btn-h-card" data-type="dashboard" data-w="1920" data-h="1080" data-mode="single">
             <div class="type-main">
               <span class="type-name">Dashboard</span>
-              <span class="type-desc">Vista completa — Combate, Accuracy, Objetivo, Top Armas, Sesión · Toggle Lifetime / Temporada</span>
+              <span class="type-desc">Full stats view — Combat, Accuracy, Objective, Top Weapons, Session · Lifetime / Season toggle</span>
             </div>
             <span class="type-size">1920 × 1080</span>
           </button>
@@ -302,8 +302,8 @@ footer a:hover{color:var(--green)}
         <div class="type-grid-1">
           <button class="type-btn type-btn-h-card" data-type="multi" data-w="548" data-h="175" data-mode="multi">
             <div class="type-main">
-              <span class="type-name">Multi-jugador</span>
-              <span class="type-desc">Stats de 2–4 jugadores en paralelo — K/D, Kills, KPM, Win% y DPM por jugador</span>
+              <span class="type-name">Multi-player</span>
+              <span class="type-desc">Side-by-side stats for 2–4 players — K/D, Kills, KPM, Win% and DPM per player</span>
             </div>
             <span class="type-size" id="multiSizeLabel">548 × 175</span>
           </button>
@@ -316,34 +316,34 @@ footer a:hover{color:var(--green)}
   <!-- Preview -->
   <div class="preview-card">
     <div class="preview-header">
-      <span class="preview-header-label">Vista previa</span>
+      <span class="preview-header-label">Preview</span>
       <span class="preview-dot"></span>
     </div>
     <div class="preview-body">
       <div class="preview-frame-wrap" id="previewWrap">
         <div class="preview-empty" id="previewEmpty">
-          <strong>Ingresa tu nombre de usuario</strong>
-          El overlay aparecerá aquí
+          <strong>Enter your username</strong>
+          The overlay will appear here
         </div>
         <iframe id="previewFrame" style="display:none" scrolling="no"></iframe>
       </div>
       <div class="lt-note" id="ltNote">
-        Vista a escala · En OBS usar <code>1920 × 80</code> px al pie de la escena
+        Scaled view · Use <code>1920 × 80</code> px at the bottom of your scene in OBS
       </div>
     </div>
     <div class="url-section" id="urlSection">
-      <span class="url-label">URL para OBS</span>
+      <span class="url-label">OBS URL</span>
       <div class="url-box">
         <input class="url-input" id="urlOutput" readonly>
-        <button class="copy-btn" id="copyBtn">Copiar</button>
+        <button class="copy-btn" id="copyBtn">Copy</button>
       </div>
       <div class="obs-box">
-        <div class="obs-title">Agregar en OBS</div>
+        <div class="obs-title">Add to OBS</div>
         <div class="obs-steps">
-          <div class="obs-step"><span class="obs-step-num">1</span><span>Fuentes → <strong>Browser Source</strong></span></div>
-          <div class="obs-step"><span class="obs-step-num">2</span><span>Pega la URL copiada</span></div>
-          <div class="obs-step"><span class="obs-step-num">3</span><span>Tamaño: <strong id="obsDims">380 × 175</strong> px</span></div>
-          <div class="obs-step"><span class="obs-step-num">4</span><span>Activa <strong>Allow Transparency</strong></span></div>
+          <div class="obs-step"><span class="obs-step-num">1</span><span>Sources → <strong>Browser Source</strong></span></div>
+          <div class="obs-step"><span class="obs-step-num">2</span><span>Paste the copied URL</span></div>
+          <div class="obs-step"><span class="obs-step-num">3</span><span>Size: <strong id="obsDims">380 × 175</strong> px</span></div>
+          <div class="obs-step"><span class="obs-step-num">4</span><span>Enable <strong>Allow Transparency</strong></span></div>
         </div>
       </div>
     </div>
@@ -352,8 +352,8 @@ footer a:hover{color:var(--green)}
 
 <footer>
   <a href="https://corillo.live">CORILLO.LIVE</a> &nbsp;·&nbsp;
-  Datos via <a href="https://gametools.network" target="_blank">gametools.network</a> y EA oficial &nbsp;·&nbsp;
-  Código en <a href="https://github.com/marcosstgo/corillo-bf6-overlays" target="_blank">GitHub</a>
+  Data via <a href="https://gametools.network" target="_blank">gametools.network</a> and EA official &nbsp;·&nbsp;
+  Code on <a href="https://github.com/marcosstgo/corillo-bf6-overlays" target="_blank">GitHub</a>
 </footer>
 
 <script>
@@ -389,7 +389,7 @@ function addPlayerRow(name='',plat='ea'){
   const idx=playerCount++;
   const row=document.createElement('div');
   row.className='player-row';row.id=`prow${idx}`;
-  row.innerHTML=`<input class="field-input" id="pname${idx}" type="text" placeholder="Jugador ${idx+1}" value="${name}" autocomplete="off" spellcheck="false">${platSelectHTML(idx,plat)}<button class="remove-row-btn" data-idx="${idx}" title="Eliminar">✕</button>`;
+  row.innerHTML=`<input class="field-input" id="pname${idx}" type="text" placeholder="Player ${idx+1}" value="${name}" autocomplete="off" spellcheck="false">${platSelectHTML(idx,plat)}<button class="remove-row-btn" data-idx="${idx}" title="Eliminar">✕</button>`;
   playerRows.appendChild(row);
   document.getElementById(`pname${idx}`).addEventListener('input',schedule);
   document.getElementById(`pplat${idx}`).addEventListener('change',schedule);
@@ -547,8 +547,8 @@ addPlayerBtn.addEventListener('click',()=>{addPlayerRow();schedule();});
 
 copyBtn.addEventListener('click',()=>{
   navigator.clipboard.writeText(urlOutput.value).then(()=>{
-    copyBtn.textContent='Copiado';copyBtn.classList.add('copied');
-    setTimeout(()=>{copyBtn.textContent='Copiar';copyBtn.classList.remove('copied')},2000);
+    copyBtn.textContent='Copied!';copyBtn.classList.add('copied');
+    setTimeout(()=>{copyBtn.textContent='Copy';copyBtn.classList.remove('copied')},2000);
   });
 });
 </script>

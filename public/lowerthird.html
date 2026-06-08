@@ -92,12 +92,12 @@ body{background:transparent;width:1920px;height:80px;overflow:hidden;font-family
       <div class="sc"><span class="sl">Resupplies</span><span class="sv" id="b3rs">—</span></div>
     </div>
     <div class="blk" id="blk4">
-      <div class="sc"><span class="sl">Kills Sesión</span><span class="sv g" id="b4sk">—</span></div>
-      <div class="sc"><span class="sl">K/D Sesión</span><span class="sv" id="b4kd">—</span></div>
-      <div class="sc"><span class="sl">Muertes</span><span class="sv" id="b4dt">—</span></div>
-      <div class="sc"><span class="sl">Partidas</span><span class="sv" id="b4mt">—</span></div>
-      <div class="sc"><span class="sl">Victorias</span><span class="sv" id="b4wn">—</span></div>
-      <div class="sc"><span class="sl">Tiempo</span><span class="sv" id="b4tm">—</span></div>
+      <div class="sc"><span class="sl">Session Kills</span><span class="sv g" id="b4sk">—</span></div>
+      <div class="sc"><span class="sl">Session K/D</span><span class="sv" id="b4kd">—</span></div>
+      <div class="sc"><span class="sl">Deaths</span><span class="sv" id="b4dt">—</span></div>
+      <div class="sc"><span class="sl">Matches</span><span class="sv" id="b4mt">—</span></div>
+      <div class="sc"><span class="sl">Wins</span><span class="sv" id="b4wn">—</span></div>
+      <div class="sc"><span class="sl">Time</span><span class="sv" id="b4tm">—</span></div>
     </div>
     <div class="prog"><div class="prog-fill" id="pbar"></div></div>
     <span class="blbl" id="blbl">GENERAL</span>
@@ -112,7 +112,7 @@ const PLATFORM=p.get('platform')||'ea';
 const PLAT_LABEL={ea:'EA App',steam:'Steam',psn:'PSN',xbox:'Xbox',ps5:'PS5',epic:'Epic'}[PLATFORM]||PLATFORM.toUpperCase();
 const API=`${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
 const ROTATE_MS=8000,DATA_MS=60000;
-const LABELS=['GENERAL','ARMAS','ACCURACY','OBJETIVO','SESIÓN'];
+const LABELS=['GENERAL','WEAPONS','ACCURACY','OBJECTIVE','SESSION'];
 const STORAGE_KEY=`bf6_session_${PLAYER}_${PLATFORM}`;
 let cur=0,loaded=false,rotTimer=null,lastGoodData=null,lastUpdatedAt=null,ltTimer=null;
 function relTime(){if(!lastUpdatedAt)return'';const m=Math.floor((Date.now()-lastUpdatedAt)/60000);return m<1?'↻ ahora':m===1?'↻ 1 min':`↻ ${m} min`}
@@ -167,14 +167,14 @@ function getErrType(status,data){
   return'generic';
 }
 function showInitialError(type){
-  const line1=type==='not_found'?`Jugador "${PLAYER}" no encontrado`:type==='timeout'?'API sin respuesta':'Stats no disponibles';
-  const sub=type==='not_found'?'Verifica nombre y plataforma':'Reintentando en 60 seg';
+  const line1=type==='not_found'?`Player "${PLAYER}" not found`:type==='timeout'?'API not responding':'Stats unavailable';
+  const sub=type==='not_found'?'Check name and platform':'Retrying in 60s';
   document.getElementById('ldg').style.display='none';
   const ep=document.getElementById('errp');
   ep.innerHTML=`<div style="text-align:center"><span style="font-size:11px;color:rgba(255,80,80,.65);letter-spacing:.1em">${line1}</span><br><span style="font-size:9px;color:rgba(255,255,255,.25);letter-spacing:.08em">${sub}</span></div>`;
   ep.style.display='flex';
 }
-function markStale(){document.querySelector('.bar').classList.add('stale');const el=document.getElementById('ltts');if(el){el.textContent='⚠ sin actualizar';el.style.color='rgba(255,180,0,.55)'}}
+function markStale(){document.querySelector('.bar').classList.add('stale');const el=document.getElementById('ltts');if(el){el.textContent='⚠ stale';el.style.color='rgba(255,180,0,.55)'}}
 function unmarkStale(){document.querySelector('.bar').classList.remove('stale');const el=document.getElementById('ltts');if(el){el.style.color='';el.textContent=relTime()}}
 async function fetchData(){
   try{
