@@ -67,6 +67,17 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:20px 4
 .type-desc{font-size:10px;color:var(--muted);font-weight:400;line-height:1.3}
 .type-size{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);margin-top:1px}
 
+/* multi-player section */
+.player-row{display:flex;align-items:center;gap:8px}
+.player-row .field-input{flex:1}
+.plat-select{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 8px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;letter-spacing:.04em;outline:none;cursor:pointer;transition:border-color .2s;flex-shrink:0}
+.plat-select:focus{border-color:var(--green-border)}
+.plat-select option{background:#1a1a1a}
+.remove-row-btn{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);width:32px;height:32px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;margin-top:0}
+.remove-row-btn:hover{border-color:rgba(255,80,80,.5);color:rgba(255,80,80,.8)}
+.add-player-btn{background:transparent;border:1px dashed var(--border);border-radius:8px;color:var(--muted);padding:8px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;cursor:pointer;transition:all .15s;text-align:center;width:100%}
+.add-player-btn:hover{border-color:var(--green-border);color:var(--green)}
+
 .preview-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:28px;display:flex;flex-direction:column;gap:18px;position:sticky;top:24px}
 .preview-frame-wrap{background:#1a1a1a;border-radius:10px;padding:16px;display:flex;justify-content:center;align-items:flex-start;min-height:190px;border:1px solid var(--border)}
 iframe{border:none;background:transparent;display:block}
@@ -107,61 +118,76 @@ footer a{color:var(--green);text-decoration:none}
 <div class="main">
   <div class="form-card">
 
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <div class="section-title">Jugador</div>
-      <input class="field-input" id="nameInput" type="text" placeholder="Tu nombre de usuario en BF6" autocomplete="off" spellcheck="false">
+    <!-- Sección jugador único -->
+    <div id="singleSection">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="section-title">Jugador</div>
+        <input class="field-input" id="nameInput" type="text" placeholder="Tu nombre de usuario en BF6" autocomplete="off" spellcheck="false">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:22px">
+        <div class="section-title">Plataforma</div>
+        <div class="platform-grid">
+          <button class="plat-btn active" data-plat="ea">EA App</button>
+          <button class="plat-btn" data-plat="steam">Steam</button>
+          <button class="plat-btn" data-plat="psn">PlayStation</button>
+          <button class="plat-btn" data-plat="xbox">Xbox</button>
+          <button class="plat-btn" data-plat="ps5">PS5</button>
+          <button class="plat-btn" data-plat="epic">Epic</button>
+        </div>
+      </div>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <div class="section-title">Plataforma</div>
-      <div class="platform-grid">
-        <button class="plat-btn active" data-plat="ea">EA App</button>
-        <button class="plat-btn" data-plat="steam">Steam</button>
-        <button class="plat-btn" data-plat="psn">PlayStation</button>
-        <button class="plat-btn" data-plat="xbox">Xbox</button>
-        <button class="plat-btn" data-plat="ps5">PS5</button>
-        <button class="plat-btn" data-plat="epic">Epic</button>
-      </div>
+    <!-- Sección squad -->
+    <div id="multiSection" style="display:none;flex-direction:column;gap:10px">
+      <div class="section-title">Jugadores del squad</div>
+      <div id="playerRows" style="display:flex;flex-direction:column;gap:8px"></div>
+      <button class="add-player-btn" id="addPlayerBtn">+ Agregar jugador (máx. 4)</button>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:8px">
       <div class="section-title">Tipo de overlay</div>
       <div class="type-grid">
-        <button class="type-btn active" data-type="overlay" data-w="380" data-h="175">
+        <button class="type-btn active" data-type="overlay" data-w="380" data-h="175" data-mode="single">
           <span class="type-icon">📊</span>
           <span class="type-name">Stats</span>
           <span class="type-desc">Kills, K/D, Win Rate, DPM y más</span>
           <span class="type-size">380 × 175</span>
         </button>
-        <button class="type-btn" data-type="weapons" data-w="380" data-h="255">
+        <button class="type-btn" data-type="weapons" data-w="380" data-h="255" data-mode="single">
           <span class="type-icon">🔫</span>
           <span class="type-name">Armas</span>
           <span class="type-desc">Top 5 armas más usadas con barras</span>
           <span class="type-size">380 × 255</span>
         </button>
-        <button class="type-btn" data-type="accuracy" data-w="380" data-h="195">
+        <button class="type-btn" data-type="accuracy" data-w="380" data-h="195" data-mode="single">
           <span class="type-icon">🎯</span>
           <span class="type-name">Accuracy</span>
           <span class="type-desc">Precisión, headshots, ADS vs hipfire</span>
           <span class="type-size">380 × 195</span>
         </button>
-        <button class="type-btn" data-type="objective" data-w="380" data-h="225">
+        <button class="type-btn" data-type="objective" data-w="380" data-h="225" data-mode="single">
           <span class="type-icon">🏆</span>
           <span class="type-name">Objective</span>
           <span class="type-desc">Revives, heals, capturas, assists</span>
           <span class="type-size">380 × 225</span>
         </button>
-        <button class="type-btn" data-type="session" data-w="380" data-h="175">
+        <button class="type-btn" data-type="session" data-w="380" data-h="175" data-mode="single">
           <span class="type-icon">⚡</span>
           <span class="type-name">Sesión</span>
           <span class="type-desc">Kills, K/D y victorias de esta sesión — se reinicia con OBS</span>
           <span class="type-size">380 × 175</span>
         </button>
-        <button class="type-btn full" data-type="lowerthird" data-w="1920" data-h="80">
+        <button class="type-btn full" data-type="lowerthird" data-w="1920" data-h="80" data-mode="single">
           <span class="type-icon">📺</span>
           <span class="type-name">Lower Third</span>
-          <span class="type-desc">Barra de stats en la parte inferior — 4 bloques rotativos · General · Armas · Accuracy · Objetivo</span>
+          <span class="type-desc">Barra de stats en la parte inferior — 5 bloques rotativos · General · Armas · Accuracy · Objetivo · Sesión</span>
           <span class="type-size">1920 × 80</span>
+        </button>
+        <button class="type-btn full" data-type="multi" data-w="548" data-h="175" data-mode="multi">
+          <span class="type-icon">👥</span>
+          <span class="type-name">Squad</span>
+          <span class="type-desc">Stats de 2–4 jugadores en paralelo · K/D, Kills, KPM, Win% y DPM por jugador</span>
+          <span class="type-size" id="multiSizeLabel">548 × 175</span>
         </button>
       </div>
     </div>
@@ -204,7 +230,8 @@ footer a{color:var(--green);text-decoration:none}
 
 <script>
 const BASE = window.BF6_CONFIG?.base || 'https://corillo.live/overlay/bf6/';
-let currentPlat='ea', currentType='overlay', currentW=380, currentH=175;
+const PLAT_OPTS = [{v:'ea',l:'EA App'},{v:'steam',l:'Steam'},{v:'psn',l:'PlayStation'},{v:'xbox',l:'Xbox'},{v:'ps5',l:'PS5'},{v:'epic',l:'Epic'}];
+let currentPlat='ea', currentType='overlay', currentW=380, currentH=175, currentMode='single';
 let debounceTimer=null;
 
 const nameInput=document.getElementById('nameInput');
@@ -216,26 +243,84 @@ const urlOutput=document.getElementById('urlOutput');
 const copyBtn=document.getElementById('copyBtn');
 const obsDims=document.getElementById('obsDims');
 const ltNote=document.getElementById('ltNote');
+const singleSection=document.getElementById('singleSection');
+const multiSection=document.getElementById('multiSection');
+const playerRows=document.getElementById('playerRows');
+const addPlayerBtn=document.getElementById('addPlayerBtn');
+const multiSizeLabel=document.getElementById('multiSizeLabel');
 
-function buildURL(name){
-  return `${BASE}${currentType}.html?name=${encodeURIComponent(name)}&platform=${encodeURIComponent(currentPlat)}`;
+// ── Multi-player rows ─────────────────────────────────────────────────────────
+let playerCount=0;
+
+function platSelectHTML(idx,val='ea'){
+  return`<select class="plat-select" id="pplat${idx}">${PLAT_OPTS.map(o=>`<option value="${o.v}"${o.v===val?' selected':''}>${o.l}</option>`).join('')}</select>`;
 }
 
-function updatePreview(){
+function addPlayerRow(name='',plat='ea'){
+  if(playerCount>=4)return;
+  const idx=playerCount++;
+  const row=document.createElement('div');
+  row.className='player-row';row.id=`prow${idx}`;
+  row.innerHTML=`<input class="field-input" id="pname${idx}" type="text" placeholder="Jugador ${idx+1}" value="${name}" autocomplete="off" spellcheck="false">${platSelectHTML(idx,plat)}<button class="remove-row-btn" data-idx="${idx}" title="Eliminar">✕</button>`;
+  playerRows.appendChild(row);
+  document.getElementById(`pname${idx}`).addEventListener('input',schedule);
+  document.getElementById(`pplat${idx}`).addEventListener('change',schedule);
+  row.querySelector('.remove-row-btn').addEventListener('click',function(){
+    row.remove();playerCount--;
+    addPlayerBtn.style.display=playerCount<4?'block':'none';
+    updateMultiSizeLabel();schedule();
+  });
+  addPlayerBtn.style.display=playerCount<4?'block':'none';
+  updateMultiSizeLabel();
+}
+
+function getMultiPlayers(){
+  const names=[],plats=[];
+  document.querySelectorAll('.player-row').forEach(row=>{
+    const idx=row.id.replace('prow','');
+    const n=document.getElementById(`pname${idx}`)?.value.trim();
+    const pl=document.getElementById(`pplat${idx}`)?.value||'ea';
+    if(n){names.push(n);plats.push(pl);}
+  });
+  return{names,plats};
+}
+
+function updateMultiSizeLabel(){
+  const{names}=getMultiPlayers();
+  const count=Math.max(names.length,2);
+  const w=count*270+(count-1)*8;
+  multiSizeLabel.textContent=`${w} × 175`;
+  if(currentMode==='multi'){currentW=w;currentH=175;}
+}
+
+// ── URL builder ───────────────────────────────────────────────────────────────
+function buildURL(){
+  if(currentMode==='multi'){
+    const{names,plats}=getMultiPlayers();
+    if(names.length<2)return null;
+    return`${BASE}multi.html?names=${names.map(encodeURIComponent).join(',')}&platforms=${plats.join(',')}`;
+  }
   const name=nameInput.value.trim();
-  if(!name){
+  if(!name)return null;
+  return`${BASE}${currentType}.html?name=${encodeURIComponent(name)}&platform=${encodeURIComponent(currentPlat)}`;
+}
+
+// ── Preview ───────────────────────────────────────────────────────────────────
+function updatePreview(){
+  const url=buildURL();
+  if(!url){
     previewFrame.style.display='none';
     previewEmpty.style.display='block';
     urlSection.style.display='none';
     ltNote.style.display='none';
     return;
   }
-  const url=buildURL(name);
+  const isWide=currentW>600;
   const isLT=currentW===1920;
   previewEmpty.style.display='none';
   previewFrame.style.display='block';
+
   if(isLT){
-    // Mostrar al ancho del contenedor — el overflow del body de 1920px queda oculto
     const wrapW=previewWrap.clientWidth-32;
     previewFrame.style.width=wrapW+'px';
     previewFrame.style.height='80px';
@@ -245,9 +330,26 @@ function updatePreview(){
     previewWrap.style.minHeight='0';
     previewWrap.style.height='auto';
     previewWrap.style.overflow='hidden';
-    previewWrap.style.display='';
     previewFrame.onload=null;
     ltNote.style.display='block';
+  }else if(isWide){
+    // Escalar para caber en el contenedor manteniendo aspect ratio
+    const wrapW=previewWrap.clientWidth-32;
+    const scale=Math.min(1,wrapW/currentW);
+    const scaledH=Math.round(currentH*scale);
+    previewFrame.width=currentW;
+    previewFrame.height=currentH;
+    previewFrame.style.width=currentW+'px';
+    previewFrame.style.height=currentH+'px';
+    previewFrame.style.transform=`scale(${scale})`;
+    previewFrame.style.transformOrigin='top left';
+    previewWrap.style.padding='16px';
+    previewWrap.style.minHeight=(scaledH+32)+'px';
+    previewWrap.style.height='auto';
+    previewWrap.style.overflow='hidden';
+    previewWrap.style.display='block';
+    previewFrame.onload=null;
+    ltNote.style.display='none';
   }else{
     previewFrame.style.width='';
     previewFrame.style.height='';
@@ -269,6 +371,7 @@ function updatePreview(){
       },300);
     };
   }
+
   previewFrame.src=url;
   urlOutput.value=url;
   urlSection.style.display='flex';
@@ -278,6 +381,7 @@ function updatePreview(){
 
 function schedule(){clearTimeout(debounceTimer);debounceTimer=setTimeout(updatePreview,700)}
 
+// ── Events ────────────────────────────────────────────────────────────────────
 nameInput.addEventListener('input',schedule);
 
 document.querySelectorAll('.plat-btn').forEach(btn=>{
@@ -292,11 +396,23 @@ document.querySelectorAll('.type-btn').forEach(btn=>{
     document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     currentType=btn.dataset.type;
+    currentMode=btn.dataset.mode||'single';
     currentW=parseInt(btn.dataset.w);
     currentH=parseInt(btn.dataset.h);
+    if(currentMode==='multi'){
+      singleSection.style.display='none';
+      multiSection.style.display='flex';
+      if(playerCount===0){addPlayerRow();addPlayerRow();}
+      updateMultiSizeLabel();
+    }else{
+      singleSection.style.display='block';
+      multiSection.style.display='none';
+    }
     updatePreview();
   });
 });
+
+addPlayerBtn.addEventListener('click',()=>{addPlayerRow();schedule();});
 
 copyBtn.addEventListener('click',()=>{
   navigator.clipboard.writeText(urlOutput.value).then(()=>{
