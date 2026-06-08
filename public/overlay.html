@@ -10,26 +10,29 @@
   body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
   .card{width:380px;background:rgba(0,0,0,0.82);border-radius:12px;border-left:3px solid #3ecf6e;overflow:hidden;backdrop-filter:blur(6px);box-shadow:0 4px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);position:relative}
   .card::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;border-radius:12px;z-index:1}
-  .card-inner{position:relative;z-index:2;padding:14px 16px 12px}
-  .header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-  .player-name{font-size:18px;font-weight:800;color:#fff;letter-spacing:.04em;text-transform:uppercase;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .time-played{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(255,255,255,.38);letter-spacing:.03em;white-space:nowrap;flex-shrink:0}
+  .card-inner{position:relative;z-index:2;padding:13px 16px 11px}
+  .header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .player-name{font-size:18px;font-weight:900;color:#fff;letter-spacing:.04em;text-transform:uppercase;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .platform-badge{background:rgba(62,207,110,.15);border:1px solid rgba(62,207,110,.4);color:#3ecf6e;font-size:10px;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:20px;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
-  .divider{height:1px;background:linear-gradient(90deg,#3ecf6e 0%,rgba(62,207,110,.15) 60%,transparent 100%);margin-bottom:12px}
-  .center-stats{display:flex;gap:0;margin-bottom:14px}
-  .stat-main{flex:1;display:flex;flex-direction:column;gap:2px}
-  .stat-main+.stat-main{border-left:1px solid rgba(255,255,255,.07);padding-left:20px}
-  .stat-main:first-child{padding-right:20px}
-  .stat-label-main{font-size:10px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.35);text-transform:uppercase}
-  .stat-value-main{font-family:'Share Tech Mono',monospace;font-size:52px;line-height:1;font-weight:400;letter-spacing:-.02em}
+  .subheader{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .time-played{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(255,255,255,.32);letter-spacing:.06em}
+  .section-label{font-size:10px;font-weight:800;letter-spacing:.14em;color:rgba(255,255,255,.22);text-transform:uppercase}
+  .section-label span{color:#3ecf6e;opacity:.8;margin-right:3px}
+  .divider{height:1px;background:linear-gradient(90deg,rgba(62,207,110,.5) 0%,rgba(62,207,110,.08) 50%,transparent 100%);margin-bottom:10px}
+  .center-stats{display:flex;gap:0;margin-bottom:12px}
+  .stat-main{flex:1;display:flex;flex-direction:column;gap:2px;padding:0 6px}
+  .stat-main:first-child{padding-left:0}
+  .stat-main.kd-col{background:rgba(62,207,110,.05);border-radius:8px;padding:6px 10px;border:1px solid rgba(62,207,110,.1)}
+  .stat-label-main{font-size:9px;font-weight:700;letter-spacing:.16em;color:rgba(255,255,255,.3);text-transform:uppercase}
+  .stat-value-main{font-family:'Share Tech Mono',monospace;font-size:50px;line-height:1;font-weight:400;letter-spacing:-.02em}
   .stat-value-main.kills{color:#fff}
   .stat-value-main.kd{color:#3ecf6e}
-  .bottom-row{display:flex;justify-content:space-between;background:rgba(255,255,255,.03);border-radius:6px;padding:8px 12px;margin-bottom:10px;border:1px solid rgba(255,255,255,.05)}
+  .bottom-row{display:flex;justify-content:space-between;background:rgba(255,255,255,.03);border-radius:6px;padding:7px 12px;margin-bottom:9px;border:1px solid rgba(255,255,255,.05)}
   .stat-minor{display:flex;flex-direction:column;align-items:center;gap:3px}
-  .stat-minor-label{font-size:9px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.3);text-transform:uppercase}
+  .stat-minor-label{font-size:9px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.28);text-transform:uppercase}
   .stat-minor-value{font-family:'Share Tech Mono',monospace;font-size:15px;color:#fff;letter-spacing:.02em}
   .footer{display:flex;justify-content:space-between;align-items:center}
-  .footer-brand{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(62,207,110,.45);text-transform:uppercase}
+  .footer-brand{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(62,207,110,.35);text-transform:uppercase}
   .footer-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,.2);letter-spacing:.05em}
   .loading{display:flex;align-items:center;gap:8px;justify-content:center;min-height:120px}
   .loading-dot{width:6px;height:6px;border-radius:50%;background:#3ecf6e;animation:pulse 1.2s ease-in-out infinite}
@@ -68,13 +71,16 @@ function renderStats(data){
   document.getElementById('content').innerHTML=`
     <div class="header">
       <span class="player-name">${data.userName||PLAYER}</span>
-      <span class="time-played">${fmtTime(data.timePlayed)}</span>
       <span class="platform-badge">${PLATFORM_LABEL}</span>
+    </div>
+    <div class="subheader">
+      <span class="time-played">${fmtTime(data.timePlayed)}</span>
+      <span class="section-label"><span>//</span> LIFETIME</span>
     </div>
     <div class="divider"></div>
     <div class="center-stats">
       <div class="stat-main"><span class="stat-label-main">Total Kills</span><span class="stat-value-main kills">${fmt(data.kills)}</span></div>
-      <div class="stat-main"><span class="stat-label-main">K/D</span><span class="stat-value-main kd">${fmt(data.killDeath,2)}</span></div>
+      <div class="stat-main kd-col"><span class="stat-label-main">K/D Ratio</span><span class="stat-value-main kd">${fmt(data.killDeath,2)}</span></div>
     </div>
     <div class="bottom-row">
       <div class="stat-minor"><span class="stat-minor-label">DPM</span><span class="stat-minor-value">${fmt(data.damagePerMinute,0)}</span></div>
