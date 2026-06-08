@@ -177,6 +177,12 @@ footer a{color:var(--green);text-decoration:none}
           <span class="type-desc">Kills, K/D y victorias de esta sesión — se reinicia con OBS</span>
           <span class="type-size">380 × 175</span>
         </button>
+        <button class="type-btn" data-type="season" data-w="380" data-h="175" data-mode="single">
+          <span class="type-icon">🗓</span>
+          <span class="type-name">Temporada</span>
+          <span class="type-desc">K/D, Kills, Win%, Accuracy y HS Rate de la temporada activa · EA oficial · Modo y clase favorita</span>
+          <span class="type-size">380 × 175</span>
+        </button>
         <button class="type-btn full" data-type="lowerthird" data-w="1920" data-h="80" data-mode="single">
           <span class="type-icon">📺</span>
           <span class="type-name">Lower Third</span>
@@ -308,6 +314,7 @@ function buildURL(){
   }
   const name=nameInput.value.trim();
   if(!name)return null;
+  if(currentType==='season')return`${BASE}season.html?name=${encodeURIComponent(name)}`;
   return`${BASE}${currentType}.html?name=${encodeURIComponent(name)}&platform=${encodeURIComponent(currentPlat)}`;
 }
 
