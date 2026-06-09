@@ -146,7 +146,7 @@ function fillData(d){
   document.getElementById('b0win').textContent=fmtWin(d.winPercent);
   document.getElementById('b0mat').textContent=fmt(d.matchesPlayed);
   const wps=(d.weapons||[]).filter(w=>w.kills>0).sort((a,b)=>b.kills-a.kills).slice(0,3);
-  [0,1,2].forEach(i=>{const w=wps[i];if(!w)return;document.getElementById('w'+i+'i').src=w.imageUrl||w.image||'';document.getElementById('w'+i+'k').textContent=fmt(w.kills);document.getElementById('w'+i+'n').textContent=(w.weaponName||w.name||'—').toUpperCase();document.getElementById('w'+i+'h').textContent=w.headshotsPercent!=null?fmt(w.headshotsPercent,1)+'% HS':'—'});
+  [0,1,2].forEach(i=>{const w=wps[i];if(!w)return;document.getElementById('w'+i+'i').src=w.imageUrl||w.image||'';document.getElementById('w'+i+'k').textContent=fmt(w.kills);document.getElementById('w'+i+'n').textContent=(w.weaponName||w.name||'—').toUpperCase();document.getElementById('w'+i+'h').textContent=w.headshots||'—'});
   document.getElementById('b2ac').textContent=d.accuracy||'—';
   document.getElementById('b2hs').textContent=d.headshots||'—';
   document.getElementById('b2sh').textContent=fmt(d.shotsHit);

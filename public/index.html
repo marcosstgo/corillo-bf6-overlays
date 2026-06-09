@@ -38,26 +38,29 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'B
 body{background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(62,207,110,.08) 0%,transparent 65%)}
 
 /* ── MILITARY BACKGROUND ─────────────────────────────────────────── */
-.mil-grid{position:fixed;inset:-80px;pointer-events:none;z-index:0;
-  background-image:linear-gradient(rgba(62,207,110,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(62,207,110,.032) 1px,transparent 1px);
-  background-size:54px 54px;
-  animation:grid-drift 35s linear infinite}
-@keyframes grid-drift{to{background-position:54px 54px}}
+.mil-grid{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(62,207,110,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(62,207,110,.022) 1px,transparent 1px);
+  background-size:110px 110px}
 
-.mil-scan{position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.065) 3px,rgba(0,0,0,.065) 4px)}
-
-.mil-radar{position:fixed;top:-280px;right:-280px;width:720px;height:720px;
-  border-radius:50%;pointer-events:none;z-index:0;overflow:hidden}
-.mil-radar::before{content:'';position:absolute;inset:0;border-radius:50%;
-  background:conic-gradient(from 0deg,rgba(62,207,110,.11) 0deg,rgba(62,207,110,.03) 55deg,transparent 85deg);
-  animation:radar-sweep 9s linear infinite}
-.mil-radar::after{content:'';position:absolute;inset:0;border-radius:50%;
-  background:
-    radial-gradient(circle,transparent 28%,rgba(62,207,110,.025) 28.5%,transparent 29%),
-    radial-gradient(circle,transparent 52%,rgba(62,207,110,.02) 52.5%,transparent 53%),
-    radial-gradient(circle,transparent 74%,rgba(62,207,110,.015) 74.5%,transparent 75%)}
-@keyframes radar-sweep{to{transform:rotate(360deg)}}
+.mil-orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(70px)}
+.mil-orb.a{
+  width:1000px;height:1000px;top:-520px;left:-280px;
+  background:radial-gradient(circle,rgba(62,207,110,.1) 0%,transparent 60%);
+  animation:orb-a 55s ease-in-out infinite alternate}
+.mil-orb.b{
+  width:750px;height:750px;bottom:-350px;right:-250px;
+  background:radial-gradient(circle,rgba(62,207,110,.08) 0%,transparent 60%);
+  animation:orb-b 70s ease-in-out infinite alternate}
+.mil-orb.c{
+  width:560px;height:560px;top:35%;left:55%;
+  background:radial-gradient(circle,rgba(62,207,110,.055) 0%,transparent 60%);
+  animation:orb-c 45s ease-in-out infinite alternate}
+@keyframes orb-a{to{transform:translate(140px,110px) scale(1.2)}}
+@keyframes orb-b{to{transform:translate(-110px,-90px) scale(.85)}}
+@keyframes orb-c{to{transform:translate(-90px,70px) scale(1.25)}}
 
 .mil-corner{position:fixed;pointer-events:none;z-index:0;width:48px;height:48px}
 .mil-corner::before,.mil-corner::after{content:'';position:absolute;border-color:rgba(62,207,110,.2);border-style:solid}
@@ -209,8 +212,9 @@ footer a:hover{color:var(--green)}
 </head>
 <body>
 <div class="mil-grid" aria-hidden="true"></div>
-<div class="mil-scan" aria-hidden="true"></div>
-<div class="mil-radar" aria-hidden="true"></div>
+<div class="mil-orb a" aria-hidden="true"></div>
+<div class="mil-orb b" aria-hidden="true"></div>
+<div class="mil-orb c" aria-hidden="true"></div>
 <div class="mil-corner tl" aria-hidden="true"></div>
 <div class="mil-corner tr" aria-hidden="true"></div>
 <div class="mil-corner bl" aria-hidden="true"></div>
