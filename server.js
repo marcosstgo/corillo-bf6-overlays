@@ -17,6 +17,40 @@ function setCached(key, data) {
   cache.set(key, { data, ts: Date.now() });
 }
 
+function parseNum(s) { return s ? parseFloat(String(s).replace(/,/g, '')) || 0 : 0; }
+
+async function fetchEAData(name) {
+  const url = `https://www.ea.com/games/battlefield/battlefield-6/player-stats/${encodeURIComponent(name)}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  const upstream = await fetch(url, {
+    signal: controller.signal,
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9',
+    }
+  });
+  clearTimeout(timer);
+  const html = await upstream.text();
+  const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+  if (!match) throw new Error('Could not parse EA stats page');
+  const nextData = JSON.parse(match[1]);
+  const summary = nextData?.props?.pageProps?.statsResponse?.playerStatsSummary;
+  if (!summary) throw new Error('Player not found on EA');
+
+  const flat = {};
+  for (const section of summary.basicStats || []) {
+    for (const s of [...(section.stats || []), ...(section.highlightedStats || [])]) {
+      flat[s.id] = s.value;
+    }
+  }
+  for (const arr of [summary.extendedStats, summary.playerRoleStats, summary.featuredStats, summary.gameModeStats, summary.achievementStats]) {
+    for (const s of arr || []) flat[s.id] = s.value;
+  }
+  return { summary, flat };
+}
+
 app.use((req, res, next) => {
   res.set({
     'Access-Control-Allow-Origin': '*',
@@ -44,18 +78,31 @@ app.get('/bf6/stats', async (req, res) => {
 
     const data = await upstream.json();
 
-    if (!upstream.ok) {
-      // pass gametools error body through (e.g. "Player not found")
-      return res.status(upstream.status).json({ error: true, ...data });
+    if (upstream.ok && !data.error) {
+      setCached(cacheKey, data);
+      return res.json(data);
     }
 
-    setCached(cacheKey, data);
-    res.json(data);
+    // gametools failed — try EA fallback
+    console.log(`[bf6/stats] gametools failed for ${name}, trying EA fallback`);
+    const { summary, flat } = await fetchEAData(name);
+    const hours = parseNum(flat['total_time_played']);
+    const eaStats = {
+      userName: summary.playerDisplayName || summary.playerTag,
+      kills: parseNum(flat['total_kills']),
+      killDeath: parseNum(flat['kill_death_ratio']),
+      matchesPlayed: parseNum(flat['total_matches_played']),
+      winPercent: flat['matches_win_rate'] || '0%',
+      secondsPlayed: Math.round(hours * 3600),
+      _source: 'ea',
+    };
+    setCached(cacheKey, eaStats);
+    return res.json(eaStats);
   } catch (err) {
     if (err.name === 'AbortError') {
       return res.status(504).json({ error: 'gametools timeout' });
     }
-    res.status(502).json({ error: 'gametools unavailable', detail: err.message });
+    res.status(502).json({ error: 'stats unavailable', detail: err.message });
   }
 });
 
@@ -67,40 +114,8 @@ app.get('/bf6/eastats', async (req, res) => {
   const cached = getCached(cacheKey);
   if (cached) return res.json(cached);
 
-  const url = `https://www.ea.com/games/battlefield/battlefield-6/player-stats/${encodeURIComponent(name)}`;
-
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 15000);
-    const upstream = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-      }
-    });
-    clearTimeout(timer);
-
-    const html = await upstream.text();
-    const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-    if (!match) return res.status(502).json({ error: 'Could not parse EA stats page' });
-
-    const nextData = JSON.parse(match[1]);
-    const summary = nextData?.props?.pageProps?.statsResponse?.playerStatsSummary;
-    if (!summary) return res.status(404).json({ error: 'Player not found on EA' });
-
-    // Flatten all stat sections into a single lookup
-    const flat = {};
-    for (const section of summary.basicStats || []) {
-      for (const s of [...(section.stats || []), ...(section.highlightedStats || [])]) {
-        flat[s.id] = s.value;
-      }
-    }
-    for (const arr of [summary.extendedStats, summary.playerRoleStats, summary.featuredStats, summary.gameModeStats, summary.achievementStats]) {
-      for (const s of arr || []) flat[s.id] = s.value;
-    }
-
+    const { summary, flat } = await fetchEAData(name);
     const result = {
       playerTag: summary.playerTag,
       displayName: summary.playerDisplayName,
@@ -127,7 +142,6 @@ app.get('/bf6/eastats', async (req, res) => {
         resupplies:       flat['total_teammates_resupplied']   || null,
       },
     };
-
     setCached(cacheKey, result);
     res.json(result);
   } catch (err) {
