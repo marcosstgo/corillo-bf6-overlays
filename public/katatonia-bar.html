@@ -93,6 +93,15 @@
   .brand-name{font-size:14px;font-weight:800;letter-spacing:.2em;color:rgba(255,221,42,.75);text-transform:uppercase}
   .brand-since{font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(255,255,255,.4);letter-spacing:.06em;margin-top:6px}
 
+  /* hex background */
+  .bar::after{content:'';position:absolute;inset:0;
+    background:
+      repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpolygon points='28,2 54,16 54,44 28,58 2,44 2,16' fill='none' stroke='rgba(255%2C221%2C42%2C0.09)' stroke-width='1.2'/%3E%3Cpolygon points='0,52 26,66 26,94 0,108 -26,94 -26,66' fill='none' stroke='rgba(255%2C221%2C42%2C0.09)' stroke-width='1.2'/%3E%3Cpolygon points='56,52 82,66 82,94 56,108 30,94 30,66' fill='none' stroke='rgba(255%2C221%2C42%2C0.09)' stroke-width='1.2'/%3E%3C/svg%3E");
+    background-size:auto,56px 100px;
+    animation:hexscroll 10s linear infinite;pointer-events:none;z-index:0;}
+  @keyframes hexscroll{from{background-position:0 0,0 0}to{background-position:0 0,56px 100px}}
+
   /* loading */
   .bar-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;z-index:5}
   .ld{width:8px;height:8px;border-radius:50%;background:#ffdd2a;animation:pulse 1.2s ease-in-out infinite}
