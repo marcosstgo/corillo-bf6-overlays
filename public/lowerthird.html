@@ -8,10 +8,10 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:transparent;width:1920px;height:80px;overflow:hidden;font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
-.bar{width:1920px;height:80px;background:rgba(0,0,0,0.86);border-top:3px solid #3ecf6e;display:flex;align-items:stretch;position:relative;overflow:hidden}
+.bar{width:1920px;height:80px;background:rgba(0,0,0,0.86);border-top:3px solid #ffdd2a;display:flex;align-items:stretch;position:relative;overflow:hidden}
 .bar::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:10}
-.left{display:flex;align-items:center;gap:14px;padding:0 24px;width:272px;flex-shrink:0;border-right:1px solid rgba(62,207,110,.22);position:relative;z-index:5}
-.game-tag{background:rgba(62,207,110,.1);border:1px solid rgba(62,207,110,.32);color:#3ecf6e;font-size:10px;font-weight:800;letter-spacing:.14em;padding:3px 9px;border-radius:4px;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.left{display:flex;align-items:center;gap:14px;padding:0 24px;width:272px;flex-shrink:0;border-right:1px solid rgba(255,221,42,.22);position:relative;z-index:5}
+.game-tag{background:rgba(255,221,42,.1);border:1px solid rgba(255,221,42,.32);color:#ffdd2a;font-size:10px;font-weight:800;letter-spacing:.14em;padding:3px 9px;border-radius:4px;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
 .player-col{display:flex;flex-direction:column;gap:2px;min-width:0}
 .player-name{font-size:18px;font-weight:800;color:#fff;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1}
 .platform-badge{font-size:10px;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase}
@@ -23,22 +23,22 @@ body{background:transparent;width:1920px;height:80px;overflow:hidden;font-family
 .sc:last-child{border-right:none}
 .sl{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(255,255,255,.27);text-transform:uppercase}
 .sv{font-family:'Share Tech Mono',monospace;font-size:21px;color:#fff;line-height:1;letter-spacing:.01em}
-.sv.g{color:#3ecf6e}
+.sv.g{color:#ffdd2a}
 .wc{flex:1;display:flex;align-items:center;gap:12px;padding:0 16px;border-right:1px solid rgba(255,255,255,.05);height:100%}
 .wc:last-child{border-right:none}
 .wi{height:32px;width:auto;max-width:88px;object-fit:contain;filter:brightness(.88);flex-shrink:0}
 .winfo{display:flex;flex-direction:column;gap:2px;min-width:0}
 .wk{font-family:'Share Tech Mono',monospace;font-size:19px;color:#fff;line-height:1}
 .wn{font-size:11px;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.5);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
-.wh{font-size:10px;color:rgba(62,207,110,.6);letter-spacing:.04em}
+.wh{font-size:10px;color:rgba(255,221,42,.6);letter-spacing:.04em}
 .prog{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.04);z-index:6}
-.prog-fill{height:100%;width:0%;background:rgba(62,207,110,.5);transition:none}
-.blbl{position:absolute;top:7px;right:13px;font-size:8px;font-weight:700;letter-spacing:.18em;color:rgba(62,207,110,.3);text-transform:uppercase;z-index:6}
+.prog-fill{height:100%;width:0%;background:rgba(255,221,42,.5);transition:none}
+.blbl{position:absolute;top:7px;right:13px;font-size:8px;font-weight:700;letter-spacing:.18em;color:rgba(255,221,42,.3);text-transform:uppercase;z-index:6}
 .dots{position:absolute;bottom:8px;right:13px;display:flex;gap:4px;z-index:6}
 .dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.14);transition:background .3s}
-.dot.on{background:#3ecf6e}
+.dot.on{background:#ffdd2a}
 .ldg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;z-index:7}
-.ld{width:5px;height:5px;border-radius:50%;background:#3ecf6e;animation:pulse 1.2s ease-in-out infinite}
+.ld{width:5px;height:5px;border-radius:50%;background:#ffdd2a;animation:pulse 1.2s ease-in-out infinite}
 .ld:nth-child(2){animation-delay:.2s}
 .ld:nth-child(3){animation-delay:.4s}
 @keyframes pulse{0%,80%,100%{opacity:.15;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
@@ -111,10 +111,11 @@ const PLAYER=p.get('name')||'katat0nia';
 const PLATFORM=p.get('platform')||'ea';
 const PLAT_LABEL={ea:'EA App',steam:'Steam',psn:'PSN',xbox:'Xbox',ps5:'PS5',epic:'Epic'}[PLATFORM]||PLATFORM.toUpperCase();
 const API=`${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
+const EA_API=`${window.BF6_CONFIG?.api?.replace('/bf6/stats','/bf6/eastats')||'https://corillo.live/api/bf6/eastats'}?name=${encodeURIComponent(PLAYER)}`;
 const ROTATE_MS=8000,DATA_MS=60000;
 const LABELS=['GENERAL','WEAPONS','ACCURACY','OBJECTIVE','SESSION'];
 const STORAGE_KEY=`bf6_session_${PLAYER}_${PLATFORM}`;
-let cur=0,loaded=false,rotTimer=null,lastGoodData=null,lastUpdatedAt=null,ltTimer=null;
+let cur=0,loaded=false,rotTimer=null,lastGoodData=null,lastUpdatedAt=null,ltTimer=null,eaDisplayName=null;
 function relTime(){if(!lastUpdatedAt)return'';const m=Math.floor((Date.now()-lastUpdatedAt)/60000);return m<1?'↻ ahora':m===1?'↻ 1 min':`↻ ${m} min`}
 function tickLt(){const el=document.getElementById('ltts');if(el&&!document.querySelector('.bar').classList.contains('stale'))el.textContent=relTime()}
 function fmt(n,d=0){if(n==null||isNaN(+n))return'—';return(+n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
@@ -137,7 +138,7 @@ function showBlock(idx){
 }
 function startRotation(){if(rotTimer)clearInterval(rotTimer);rotTimer=setInterval(()=>showBlock((cur+1)%5),ROTATE_MS)}
 function fillData(d){
-  document.getElementById('pname').textContent=(d.userName||PLAYER).toUpperCase();
+  document.getElementById('pname').textContent=(eaDisplayName||d.userName||PLAYER).toUpperCase();
   document.getElementById('pbadge').textContent=PLAT_LABEL;
   document.getElementById('b0k').textContent=fmt(d.kills);
   document.getElementById('b0kd').textContent=fmt(d.killDeath,2);
@@ -178,7 +179,8 @@ function markStale(){document.querySelector('.bar').classList.add('stale');const
 function unmarkStale(){document.querySelector('.bar').classList.remove('stale');const el=document.getElementById('ltts');if(el){el.style.color='';el.textContent=relTime()}}
 async function fetchData(){
   try{
-    const r=await fetch(API);
+    const [r,eaRes]=await Promise.all([fetch(API),fetch(EA_API).catch(()=>null)]);
+    if(eaRes?.ok){const eaData=await eaRes.json().catch(()=>null);if(eaData?.displayName)eaDisplayName=eaData.displayName;}
     const d=await r.json();
     if(!r.ok||d.error){
       if(loaded&&lastGoodData){markStale();return}

@@ -8,13 +8,13 @@
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
-  .card{width:380px;background:rgba(0,0,0,0.82);border-radius:12px;border-left:3px solid #3ecf6e;overflow:hidden;backdrop-filter:blur(6px);box-shadow:0 4px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);position:relative}
+  .card{width:380px;background:rgba(0,0,0,0.82);border-radius:12px;border-left:3px solid #ffdd2a;overflow:hidden;backdrop-filter:blur(6px);box-shadow:0 4px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);position:relative}
   .card::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;z-index:1}
   .card-inner{position:relative;z-index:2;padding:14px 16px 12px}
   .header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
   .player-name{font-size:16px;font-weight:800;color:#fff;letter-spacing:.04em;text-transform:uppercase;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .section-label{font-size:10px;font-weight:700;letter-spacing:.15em;color:#3ecf6e;text-transform:uppercase;white-space:nowrap}
-  .divider{height:1px;background:linear-gradient(90deg,#3ecf6e 0%,rgba(62,207,110,.15) 60%,transparent 100%);margin-bottom:10px}
+  .section-label{font-size:10px;font-weight:700;letter-spacing:.15em;color:#ffdd2a;text-transform:uppercase;white-space:nowrap}
+  .divider{height:1px;background:linear-gradient(90deg,#ffdd2a 0%,rgba(255,221,42,.15) 60%,transparent 100%);margin-bottom:10px}
 
   .top-stats{display:flex;gap:0;margin-bottom:12px}
   .top-stat{flex:1;display:flex;flex-direction:column;gap:2px}
@@ -22,7 +22,7 @@
   .top-stat:first-child{padding-right:16px}
   .top-label{font-size:10px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.35);text-transform:uppercase}
   .top-value{font-family:'Share Tech Mono',monospace;font-size:38px;line-height:1;color:#fff;letter-spacing:-.02em}
-  .top-value.green{color:#3ecf6e}
+  .top-value.green{color:#ffdd2a}
   .top-sub{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:.06em;margin-top:1px}
 
   .row{display:flex;justify-content:space-between;background:rgba(255,255,255,.03);border-radius:6px;padding:8px 12px;margin-bottom:6px;border:1px solid rgba(255,255,255,.05)}
@@ -30,20 +30,20 @@
   .stat-minor{display:flex;flex-direction:column;align-items:center;gap:3px}
   .stat-minor-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);text-transform:uppercase;text-align:center}
   .stat-minor-value{font-family:'Share Tech Mono',monospace;font-size:14px;color:#fff;letter-spacing:.02em}
-  .stat-minor-value.green{color:#3ecf6e}
+  .stat-minor-value.green{color:#ffdd2a}
 
   .footer{display:flex;justify-content:space-between;align-items:center}
-  .footer-brand{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(62,207,110,.45);text-transform:uppercase}
+  .footer-brand{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(255,221,42,.45);text-transform:uppercase}
   .footer-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,.2)}
 
   .loading{display:flex;align-items:center;gap:8px;justify-content:center;min-height:160px}
-  .loading-dot{width:6px;height:6px;border-radius:50%;background:#3ecf6e;animation:pulse 1.2s ease-in-out infinite}
+  .loading-dot{width:6px;height:6px;border-radius:50%;background:#ffdd2a;animation:pulse 1.2s ease-in-out infinite}
   .loading-dot:nth-child(2){animation-delay:.2s}
   .loading-dot:nth-child(3){animation-delay:.4s}
   @keyframes pulse{0%,80%,100%{opacity:.15;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
   .error-msg{font-size:11px;color:rgba(255,80,80,.7);text-align:center;min-height:160px;display:flex;align-items:center;justify-content:center;line-height:1.6}
   .error-msg .err-sub{font-size:9px;opacity:.5;letter-spacing:.08em;display:block;margin-top:3px}
-  @keyframes flash-border{0%{border-left-color:#3ecf6e}50%{border-left-color:rgba(62,207,110,.3)}100%{border-left-color:#3ecf6e}}
+  @keyframes flash-border{0%{border-left-color:#ffdd2a}50%{border-left-color:rgba(255,221,42,.3)}100%{border-left-color:#ffdd2a}}
   .card.refreshing{animation:flash-border .5s ease}
 </style>
 </head>
@@ -58,8 +58,9 @@ const p=new URLSearchParams(location.search);
 const PLAYER=p.get('name')||'katat0nia';
 const PLATFORM=p.get('platform')||'ea';
 const API=`${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
+const EA_API=`${window.BF6_CONFIG?.api?.replace('/bf6/stats','/bf6/eastats')||'https://corillo.live/api/bf6/eastats'}?name=${encodeURIComponent(PLAYER)}`;
 const INTERVAL=60000;
-let lastGoodData=null,lastUpdatedAt=null,ftTimer=null,isStale=false;
+let lastGoodData=null,lastUpdatedAt=null,ftTimer=null,isStale=false,eaDisplayName=null;
 function relTime(){if(!lastUpdatedAt)return'↻ ahora';const m=Math.floor((Date.now()-lastUpdatedAt)/60000);return m<1?'↻ ahora':m===1?'↻ 1 min':`↻ ${m} min`}
 function tickFooter(){if(isStale)return;const ft=document.querySelector('.footer-time');if(ft)ft.textContent=relTime()}
 
@@ -72,7 +73,7 @@ function renderObjective(data){
   const objTime=obj.time||{};
   document.getElementById('content').innerHTML=`
     <div class="header">
-      <span class="player-name">${data.userName||PLAYER}</span>
+      <span class="player-name">${eaDisplayName||data.userName||PLAYER}</span>
       <span class="section-label">OBJECTIVE</span>
     </div>
     <div class="divider"></div>
@@ -121,7 +122,8 @@ async function fetchStats(isRefresh=false){
   const card=document.getElementById('card');
   if(isRefresh&&lastGoodData){card.classList.add('refreshing');setTimeout(()=>card.classList.remove('refreshing'),500)}
   try{
-    const res=await fetch(API);
+    const [res,eaRes]=await Promise.all([fetch(API),fetch(EA_API).catch(()=>null)]);
+    if(eaRes?.ok){const eaData=await eaRes.json().catch(()=>null);if(eaData?.displayName)eaDisplayName=eaData.displayName;}
     const data=await res.json();
     if(!res.ok||data.error){
       if(isRefresh&&lastGoodData){markStale();return}

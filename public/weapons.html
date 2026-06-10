@@ -8,13 +8,13 @@
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
-  .card{width:380px;background:rgba(0,0,0,0.82);border-radius:12px;border-left:3px solid #3ecf6e;overflow:hidden;backdrop-filter:blur(6px);box-shadow:0 4px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);position:relative}
+  .card{width:380px;background:rgba(0,0,0,0.82);border-radius:12px;border-left:3px solid #ffdd2a;overflow:hidden;backdrop-filter:blur(6px);box-shadow:0 4px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);position:relative}
   .card::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;z-index:1}
   .card-inner{position:relative;z-index:2;padding:14px 16px 12px}
   .header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
   .player-name{font-size:16px;font-weight:800;color:#fff;letter-spacing:.04em;text-transform:uppercase;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .section-label{font-size:10px;font-weight:700;letter-spacing:.15em;color:#3ecf6e;text-transform:uppercase;white-space:nowrap}
-  .divider{height:1px;background:linear-gradient(90deg,#3ecf6e 0%,rgba(62,207,110,.15) 60%,transparent 100%);margin-bottom:10px}
+  .section-label{font-size:10px;font-weight:700;letter-spacing:.15em;color:#ffdd2a;text-transform:uppercase;white-space:nowrap}
+  .divider{height:1px;background:linear-gradient(90deg,#ffdd2a 0%,rgba(255,221,42,.15) 60%,transparent 100%);margin-bottom:10px}
   .weapon-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
   .weapon-row:last-child{border-bottom:none}
   .weapon-rank{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);width:14px;flex-shrink:0;text-align:right}
@@ -24,22 +24,22 @@
   .weapon-name{font-size:12px;font-weight:700;color:#fff;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
   .weapon-bar-row{display:flex;align-items:center;gap:6px}
   .weapon-bar-bg{flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
-  .weapon-bar-fill{height:100%;background:#3ecf6e;border-radius:2px;transition:width .4s ease}
+  .weapon-bar-fill{height:100%;background:#ffdd2a;border-radius:2px;transition:width .4s ease}
   .weapon-meta{display:flex;gap:8px;align-items:center}
   .weapon-kills{font-family:'Share Tech Mono',monospace;font-size:12px;color:#fff;white-space:nowrap}
-  .weapon-hs{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(62,207,110,.7);white-space:nowrap}
+  .weapon-hs{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,221,42,.7);white-space:nowrap}
   .weapon-acc{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);white-space:nowrap}
   .footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
-  .footer-brand{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(62,207,110,.45);text-transform:uppercase}
+  .footer-brand{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(255,221,42,.45);text-transform:uppercase}
   .footer-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,.2)}
   .loading{display:flex;align-items:center;gap:8px;justify-content:center;min-height:140px}
-  .loading-dot{width:6px;height:6px;border-radius:50%;background:#3ecf6e;animation:pulse 1.2s ease-in-out infinite}
+  .loading-dot{width:6px;height:6px;border-radius:50%;background:#ffdd2a;animation:pulse 1.2s ease-in-out infinite}
   .loading-dot:nth-child(2){animation-delay:.2s}
   .loading-dot:nth-child(3){animation-delay:.4s}
   @keyframes pulse{0%,80%,100%{opacity:.15;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
   .error-msg{font-size:11px;color:rgba(255,80,80,.7);text-align:center;min-height:140px;display:flex;align-items:center;justify-content:center;line-height:1.6}
   .error-msg .err-sub{font-size:9px;opacity:.5;letter-spacing:.08em;display:block;margin-top:3px}
-  @keyframes flash-border{0%{border-left-color:#3ecf6e}50%{border-left-color:rgba(62,207,110,.3)}100%{border-left-color:#3ecf6e}}
+  @keyframes flash-border{0%{border-left-color:#ffdd2a}50%{border-left-color:rgba(255,221,42,.3)}100%{border-left-color:#ffdd2a}}
   .card.refreshing{animation:flash-border .5s ease}
 </style>
 </head>
@@ -55,8 +55,9 @@ const PLAYER = p.get('name') || 'katat0nia';
 const PLATFORM = p.get('platform') || 'ea';
 const TOP = parseInt(p.get('top') || '5');
 const API = `${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
+const EA_API = `${window.BF6_CONFIG?.api?.replace('/bf6/stats','/bf6/eastats')||'https://corillo.live/api/bf6/eastats'}?name=${encodeURIComponent(PLAYER)}`;
 const INTERVAL = 60000;
-let lastGoodData=null,lastUpdatedAt=null,ftTimer=null,isStale=false;
+let lastGoodData=null,lastUpdatedAt=null,ftTimer=null,isStale=false,eaDisplayName=null;
 function relTime(){if(!lastUpdatedAt)return'↻ ahora';const m=Math.floor((Date.now()-lastUpdatedAt)/60000);return m<1?'↻ ahora':m===1?'↻ 1 min':`↻ ${m} min`}
 function tickFooter(){if(isStale)return;const ft=document.querySelector('.footer-time');if(ft)ft.textContent=relTime()}
 
@@ -64,7 +65,7 @@ function nowTime(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',
 function fmt(n,d=0){if(n==null||isNaN(Number(n)))return'—';return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
 
 function renderWeapons(data){
-  const name = data.userName || PLAYER;
+  const name = eaDisplayName || data.userName || PLAYER;
   const weapons = (data.weapons || [])
     .filter(w => w.kills > 0)
     .sort((a,b) => b.kills - a.kills)
@@ -123,7 +124,8 @@ async function fetchStats(isRefresh=false){
   const card=document.getElementById('card');
   if(isRefresh&&lastGoodData){card.classList.add('refreshing');setTimeout(()=>card.classList.remove('refreshing'),500)}
   try{
-    const res=await fetch(API);
+    const [res,eaRes]=await Promise.all([fetch(API),fetch(EA_API).catch(()=>null)]);
+    if(eaRes?.ok){const eaData=await eaRes.json().catch(()=>null);if(eaData?.displayName)eaDisplayName=eaData.displayName;}
     const data=await res.json();
     if(!res.ok||data.error){
       if(isRefresh&&lastGoodData){markStale();return}

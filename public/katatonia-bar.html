@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KATATONIA — BF6 Bar</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1920px;height:275px;overflow:hidden;background:transparent;font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
+
+  .bar{
+    width:1920px;height:275px;
+    background:linear-gradient(180deg,rgba(0,0,0,.68) 0%,rgba(0,0,0,.94) 100%);
+    border-top:3px solid #ffdd2a;
+    display:flex;align-items:stretch;
+    position:relative;overflow:hidden;
+  }
+  .bar::after{
+    content:'';position:absolute;inset:0;
+    background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px);
+    pointer-events:none;z-index:0;
+  }
+  .bar::before{
+    content:'';position:absolute;left:0;top:0;bottom:0;width:520px;
+    background:linear-gradient(90deg,rgba(255,221,42,.07) 0%,transparent 100%);
+    pointer-events:none;z-index:0;
+  }
+
+  /* ---- IDENTITY ---- */
+  .identity{
+    display:flex;flex-direction:column;justify-content:center;
+    padding:0 28px 0 24px;
+    border-right:1px solid rgba(255,221,42,.2);
+    position:relative;z-index:1;flex-shrink:0;
+    min-width:310px;gap:10px;
+  }
+  .tag{font-size:13px;font-weight:800;letter-spacing:.24em;color:rgba(255,221,42,.55);text-transform:uppercase}
+  .name{font-size:64px;font-weight:900;color:#fff;letter-spacing:.03em;text-transform:uppercase;line-height:.95}
+  .badges{display:flex;align-items:center;gap:10px;margin-top:6px}
+  .season-pill{font-size:16px;font-weight:800;letter-spacing:.12em;color:#ffdd2a;text-transform:uppercase;background:rgba(255,221,42,.1);border:1px solid rgba(255,221,42,.3);padding:7px 18px;border-radius:20px;white-space:nowrap}
+  .perf-pill{font-size:16px;font-weight:800;letter-spacing:.1em;padding:7px 18px;border-radius:20px;text-transform:uppercase;white-space:nowrap;transition:all .5s}
+  .perf-pill.hot{background:rgba(255,100,30,.18);border:1px solid rgba(255,100,30,.45);color:#ff6b2b}
+  .perf-pill.avg{background:rgba(255,221,42,.12);border:1px solid rgba(255,221,42,.35);color:#ffdd2a}
+  .perf-pill.cold{background:rgba(100,160,255,.12);border:1px solid rgba(100,160,255,.35);color:#6db3ff}
+
+  /* ---- MATCH TILES — posicionados después de identity ---- */
+  .tiles{
+    display:flex;align-items:center;gap:7px;
+    padding:0 28px;
+    border-right:1px solid rgba(255,255,255,.06);
+    position:relative;z-index:1;flex-shrink:0;
+  }
+  .tiles-header{display:flex;flex-direction:column;align-items:center;justify-content:center;margin-right:10px}
+  .tiles-label{font-size:10px;font-weight:800;letter-spacing:.2em;color:rgba(255,255,255,.2);text-transform:uppercase;white-space:nowrap}
+  .tile{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    width:80px;height:160px;border-radius:8px;gap:6px;transition:all .3s;
+  }
+  .tile.win{background:rgba(80,220,100,.1);border:1px solid rgba(80,220,100,.3)}
+  .tile.loss{background:rgba(255,70,70,.08);border:1px solid rgba(255,70,70,.22)}
+  .tile.empty{background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.07)}
+  .tile-r{font-size:26px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+  .tile.win .tile-r{color:#50dc64}
+  .tile.loss .tile-r{color:#ff6060}
+  .tile.empty .tile-r{color:rgba(255,255,255,.1)}
+  .tile-s{font-family:'Share Tech Mono',monospace;font-size:14px;color:rgba(255,255,255,.55);line-height:1}
+  .tile.empty .tile-s{color:rgba(255,255,255,.1)}
+
+  /* ---- STATS (6) ---- */
+  .stats{
+    display:flex;align-items:center;gap:0;
+    flex:1;
+    position:relative;z-index:1;
+  }
+  .stat{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:0 16px;flex:1;height:100%;
+    border-right:1px solid rgba(255,255,255,.05);
+  }
+  .stat:last-child{border-right:none}
+  .stat-label{font-size:12px;font-weight:700;letter-spacing:.18em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:8px}
+  .stat-value{font-family:'Share Tech Mono',monospace;font-size:66px;color:#fff;line-height:1;letter-spacing:-.01em}
+  .stat-value.accent{color:#ffdd2a}
+  .stat-value.dim{color:rgba(255,255,255,.45);font-size:52px}
+
+  /* ---- BRAND ---- */
+  .brand{
+    display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
+    padding:0 28px;border-left:1px solid rgba(255,221,42,.15);
+    position:relative;z-index:1;flex-shrink:0;min-width:155px;
+  }
+  .brand-name{font-size:14px;font-weight:800;letter-spacing:.2em;color:rgba(255,221,42,.5);text-transform:uppercase}
+  .brand-since{font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(255,255,255,.2);letter-spacing:.06em;margin-top:6px}
+
+  /* loading */
+  .bar-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;z-index:5}
+  .ld{width:8px;height:8px;border-radius:50%;background:#ffdd2a;animation:pulse 1.2s ease-in-out infinite}
+  .ld:nth-child(2){animation-delay:.2s}
+  .ld:nth-child(3){animation-delay:.4s}
+  @keyframes pulse{0%,80%,100%{opacity:.15;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+  /* match flash */
+  .match-flash{
+    position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;gap:40px;
+    opacity:0;pointer-events:none;transition:opacity .35s ease;
+  }
+  .match-flash.show{opacity:1;pointer-events:auto}
+  .match-flash.win-flash{background:rgba(0,0,0,.9);border-top:3px solid #50dc64}
+  .match-flash.loss-flash{background:rgba(0,0,0,.9);border-top:3px solid #ff6060}
+  .mf-result{font-size:120px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;line-height:1}
+  .mf-result.win{color:#50dc64}
+  .mf-result.loss{color:#ff6060}
+  .mf-sep{width:2px;height:120px;background:rgba(255,255,255,.1)}
+  .mf-stats{display:flex;flex-direction:column;gap:6px}
+  .mf-kd{font-family:'Share Tech Mono',monospace;font-size:52px;color:#fff;line-height:1}
+  .mf-sub{font-size:14px;font-weight:700;letter-spacing:.22em;color:rgba(255,255,255,.3);text-transform:uppercase}
+  .mf-bar{position:absolute;bottom:0;left:0;height:3px;background:#ffdd2a;animation:mf-progress 8s linear forwards}
+  @keyframes mf-progress{from{width:100%}to{width:0%}}
+</style>
+</head>
+<body>
+<div class="bar" id="bar">
+  <div class="bar-loading" id="loading"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>
+  <div class="match-flash" id="matchFlash"></div>
+</div>
+
+<script>
+const p = new URLSearchParams(location.search);
+const PLAYER = p.get('name') || 'katat0nia';
+const PLATFORM = p.get('platform') || 'ea';
+const API = `${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
+const EA_API = `${window.BF6_CONFIG?.api?.replace('/bf6/stats','/bf6/eastats')||'https://corillo.live/api/bf6/eastats'}?name=${encodeURIComponent(PLAYER)}`;
+const INTERVAL = 60000;
+const STORAGE_KEY = `bf6_bar_${PLAYER}_${PLATFORM}`;
+const HISTORY_KEY = `bf6_bar_hist_${PLAYER}_${PLATFORM}`;
+if (p.get('reset') === '1') { try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(HISTORY_KEY); } catch {} }
+
+let lastGoodData = null, eaDisplayName = null, flashTimer = null;
+
+function calcDeaths(d){const k=Number(d.kills)||0,kd=Number(d.killDeath)||0;return kd>0?Math.round(k/kd):0}
+function calcWins(d){const m=Number(d.matchesPlayed)||0,wp=parseFloat(String(d.winPercent).replace('%',''))||0;return Math.round(m*wp/100)}
+function fmt(n,dec=0){if(n==null||isNaN(Number(n)))return'—';return Number(n).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec})}
+function fmtSecs(s){if(!s)return'0m';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h>=100?`${h}h`:h>0?`${h}h ${m}m`:`${m}m`}
+function getBaseline(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||null}catch{return null}}
+function saveBaseline(data){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({kills:Number(data.kills)||0,deaths:calcDeaths(data),matches:Number(data.matchesPlayed)||0,wins:calcWins(data),seconds:Number(data.secondsPlayed)||0,lifetimeKD:Number(data.killDeath)||0,startedAt:Date.now()}))}catch{}}
+function getHistory(){try{return JSON.parse(localStorage.getItem(HISTORY_KEY))||[]}catch{return[]}}
+function addToHistory(e){try{const h=getHistory();h.push(e);if(h.length>5)h.shift();localStorage.setItem(HISTORY_KEY,JSON.stringify(h))}catch{}}
+function getPerfTier(sKD,lKD){if(!lKD)return'avg';const r=sKD/lKD;return r>=1.25?'hot':r<=0.75?'cold':'avg'}
+const PERF_LABEL={hot:'🔥 HOT',avg:'⚡ AVG',cold:'❄ COLD'};
+
+function showMatchFlash(isWin, mk, md) {
+  const el = document.getElementById('matchFlash');
+  if (flashTimer) clearTimeout(flashTimer);
+  const kd = md > 0 ? (mk/md).toFixed(2) : mk > 0 ? '∞' : '—';
+  el.className = `match-flash show ${isWin?'win':'loss'}-flash`;
+  el.innerHTML = `
+    <span class="mf-result ${isWin?'win':'loss'}">${isWin?'WIN':'LOSS'}</span>
+    <div class="mf-sep"></div>
+    <div class="mf-stats">
+      <span class="mf-kd">${mk} / ${md}</span>
+      <span class="mf-sub">${kd} K/D · THIS ROUND</span>
+    </div>
+    <div class="mf-bar"></div>`;
+  flashTimer = setTimeout(() => el.classList.remove('show'), 8000);
+}
+
+function render(data, bl) {
+  const kills   = Math.max(0,(Number(data.kills)||0)-bl.kills);
+  const deaths  = Math.max(0,calcDeaths(data)-bl.deaths);
+  const matches = Math.max(0,(Number(data.matchesPlayed)||0)-bl.matches);
+  const wins    = Math.max(0,calcWins(data)-bl.wins);
+  const losses  = Math.max(0,matches-wins);
+  const kdNum   = deaths>0?kills/deaths:kills>0?99:0;
+  const kd      = deaths>0?fmt(kdNum,2):kills>0?'∞':'—';
+  const secs    = Math.max(0,(Number(data.secondsPlayed)||0)-bl.seconds);
+  const lifetimeKD = Number(data.killDeath)||bl.lifetimeKD||0;
+  const tier    = getPerfTier(kdNum, lifetimeKD);
+  const startHH = new Date(bl.startedAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
+  const displayName = eaDisplayName || data.userName || PLAYER;
+
+  const history = getHistory();
+  const tilesHTML = Array(5).fill(null).map((_,i)=>{
+    const t = history[i]||null;
+    return t
+      ? `<div class="tile ${t.win?'win':'loss'}"><span class="tile-r">${t.win?'W':'L'}</span><span class="tile-s">${t.kills}/${t.deaths}</span></div>`
+      : `<div class="tile empty"><span class="tile-r">·</span><span class="tile-s">—</span></div>`;
+  }).join('');
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('bar').innerHTML = `
+    <div class="bar-loading" id="loading" style="display:none"></div>
+    <div class="match-flash" id="matchFlash"></div>
+
+    <div class="identity">
+      <span class="tag">BF6 · EA</span>
+      <span class="name">${displayName.toUpperCase()}</span>
+      <div class="badges">
+        <span class="season-pill">S3 · REDSEC</span>
+        <span class="perf-pill ${tier}">${PERF_LABEL[tier]}</span>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tiles-header"><span class="tiles-label">LAST<br>MATCHES</span></div>
+      ${tilesHTML}
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-label">Kills</span>
+        <span class="stat-value accent">+${fmt(kills)}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Session K/D</span>
+        <span class="stat-value">${kd}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Deaths</span>
+        <span class="stat-value">${fmt(deaths)}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">W / L</span>
+        <span class="stat-value">${wins}/${losses}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Time</span>
+        <span class="stat-value">${fmtSecs(secs)}</span>
+      </div>
+    </div>
+
+    <div class="brand">
+      <span class="brand-name">CORILLO.LIVE</span>
+      <span class="brand-since">since ${startHH}</span>
+    </div>`;
+
+  // re-bind flash el after innerHTML replace
+  if (flashTimer) {
+    const newFlash = document.getElementById('matchFlash');
+    if (newFlash) newFlash.className = document.getElementById('matchFlash')?.className || 'match-flash';
+  }
+}
+
+async function fetchStats(isRefresh = false) {
+  try {
+    const [res, eaRes] = await Promise.all([fetch(API), fetch(EA_API).catch(()=>null)]);
+    if (eaRes?.ok){const eaData=await eaRes.json().catch(()=>null);if(eaData?.displayName)eaDisplayName=eaData.displayName;}
+    const data = await res.json();
+    if (!res.ok || data.error) return;
+
+    if (!getBaseline()) saveBaseline(data);
+    const bl = getBaseline();
+
+    if (lastGoodData) {
+      const prevM = Math.max(0,(Number(lastGoodData.matchesPlayed)||0)-bl.matches);
+      const curM  = Math.max(0,(Number(data.matchesPlayed)||0)-bl.matches);
+      if (curM > prevM) {
+        const mk = Math.max(0,(Number(data.kills)||0)-(Number(lastGoodData.kills)||0));
+        const md = Math.max(0,calcDeaths(data)-calcDeaths(lastGoodData));
+        const isWin = calcWins(data)-bl.wins > calcWins(lastGoodData)-bl.wins;
+        addToHistory({win:isWin,kills:mk,deaths:md});
+        showMatchFlash(isWin, mk, md);
+      }
+    }
+
+    lastGoodData = data;
+    render(data, bl);
+  } catch(e) { console.warn('BF6 bar:', e.message); }
+}
+
+fetchStats();
+setInterval(() => fetchStats(true), INTERVAL);
+</script>
+</body>
+</html>
