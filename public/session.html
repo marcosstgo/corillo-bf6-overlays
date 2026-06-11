@@ -276,6 +276,10 @@ async function fetchStats(isRefresh = false) {
 
 fetchStats();
 setInterval(() => fetchStats(true), INTERVAL);
+
+setTimeout(() => {
+  if (!lastGoodData) renderError('timeout');
+}, 15000);
 </script>
 </body>
 </html>
