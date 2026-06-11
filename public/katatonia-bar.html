@@ -296,13 +296,57 @@ async function fetchStats(isRefresh = false) {
 fetchStats();
 setInterval(() => fetchStats(true), INTERVAL);
 
-// Mostrar error state si no hay datos después de 15s
 setTimeout(() => {
   if (!lastGoodData) {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('barError').classList.add('show');
   }
 }, 15000);
+
+// ---- Session persistence ----
+const PB = 'https://pb.corillo.live';
+
+function buildSessionPayload() {
+  if (!lastGoodData) return null;
+  const bl = getBaseline();
+  if (!bl) return null;
+  const kills   = Math.max(0, (Number(lastGoodData.kills) || 0) - bl.kills);
+  const deaths  = Math.max(0, calcDeaths(lastGoodData) - bl.deaths);
+  const matches = Math.max(0, (Number(lastGoodData.matchesPlayed) || 0) - bl.matches);
+  const wins    = Math.max(0, calcWins(lastGoodData) - bl.wins);
+  if (matches === 0 && kills === 0) return null; // sesión vacía, no guardar
+  const kdNum = deaths > 0 ? kills / deaths : kills > 0 ? 99 : 0;
+  return {
+    player:        eaDisplayName || lastGoodData.userName || PLAYER,
+    platform:      PLATFORM,
+    kills,
+    deaths,
+    kd:            Math.round(kdNum * 100) / 100,
+    wins,
+    losses:        Math.max(0, matches - wins),
+    matches,
+    seconds:       Math.max(0, (Number(lastGoodData.secondsPlayed) || 0) - bl.seconds),
+    lifetime_kd:   Number(lastGoodData.killDeath) || bl.lifetimeKD || 0,
+    match_history: getHistory(),
+    started_at:    new Date(bl.startedAt).toISOString(),
+  };
+}
+
+async function saveSession() {
+  const payload = buildSessionPayload();
+  if (!payload) return;
+  try {
+    await fetch(`${PB}/api/collections/bf6_sessions/records`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    });
+  } catch(e) { console.warn('bf6 session save:', e.message); }
+}
+
+window.addEventListener('beforeunload', saveSession);
+setInterval(saveSession, 30 * 60 * 1000);
 </script>
 </body>
 </html>
