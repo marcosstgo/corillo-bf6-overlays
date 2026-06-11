@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>BF6 Session Overlay</title>
 <script src="config.js"></script>
+<script src="bf6-session.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -103,140 +104,57 @@
   <div class="match-flash" id="matchFlash"></div>
 </div>
 <script>
-const p = new URLSearchParams(location.search);
-const PLAYER = p.get('name') || 'katat0nia';
+const p        = new URLSearchParams(location.search);
+const PLAYER   = p.get('name')     || 'katat0nia';
 const PLATFORM = p.get('platform') || 'ea';
-const PLAT_LABEL = {ea:'EA',steam:'STEAM',psn:'PSN',xbox:'XBOX',ps5:'PS5',epic:'EPIC'}[PLATFORM] || PLATFORM.toUpperCase();
-const API = `${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
-const EA_API = `${window.BF6_CONFIG?.api?.replace('/bf6/stats','/bf6/eastats')||'https://corillo.live/api/bf6/eastats'}?name=${encodeURIComponent(PLAYER)}`;
-const INTERVAL = 60000;
-const STORAGE_KEY = `bf6_session_${PLAYER}_${PLATFORM}`;
-const HISTORY_KEY = `bf6_history_${PLAYER}_${PLATFORM}`;
-if (p.get('reset') === '1') { try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(HISTORY_KEY); } catch {} }
 
-// Auto-reset si el baseline es de un día anterior
-(function() {
-  try {
-    const bl = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (bl?.startedAt) {
-      const blDate = new Date(bl.startedAt).toDateString();
-      if (blDate !== new Date().toDateString()) {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(HISTORY_KEY);
-      }
-    }
-  } catch {}
-})();
+let flashTimer = null, streakTimer = null;
 
-let lastGoodData = null, eaDisplayName = null, flashTimer = null, streakTimer = null;
-
-const STREAK_LABELS = {
-  fire:   '🔥 ON FIRE',
-  streak: '⚡ STREAK',
-  clutch: '💀 CLUTCH',
-  tilt:   '❄ TILT',
-};
+const session = new BF6Session({
+  player:     PLAYER,
+  platform:   PLATFORM,
+  storageKey: `bf6_session_${PLAYER}_${PLATFORM}`,
+  historyKey: `bf6_history_${PLAYER}_${PLATFORM}`,
+});
 
 function showStreakFlash(type) {
   const el = document.getElementById('streakBadge');
   if (!el) return;
   if (streakTimer) clearTimeout(streakTimer);
-  el.textContent = STREAK_LABELS[type];
+  el.textContent = BF6Session.STREAK_LABELS[type];
   el.className = `streak-badge ${type} show`;
   streakTimer = setTimeout(() => el.classList.remove('show'), 5000);
 }
 
-function detectStreak(prev, cur) {
-  const mf = document.getElementById('matchFlash');
-  if (mf?.classList.contains('show')) return;
-  const dk = Math.max(0, (Number(cur.kills)||0)  - (Number(prev.kills)||0));
-  const dd = Math.max(0, calcDeaths(cur) - calcDeaths(prev));
-  if      (dk >= 5 && dd === 0)              showStreakFlash('fire');
-  else if (dk >= 3 && dd === 0)              showStreakFlash('streak');
-  else if (dk >= 3 && dd > 0 && dk/dd >= 3) showStreakFlash('clutch');
-  else if (dd >= 4 && dk <= 1)              showStreakFlash('tilt');
-}
-
-function calcDeaths(d) {
-  const k = Number(d.kills) || 0, kd = Number(d.killDeath) || 0;
-  return kd > 0 ? Math.round(k / kd) : 0;
-}
-function calcWins(d) {
-  const m = Number(d.matchesPlayed) || 0;
-  const wp = parseFloat(String(d.winPercent).replace('%', '')) || 0;
-  return Math.round(m * wp / 100);
-}
-function fmt(n, dec=0) {
-  if (n == null || isNaN(Number(n))) return '—';
-  return Number(n).toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec});
-}
-function fmtSecs(s) {
-  if (!s) return '0m';
-  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60);
-  return h >= 100 ? `${h}h` : h > 0 ? `${h}h ${m}m` : `${m}m`;
-}
-
-function getBaseline() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; } catch { return null; } }
-function saveBaseline(data) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      kills:      Number(data.kills) || 0,
-      deaths:     calcDeaths(data),
-      matches:    Number(data.matchesPlayed) || 0,
-      wins:       calcWins(data),
-      seconds:    Number(data.secondsPlayed) || 0,
-      lifetimeKD: Number(data.killDeath) || 0,
-      startedAt:  Date.now()
-    }));
-  } catch {}
-}
-function getHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; } }
-function addToHistory(entry) {
-  try {
-    const h = getHistory();
-    h.push(entry);
-    if (h.length > 5) h.shift();
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(h));
-  } catch {}
-}
-
-function getPerfTier(sessionKD, lifetimeKD) {
-  if (!lifetimeKD) return 'avg';
-  const ratio = sessionKD / lifetimeKD;
-  if (ratio >= 1.25) return 'hot';
-  if (ratio <= 0.75) return 'cold';
-  return 'avg';
-}
-const PERF_LABEL = {hot:'🔥 HOT', avg:'⚡ AVG', cold:'❄ COLD'};
-
 function showMatchFlash(isWin, matchKills, matchDeaths) {
   const el = document.getElementById('matchFlash');
   if (flashTimer) clearTimeout(flashTimer);
-  const matchKD = matchDeaths > 0 ? (matchKills / matchDeaths).toFixed(2) : matchKills > 0 ? '∞' : '—';
+  const kd = matchDeaths > 0 ? (matchKills / matchDeaths).toFixed(2) : matchKills > 0 ? '∞' : '—';
   el.className = `match-flash show ${isWin ? 'win' : 'loss'}-flash`;
   el.innerHTML = `
     <span class="flash-label ${isWin ? 'win' : 'loss'}">MATCH RESULT</span>
     <span class="flash-result ${isWin ? 'win' : 'loss'}">${isWin ? 'WIN' : 'LOSS'}</span>
     <span class="flash-kd">${matchKills} / ${matchDeaths}</span>
-    <span class="flash-sub">${matchKD} K/D THIS ROUND</span>
+    <span class="flash-sub">${kd} K/D THIS ROUND</span>
     <div class="flash-bar"></div>`;
   flashTimer = setTimeout(() => { el.classList.remove('show'); }, 8000);
 }
 
-function renderSession(data, bl) {
-  const kills   = Math.max(0, (Number(data.kills) || 0) - bl.kills);
-  const deaths  = Math.max(0, calcDeaths(data) - bl.deaths);
-  const matches = Math.max(0, (Number(data.matchesPlayed) || 0) - bl.matches);
-  const wins    = Math.max(0, calcWins(data) - bl.wins);
-  const losses  = Math.max(0, matches - wins);
-  const kdNum   = deaths > 0 ? kills / deaths : kills > 0 ? 99 : 0;
-  const kd      = deaths > 0 ? fmt(kdNum, 2) : kills > 0 ? '∞' : '—';
-  const secs    = Math.max(0, (Number(data.secondsPlayed) || 0) - bl.seconds);
-  const startHH = new Date(bl.startedAt).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', hour12:false});
-  const lifetimeKD = Number(data.killDeath) || bl.lifetimeKD || 0;
-  const tier    = getPerfTier(kdNum, lifetimeKD);
+function renderError(type) {
+  const line1 = type === 'not_found' ? `Player "${PLAYER}" not found` : type === 'timeout' ? 'API not responding' : 'Stats unavailable';
+  const sub   = type === 'not_found' ? 'Check name and platform in the URL' : 'Retrying in 60s';
+  document.getElementById('content').innerHTML = `<div class="error-msg"><div><div style="font-size:20px;margin-bottom:5px;opacity:.4">${type === 'not_found' ? '⚠' : '↻'}</div><div>${line1}</div><span class="err-sub">${sub}</span></div></div>`;
+}
 
-  const history = getHistory();
+function markStale() {
+  const ft = document.getElementById('footerTime');
+  if (ft) { ft.textContent = '⚠ stale'; ft.style.color = 'rgba(255,180,0,.65)'; }
+}
+
+function renderSession({ baseline: bl, deltas: d, tier, displayName, history }) {
+  const { kills, deaths, wins, losses, seconds, kdNum } = d;
+  const kd      = deaths > 0 ? BF6Session.fmt(kdNum, 2) : kills > 0 ? '∞' : '—';
+  const startHH = new Date(bl.startedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   const tilesHTML = Array(5).fill(null).map((_, i) => {
     const t = history[i] || null;
     return t
@@ -246,14 +164,14 @@ function renderSession(data, bl) {
 
   document.getElementById('content').innerHTML = `
     <div class="header">
-      <span class="player-name">${eaDisplayName || data.userName || PLAYER}</span>
-      <span class="perf-badge ${tier}">${PERF_LABEL[tier]}</span>
+      <span class="player-name">${displayName}</span>
+      <span class="perf-badge ${tier}">${BF6Session.PERF_LABEL[tier]}</span>
     </div>
     <div class="divider"></div>
     <div class="center-stats">
       <div class="stat-main">
         <span class="stat-label-main">Session Kills</span>
-        <span class="stat-value-main kills">+${fmt(kills)}</span>
+        <span class="stat-value-main kills">+${BF6Session.fmt(kills)}</span>
       </div>
       <div class="stat-main">
         <span class="stat-label-main">Session K/D</span>
@@ -261,128 +179,42 @@ function renderSession(data, bl) {
       </div>
     </div>
     <div class="bottom-row">
-      <div class="stat-minor"><span class="stat-minor-label">Deaths</span><span class="stat-minor-value">${fmt(deaths)}</span></div>
+      <div class="stat-minor"><span class="stat-minor-label">Deaths</span><span class="stat-minor-value">${BF6Session.fmt(deaths)}</span></div>
       <div class="stat-minor"><span class="stat-minor-label">W / L</span><span class="stat-minor-value">${wins} / ${losses}</span></div>
-      <div class="stat-minor"><span class="stat-minor-label">Matches</span><span class="stat-minor-value">${fmt(matches)}</span></div>
-      <div class="stat-minor"><span class="stat-minor-label">Time</span><span class="stat-minor-value">${fmtSecs(secs)}</span></div>
+      <div class="stat-minor"><span class="stat-minor-label">Matches</span><span class="stat-minor-value">${BF6Session.fmt(d.matches)}</span></div>
+      <div class="stat-minor"><span class="stat-minor-label">Time</span><span class="stat-minor-value">${BF6Session.fmtSecs(seconds)}</span></div>
     </div>
     <div class="tiles-label">LAST MATCHES</div>
     <div class="match-tiles">${tilesHTML}</div>
     <div class="footer">
       <span class="footer-brand">CORILLO.LIVE · BF6</span>
-      <span class="footer-time">since ${startHH}</span>
+      <span class="footer-time" id="footerTime">since ${startHH}</span>
     </div>`;
 }
 
-function getErrType(status, data) {
-  const msg = (data?.errors?.[0]?.message || data?.message || '').toLowerCase();
-  if (status === 404 || msg.includes('not found')) return 'not_found';
-  if (status === 504 || status === 502) return 'timeout';
-  return 'generic';
-}
-function renderError(type) {
-  const line1 = type === 'not_found' ? `Player "${PLAYER}" not found` : type === 'timeout' ? 'API not responding' : 'Stats unavailable';
-  const sub   = type === 'not_found' ? 'Check name and platform in the URL' : 'Retrying in 60s';
-  document.getElementById('content').innerHTML = `<div class="error-msg"><div><div style="font-size:20px;margin-bottom:5px;opacity:.4">${type==='not_found'?'⚠':'↻'}</div><div>${line1}</div><span class="err-sub">${sub}</span></div></div>`;
-}
-function markStale()   { const ft = document.querySelector('.footer-time'); if (ft) { ft.textContent = '⚠ stale'; ft.style.color = 'rgba(255,180,0,.65)'; } }
-function unmarkStale() { const ft = document.querySelector('.footer-time'); if (ft) ft.style.color = ''; }
-
-async function fetchStats(isRefresh = false) {
-  const card = document.getElementById('card');
-  if (isRefresh && lastGoodData) { card.classList.add('refreshing'); setTimeout(() => card.classList.remove('refreshing'), 500); }
-  try {
-    const [res, eaRes] = await Promise.all([fetch(API), fetch(EA_API).catch(() => null)]);
-    if (eaRes?.ok) { const eaData = await eaRes.json().catch(() => null); if (eaData?.displayName) eaDisplayName = eaData.displayName; }
-    const data = await res.json();
-    if (!res.ok || data.error) {
-      if (isRefresh && lastGoodData) { markStale(); return; }
-      renderError(getErrType(res.status, data)); return;
-    }
-
-    if (!getBaseline()) saveBaseline(data);
-    const bl = getBaseline();
-
-    // Detect match completion
-    if (lastGoodData) {
-      const prevMatches = Math.max(0, (Number(lastGoodData.matchesPlayed) || 0) - bl.matches);
-      const curMatches  = Math.max(0, (Number(data.matchesPlayed) || 0) - bl.matches);
-      if (curMatches > prevMatches) {
-        const prevKills  = Math.max(0, (Number(lastGoodData.kills) || 0) - bl.kills);
-        const curKills   = Math.max(0, (Number(data.kills) || 0) - bl.kills);
-        const prevDeaths = Math.max(0, calcDeaths(lastGoodData) - bl.deaths);
-        const curDeaths  = Math.max(0, calcDeaths(data) - bl.deaths);
-        const matchKills  = Math.max(0, curKills - prevKills);
-        const matchDeaths = Math.max(0, curDeaths - prevDeaths);
-        const isWin = calcWins(data) - bl.wins > calcWins(lastGoodData) - bl.wins;
-        addToHistory({ win: isWin, kills: matchKills, deaths: matchDeaths });
-        showMatchFlash(isWin, matchKills, matchDeaths);
-      } else {
-        detectStreak(lastGoodData, data);
-      }
-    }
-
-    lastGoodData = data;
-    if (isRefresh) unmarkStale();
-    renderSession(data, bl);
-  } catch(e) {
-    if (isRefresh && lastGoodData) { markStale(); return; }
-    renderError('timeout');
-    console.warn('BF6 session:', e.message);
+session.addEventListener('data', ({ detail }) => {
+  if (detail.isRefresh) {
+    const card = document.getElementById('card');
+    card.classList.add('refreshing');
+    setTimeout(() => card.classList.remove('refreshing'), 500);
   }
-}
+  renderSession(detail);
+});
+session.addEventListener('match', ({ detail: { win, matchKills, matchDeaths } }) => {
+  showMatchFlash(win, matchKills, matchDeaths);
+});
+session.addEventListener('streak', ({ detail: { type } }) => {
+  if (document.getElementById('matchFlash')?.classList.contains('show')) return;
+  showStreakFlash(type);
+});
+session.addEventListener('error', ({ detail: { type } }) => {
+  renderError(type);
+});
+session.addEventListener('stale', () => {
+  markStale();
+});
 
-fetchStats();
-setInterval(() => fetchStats(true), INTERVAL);
-
-setTimeout(() => {
-  if (!lastGoodData) renderError('timeout');
-}, 15000);
-
-// ---- Session persistence ----
-const PB = 'https://pb.corillo.live';
-
-function buildSessionPayload() {
-  if (!lastGoodData) return null;
-  const bl = getBaseline();
-  if (!bl) return null;
-  const kills   = Math.max(0, (Number(lastGoodData.kills) || 0) - bl.kills);
-  const deaths  = Math.max(0, calcDeaths(lastGoodData) - bl.deaths);
-  const matches = Math.max(0, (Number(lastGoodData.matchesPlayed) || 0) - bl.matches);
-  const wins    = Math.max(0, calcWins(lastGoodData) - bl.wins);
-  if (matches === 0 && kills === 0) return null;
-  const kdNum = deaths > 0 ? kills / deaths : kills > 0 ? 99 : 0;
-  return {
-    player:        eaDisplayName || lastGoodData.userName || PLAYER,
-    platform:      PLATFORM,
-    kills,
-    deaths,
-    kd:            Math.round(kdNum * 100) / 100,
-    wins,
-    losses:        Math.max(0, matches - wins),
-    matches,
-    seconds:       Math.max(0, (Number(lastGoodData.secondsPlayed) || 0) - bl.seconds),
-    lifetime_kd:   Number(lastGoodData.killDeath) || bl.lifetimeKD || 0,
-    match_history: getHistory(),
-    started_at:    new Date(bl.startedAt).toISOString(),
-  };
-}
-
-async function saveSession() {
-  const payload = buildSessionPayload();
-  if (!payload) return;
-  try {
-    await fetch(`${PB}/api/collections/bf6_sessions/records`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      keepalive: true,
-    });
-  } catch(e) { console.warn('bf6 session save:', e.message); }
-}
-
-window.addEventListener('beforeunload', saveSession);
-setInterval(saveSession, 30 * 60 * 1000);
+session.start();
 </script>
 </body>
 </html>

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>KATATONIA — BF6 Bar</title>
 <script src="config.js"></script>
+<script src="bf6-session.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -18,14 +19,18 @@
   }
   .bar::after{
     content:'';position:absolute;inset:0;
-    background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px);
-    pointer-events:none;z-index:0;
+    background:
+      repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpolygon points='28,2 54,16 54,44 28,58 2,44 2,16' fill='none' stroke='rgba(255%2C221%2C42%2C0.09)' stroke-width='1.2'/%3E%3Cpolygon points='0,52 26,66 26,94 0,108 -26,94 -26,66' fill='none' stroke='rgba(255%2C221%2C42%2C0.09)' stroke-width='1.2'/%3E%3Cpolygon points='56,52 82,66 82,94 56,108 30,94 30,66' fill='none' stroke='rgba(255%2C221%2C42%2C0.09)' stroke-width='1.2'/%3E%3C/svg%3E");
+    background-size:auto,56px 100px;
+    animation:hexscroll 10s linear infinite;pointer-events:none;z-index:0;
   }
   .bar::before{
     content:'';position:absolute;left:0;top:0;bottom:0;width:520px;
     background:linear-gradient(90deg,rgba(255,221,42,.07) 0%,transparent 100%);
     pointer-events:none;z-index:0;
   }
+  @keyframes hexscroll{from{background-position:0 0,0 0}to{background-position:0 0,56px 100px}}
 
   /* ---- IDENTITY ---- */
   .identity{
@@ -44,7 +49,7 @@
   .perf-pill.avg{background:rgba(255,221,42,.12);border:1px solid rgba(255,221,42,.35);color:#ffdd2a}
   .perf-pill.cold{background:rgba(100,160,255,.12);border:1px solid rgba(100,160,255,.35);color:#6db3ff}
 
-  /* ---- MATCH TILES — posicionados después de identity ---- */
+  /* ---- MATCH TILES ---- */
   .tiles{
     display:flex;align-items:center;gap:7px;
     padding:0 28px;
@@ -67,7 +72,7 @@
   .tile-s{font-family:'Share Tech Mono',monospace;font-size:14px;color:rgba(255,255,255,.55);line-height:1}
   .tile.empty .tile-s{color:rgba(255,255,255,.1)}
 
-  /* ---- STATS (6) ---- */
+  /* ---- STATS ---- */
   .stats{
     display:flex;align-items:center;gap:0;
     flex:1;
@@ -92,15 +97,6 @@
   }
   .brand-name{font-size:14px;font-weight:800;letter-spacing:.2em;color:rgba(255,221,42,.75);text-transform:uppercase}
   .brand-since{font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(255,255,255,.4);letter-spacing:.06em;margin-top:6px}
-
-  /* hex background */
-  .bar::after{content:'';position:absolute;inset:0;
-    background:
-      repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpolygon points='28,2 54,16 54,44 28,58 2,44 2,16' fill='none' stroke='rgba(255%2C221%2C42%2C0.09)' stroke-width='1.2'/%3E%3Cpolygon points='0,52 26,66 26,94 0,108 -26,94 -26,66' fill='none' stroke='rgba(255%2C221%2C42%2C0.09)' stroke-width='1.2'/%3E%3Cpolygon points='56,52 82,66 82,94 56,108 30,94 30,66' fill='none' stroke='rgba(255%2C221%2C42%2C0.09)' stroke-width='1.2'/%3E%3C/svg%3E");
-    background-size:auto,56px 100px;
-    animation:hexscroll 10s linear infinite;pointer-events:none;z-index:0;}
-  @keyframes hexscroll{from{background-position:0 0,0 0}to{background-position:0 0,56px 100px}}
 
   /* loading */
   .bar-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;z-index:5}
@@ -148,6 +144,9 @@
   .streak-badge.streak{background:rgba(255,221,42,.15);border:1px solid rgba(255,221,42,.45);color:#ffdd2a}
   .streak-badge.clutch{background:rgba(80,220,100,.15);border:1px solid rgba(80,220,100,.45);color:#50dc64}
   .streak-badge.tilt  {background:rgba(100,160,255,.15);border:1px solid rgba(100,160,255,.45);color:#6db3ff}
+
+  /* bar content wrapper — fills remaining flex space */
+  #barContent{display:flex;align-items:stretch;flex:1;width:100%}
 </style>
 </head>
 <body>
@@ -162,81 +161,38 @@
     </div>
   </div>
   <div class="match-flash" id="matchFlash"></div>
+  <div id="barContent"></div>
 </div>
-
 <script>
 const p = new URLSearchParams(location.search);
-const PLAYER = p.get('name') || 'katat0nia';
+const PLAYER   = p.get('name')     || 'katat0nia';
 const PLATFORM = p.get('platform') || 'ea';
-const API = `${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
-const EA_API = `${window.BF6_CONFIG?.api?.replace('/bf6/stats','/bf6/eastats')||'https://corillo.live/api/bf6/eastats'}?name=${encodeURIComponent(PLAYER)}`;
-const INTERVAL = 60000;
-const STORAGE_KEY = `bf6_bar_${PLAYER}_${PLATFORM}`;
-const HISTORY_KEY = `bf6_bar_hist_${PLAYER}_${PLATFORM}`;
-if (p.get('reset') === '1') { try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(HISTORY_KEY); } catch {} }
 
-// Auto-reset si el baseline es de un día anterior
-(function() {
-  try {
-    const bl = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (bl?.startedAt) {
-      const blDate = new Date(bl.startedAt).toDateString();
-      if (blDate !== new Date().toDateString()) {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(HISTORY_KEY);
-      }
-    }
-  } catch {}
-})();
+let flashTimer = null, streakTimer = null;
 
-let lastGoodData = null, eaDisplayName = null, flashTimer = null, streakTimer = null;
-
-const STREAK_LABELS = {
-  fire:   '🔥 ON FIRE',
-  streak: '⚡ STREAK',
-  clutch: '💀 CLUTCH',
-  tilt:   '❄ TILT',
-};
+const session = new BF6Session({
+  player:     PLAYER,
+  platform:   PLATFORM,
+  storageKey: `bf6_bar_${PLAYER}_${PLATFORM}`,
+  historyKey: `bf6_bar_hist_${PLAYER}_${PLATFORM}`,
+});
 
 function showStreakFlash(type) {
   const el = document.getElementById('streakBadge');
   if (!el) return;
   if (streakTimer) clearTimeout(streakTimer);
-  el.textContent = STREAK_LABELS[type];
+  el.textContent = BF6Session.STREAK_LABELS[type];
   el.className = `streak-badge ${type} show`;
   streakTimer = setTimeout(() => el.classList.remove('show'), 5000);
 }
 
-function detectStreak(prev, cur) {
-  // solo correr si NO hay un match-flash activo
-  const mf = document.getElementById('matchFlash');
-  if (mf?.classList.contains('show')) return;
-  const dk = Math.max(0, (Number(cur.kills)||0)  - (Number(prev.kills)||0));
-  const dd = Math.max(0, calcDeaths(cur) - calcDeaths(prev));
-  if      (dk >= 5 && dd === 0)              showStreakFlash('fire');
-  else if (dk >= 3 && dd === 0)              showStreakFlash('streak');
-  else if (dk >= 3 && dd > 0 && dk/dd >= 3) showStreakFlash('clutch');
-  else if (dd >= 4 && dk <= 1)              showStreakFlash('tilt');
-}
-
-function calcDeaths(d){const k=Number(d.kills)||0,kd=Number(d.killDeath)||0;return kd>0?Math.round(k/kd):0}
-function calcWins(d){const m=Number(d.matchesPlayed)||0,wp=parseFloat(String(d.winPercent).replace('%',''))||0;return Math.round(m*wp/100)}
-function fmt(n,dec=0){if(n==null||isNaN(Number(n)))return'—';return Number(n).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec})}
-function fmtSecs(s){if(!s)return'0m';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h>=100?`${h}h`:h>0?`${h}h ${m}m`:`${m}m`}
-function getBaseline(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||null}catch{return null}}
-function saveBaseline(data){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({kills:Number(data.kills)||0,deaths:calcDeaths(data),matches:Number(data.matchesPlayed)||0,wins:calcWins(data),seconds:Number(data.secondsPlayed)||0,lifetimeKD:Number(data.killDeath)||0,startedAt:Date.now()}))}catch{}}
-function getHistory(){try{return JSON.parse(localStorage.getItem(HISTORY_KEY))||[]}catch{return[]}}
-function addToHistory(e){try{const h=getHistory();h.push(e);if(h.length>5)h.shift();localStorage.setItem(HISTORY_KEY,JSON.stringify(h))}catch{}}
-function getPerfTier(sKD,lKD){if(!lKD)return'avg';const r=sKD/lKD;return r>=1.25?'hot':r<=0.75?'cold':'avg'}
-const PERF_LABEL={hot:'🔥 HOT',avg:'⚡ AVG',cold:'❄ COLD'};
-
 function showMatchFlash(isWin, mk, md) {
   const el = document.getElementById('matchFlash');
   if (flashTimer) clearTimeout(flashTimer);
-  const kd = md > 0 ? (mk/md).toFixed(2) : mk > 0 ? '∞' : '—';
-  el.className = `match-flash show ${isWin?'win':'loss'}-flash`;
+  const kd = md > 0 ? (mk / md).toFixed(2) : mk > 0 ? '∞' : '—';
+  el.className = `match-flash show ${isWin ? 'win' : 'loss'}-flash`;
   el.innerHTML = `
-    <span class="mf-result ${isWin?'win':'loss'}">${isWin?'WIN':'LOSS'}</span>
+    <span class="mf-result ${isWin ? 'win' : 'loss'}">${isWin ? 'WIN' : 'LOSS'}</span>
     <div class="mf-sep"></div>
     <div class="mf-stats">
       <span class="mf-kd">${mk} / ${md}</span>
@@ -246,166 +202,61 @@ function showMatchFlash(isWin, mk, md) {
   flashTimer = setTimeout(() => el.classList.remove('show'), 8000);
 }
 
-function render(data, bl) {
-  document.getElementById('barError')?.classList.remove('show');
-  const kills   = Math.max(0,(Number(data.kills)||0)-bl.kills);
-  const deaths  = Math.max(0,calcDeaths(data)-bl.deaths);
-  const matches = Math.max(0,(Number(data.matchesPlayed)||0)-bl.matches);
-  const wins    = Math.max(0,calcWins(data)-bl.wins);
-  const losses  = Math.max(0,matches-wins);
-  const kdNum   = deaths>0?kills/deaths:kills>0?99:0;
-  const kd      = deaths>0?fmt(kdNum,2):kills>0?'∞':'—';
-  const secs    = Math.max(0,(Number(data.secondsPlayed)||0)-bl.seconds);
-  const lifetimeKD = Number(data.killDeath)||bl.lifetimeKD||0;
-  const tier    = getPerfTier(kdNum, lifetimeKD);
-  const startHH = new Date(bl.startedAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
-  const displayName = eaDisplayName || data.userName || PLAYER;
-
-  const history = getHistory();
-  const tilesHTML = Array(5).fill(null).map((_,i)=>{
-    const t = history[i]||null;
+function renderBar({ baseline: bl, deltas: d, tier, displayName, history }) {
+  const { kills, deaths, wins, losses, seconds, kdNum } = d;
+  const kd      = deaths > 0 ? BF6Session.fmt(kdNum, 2) : kills > 0 ? '∞' : '—';
+  const startHH = new Date(bl.startedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const tilesHTML = Array(5).fill(null).map((_, i) => {
+    const t = history[i] || null;
     return t
-      ? `<div class="tile ${t.win?'win':'loss'}"><span class="tile-r">${t.win?'W':'L'}</span><span class="tile-s">${t.kills}/${t.deaths}</span></div>`
+      ? `<div class="tile ${t.win ? 'win' : 'loss'}"><span class="tile-r">${t.win ? 'W' : 'L'}</span><span class="tile-s">${t.kills}/${t.deaths}</span></div>`
       : `<div class="tile empty"><span class="tile-r">·</span><span class="tile-s">—</span></div>`;
   }).join('');
 
   document.getElementById('loading').style.display = 'none';
-  document.getElementById('bar').innerHTML = `
-    <div class="bar-loading" id="loading" style="display:none"></div>
-    <div class="match-flash" id="matchFlash"></div>
-
+  document.getElementById('barContent').innerHTML = `
     <div class="identity">
       <span class="tag">BF6 · EA</span>
       <span class="name">${displayName.toUpperCase()}</span>
       <div class="badges">
         <span class="season-pill">S3 · REDSEC</span>
-        <span class="perf-pill ${tier}">${PERF_LABEL[tier]}</span>
+        <span class="perf-pill ${tier}">${BF6Session.PERF_LABEL[tier]}</span>
       </div>
     </div>
-
     <div class="tiles">
       <div class="tiles-header"><span class="tiles-label">LAST<br>MATCHES</span></div>
       ${tilesHTML}
     </div>
-
     <div class="stats">
-      <div class="stat">
-        <span class="stat-label">Kills</span>
-        <span class="stat-value accent">+${fmt(kills)}</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Session K/D</span>
-        <span class="stat-value">${kd}</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Deaths</span>
-        <span class="stat-value">${fmt(deaths)}</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">W / L</span>
-        <span class="stat-value">${wins}/${losses}</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Time</span>
-        <span class="stat-value">${fmtSecs(secs)}</span>
-      </div>
+      <div class="stat"><span class="stat-label">Kills</span><span class="stat-value accent">+${BF6Session.fmt(kills)}</span></div>
+      <div class="stat"><span class="stat-label">Session K/D</span><span class="stat-value">${kd}</span></div>
+      <div class="stat"><span class="stat-label">Deaths</span><span class="stat-value">${BF6Session.fmt(deaths)}</span></div>
+      <div class="stat"><span class="stat-label">W / L</span><span class="stat-value">${wins}/${losses}</span></div>
+      <div class="stat"><span class="stat-label">Time</span><span class="stat-value">${BF6Session.fmtSecs(seconds)}</span></div>
     </div>
-
     <div class="brand">
       <span class="brand-name">CORILLO.LIVE</span>
       <span class="brand-since">since ${startHH}</span>
     </div>`;
-
-  // re-bind flash el after innerHTML replace
-  if (flashTimer) {
-    const newFlash = document.getElementById('matchFlash');
-    if (newFlash) newFlash.className = document.getElementById('matchFlash')?.className || 'match-flash';
-  }
 }
 
-async function fetchStats(isRefresh = false) {
-  try {
-    const [res, eaRes] = await Promise.all([fetch(API), fetch(EA_API).catch(()=>null)]);
-    if (eaRes?.ok){const eaData=await eaRes.json().catch(()=>null);if(eaData?.displayName)eaDisplayName=eaData.displayName;}
-    const data = await res.json();
-    if (!res.ok || data.error) return;
+session.addEventListener('data', ({ detail }) => {
+  document.getElementById('barError')?.classList.remove('show');
+  renderBar(detail);
+});
+session.addEventListener('match', ({ detail: { win, matchKills, matchDeaths } }) => {
+  showMatchFlash(win, matchKills, matchDeaths);
+});
+session.addEventListener('streak', ({ detail: { type } }) => {
+  if (document.getElementById('matchFlash')?.classList.contains('show')) return;
+  showStreakFlash(type);
+});
+session.addEventListener('error', () => {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('barError').classList.add('show');
+});
 
-    if (!getBaseline()) saveBaseline(data);
-    const bl = getBaseline();
-
-    if (lastGoodData) {
-      const prevM = Math.max(0,(Number(lastGoodData.matchesPlayed)||0)-bl.matches);
-      const curM  = Math.max(0,(Number(data.matchesPlayed)||0)-bl.matches);
-      if (curM > prevM) {
-        const mk = Math.max(0,(Number(data.kills)||0)-(Number(lastGoodData.kills)||0));
-        const md = Math.max(0,calcDeaths(data)-calcDeaths(lastGoodData));
-        const isWin = calcWins(data)-bl.wins > calcWins(lastGoodData)-bl.wins;
-        addToHistory({win:isWin,kills:mk,deaths:md});
-        showMatchFlash(isWin, mk, md);
-      } else {
-        detectStreak(lastGoodData, data);
-      }
-    }
-
-    lastGoodData = data;
-    render(data, bl);
-  } catch(e) { console.warn('BF6 bar:', e.message); }
-}
-
-fetchStats();
-setInterval(() => fetchStats(true), INTERVAL);
-
-setTimeout(() => {
-  if (!lastGoodData) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('barError').classList.add('show');
-  }
-}, 15000);
-
-// ---- Session persistence ----
-const PB = 'https://pb.corillo.live';
-
-function buildSessionPayload() {
-  if (!lastGoodData) return null;
-  const bl = getBaseline();
-  if (!bl) return null;
-  const kills   = Math.max(0, (Number(lastGoodData.kills) || 0) - bl.kills);
-  const deaths  = Math.max(0, calcDeaths(lastGoodData) - bl.deaths);
-  const matches = Math.max(0, (Number(lastGoodData.matchesPlayed) || 0) - bl.matches);
-  const wins    = Math.max(0, calcWins(lastGoodData) - bl.wins);
-  if (matches === 0 && kills === 0) return null; // sesión vacía, no guardar
-  const kdNum = deaths > 0 ? kills / deaths : kills > 0 ? 99 : 0;
-  return {
-    player:        eaDisplayName || lastGoodData.userName || PLAYER,
-    platform:      PLATFORM,
-    kills,
-    deaths,
-    kd:            Math.round(kdNum * 100) / 100,
-    wins,
-    losses:        Math.max(0, matches - wins),
-    matches,
-    seconds:       Math.max(0, (Number(lastGoodData.secondsPlayed) || 0) - bl.seconds),
-    lifetime_kd:   Number(lastGoodData.killDeath) || bl.lifetimeKD || 0,
-    match_history: getHistory(),
-    started_at:    new Date(bl.startedAt).toISOString(),
-  };
-}
-
-async function saveSession() {
-  const payload = buildSessionPayload();
-  if (!payload) return;
-  try {
-    await fetch(`${PB}/api/collections/bf6_sessions/records`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      keepalive: true,
-    });
-  } catch(e) { console.warn('bf6 session save:', e.message); }
-}
-
-window.addEventListener('beforeunload', saveSession);
-setInterval(saveSession, 30 * 60 * 1000);
+session.start();
 </script>
 </body>
 </html>
