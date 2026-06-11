@@ -114,6 +114,20 @@ const STORAGE_KEY = `bf6_session_${PLAYER}_${PLATFORM}`;
 const HISTORY_KEY = `bf6_history_${PLAYER}_${PLATFORM}`;
 if (p.get('reset') === '1') { try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(HISTORY_KEY); } catch {} }
 
+// Auto-reset si el baseline es de un día anterior
+(function() {
+  try {
+    const bl = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (bl?.startedAt) {
+      const blDate = new Date(bl.startedAt).toDateString();
+      if (blDate !== new Date().toDateString()) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(HISTORY_KEY);
+      }
+    }
+  } catch {}
+})();
+
 let lastGoodData = null, eaDisplayName = null, flashTimer = null, streakTimer = null;
 
 const STREAK_LABELS = {
