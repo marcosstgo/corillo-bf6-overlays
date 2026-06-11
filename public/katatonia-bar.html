@@ -134,9 +134,24 @@
   .mf-sub{font-size:14px;font-weight:700;letter-spacing:.22em;color:rgba(255,255,255,.3);text-transform:uppercase}
   .mf-bar{position:absolute;bottom:0;left:0;height:3px;background:#ffdd2a;animation:mf-progress 8s linear forwards}
   @keyframes mf-progress{from{width:100%}to{width:0%}}
+
+  /* streak badge */
+  .streak-badge{
+    position:absolute;top:14px;left:24px;z-index:20;
+    font-size:15px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;
+    padding:6px 18px;border-radius:20px;pointer-events:none;
+    opacity:0;transform:translateY(-10px);
+    transition:opacity .3s ease, transform .3s ease;
+  }
+  .streak-badge.show{opacity:1;transform:translateY(0)}
+  .streak-badge.fire  {background:rgba(255,100,30,.22);border:1px solid rgba(255,100,30,.55);color:#ff6b2b}
+  .streak-badge.streak{background:rgba(255,221,42,.15);border:1px solid rgba(255,221,42,.45);color:#ffdd2a}
+  .streak-badge.clutch{background:rgba(80,220,100,.15);border:1px solid rgba(80,220,100,.45);color:#50dc64}
+  .streak-badge.tilt  {background:rgba(100,160,255,.15);border:1px solid rgba(100,160,255,.45);color:#6db3ff}
 </style>
 </head>
 <body>
+<div id="streakBadge" class="streak-badge"></div>
 <div class="bar" id="bar">
   <div class="bar-loading" id="loading"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>
   <div class="bar-error" id="barError">
@@ -160,7 +175,35 @@ const STORAGE_KEY = `bf6_bar_${PLAYER}_${PLATFORM}`;
 const HISTORY_KEY = `bf6_bar_hist_${PLAYER}_${PLATFORM}`;
 if (p.get('reset') === '1') { try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(HISTORY_KEY); } catch {} }
 
-let lastGoodData = null, eaDisplayName = null, flashTimer = null;
+let lastGoodData = null, eaDisplayName = null, flashTimer = null, streakTimer = null;
+
+const STREAK_LABELS = {
+  fire:   '🔥 ON FIRE',
+  streak: '⚡ STREAK',
+  clutch: '💀 CLUTCH',
+  tilt:   '❄ TILT',
+};
+
+function showStreakFlash(type) {
+  const el = document.getElementById('streakBadge');
+  if (!el) return;
+  if (streakTimer) clearTimeout(streakTimer);
+  el.textContent = STREAK_LABELS[type];
+  el.className = `streak-badge ${type} show`;
+  streakTimer = setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function detectStreak(prev, cur) {
+  // solo correr si NO hay un match-flash activo
+  const mf = document.getElementById('matchFlash');
+  if (mf?.classList.contains('show')) return;
+  const dk = Math.max(0, (Number(cur.kills)||0)  - (Number(prev.kills)||0));
+  const dd = Math.max(0, calcDeaths(cur) - calcDeaths(prev));
+  if      (dk >= 5 && dd === 0)              showStreakFlash('fire');
+  else if (dk >= 3 && dd === 0)              showStreakFlash('streak');
+  else if (dk >= 3 && dd > 0 && dk/dd >= 3) showStreakFlash('clutch');
+  else if (dd >= 4 && dk <= 1)              showStreakFlash('tilt');
+}
 
 function calcDeaths(d){const k=Number(d.kills)||0,kd=Number(d.killDeath)||0;return kd>0?Math.round(k/kd):0}
 function calcWins(d){const m=Number(d.matchesPlayed)||0,wp=parseFloat(String(d.winPercent).replace('%',''))||0;return Math.round(m*wp/100)}
@@ -285,6 +328,8 @@ async function fetchStats(isRefresh = false) {
         const isWin = calcWins(data)-bl.wins > calcWins(lastGoodData)-bl.wins;
         addToHistory({win:isWin,kills:mk,deaths:md});
         showMatchFlash(isWin, mk, md);
+      } else {
+        detectStreak(lastGoodData, data);
       }
     }
 
