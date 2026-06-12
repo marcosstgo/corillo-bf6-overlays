@@ -1,5 +1,9 @@
 # CLAUDE.md — corillo-bf6-overlays
 
+> 📋 **Notas técnicas profundas en [`docs/TECHNICAL.md`](docs/TECHNICAL.md):** API de gametools
+> (resuelve solo por nombre/EA ID; `playerid` roto), troubleshooting de "Player not found"
+> (perfil privado por defecto), fallback EA, resiliencia del proxy, campos sin usar, screenshots headless.
+
 ## Qué es esto
 
 Overlays de stats de Battlefield 6 para OBS. Un proxy Express en Node.js cachea llamadas a gametools.network y sirve los datos a HTMLs estáticos que los streamers usan como Browser Source.
