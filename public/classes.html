@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BF6 Classes Overlay</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
+  .card{width:380px;background:rgba(0,0,0,0.82);border-radius:12px;border-left:3px solid #ffdd2a;overflow:hidden;backdrop-filter:blur(6px);box-shadow:0 4px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);position:relative}
+  .card::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;z-index:1}
+  .card-inner{position:relative;z-index:2;padding:14px 16px 12px}
+  .header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .player-name{font-size:16px;font-weight:800;color:#fff;letter-spacing:.04em;text-transform:uppercase;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .section-label{font-size:10px;font-weight:700;letter-spacing:.15em;color:#ffdd2a;text-transform:uppercase;white-space:nowrap}
+  .divider{height:1px;background:linear-gradient(90deg,#ffdd2a 0%,rgba(255,221,42,.15) 60%,transparent 100%);margin-bottom:10px}
+  .weapon-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+  .weapon-row:last-child{border-bottom:none}
+  .weapon-rank{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);width:14px;flex-shrink:0;text-align:right}
+  .class-icon{width:30px;height:30px;object-fit:contain;flex-shrink:0;opacity:.92}
+  .class-icon-err{width:30px;height:30px;flex-shrink:0;background:rgba(255,255,255,.04);border-radius:3px}
+  .weapon-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  .weapon-name{font-size:12px;font-weight:700;color:#fff;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+  .weapon-bar-row{display:flex;align-items:center;gap:6px}
+  .weapon-bar-bg{flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+  .weapon-bar-fill{height:100%;background:#ffdd2a;border-radius:2px;transition:width .4s ease}
+  .weapon-meta{display:flex;gap:8px;align-items:center}
+  .weapon-kills{font-family:'Share Tech Mono',monospace;font-size:12px;color:#fff;white-space:nowrap}
+  .weapon-hs{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,221,42,.7);white-space:nowrap}
+  .weapon-acc{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);white-space:nowrap}
+  .footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+  .footer-brand{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(255,221,42,.45);text-transform:uppercase}
+  .footer-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,.2)}
+  .loading{display:flex;align-items:center;gap:8px;justify-content:center;min-height:140px}
+  .loading-dot{width:6px;height:6px;border-radius:50%;background:#ffdd2a;animation:pulse 1.2s ease-in-out infinite}
+  .loading-dot:nth-child(2){animation-delay:.2s}
+  .loading-dot:nth-child(3){animation-delay:.4s}
+  @keyframes pulse{0%,80%,100%{opacity:.15;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+  .error-msg{font-size:11px;color:rgba(255,80,80,.7);text-align:center;min-height:140px;display:flex;align-items:center;justify-content:center;line-height:1.6}
+  .error-msg .err-sub{font-size:9px;opacity:.5;letter-spacing:.08em;display:block;margin-top:3px}
+  @keyframes flash-border{0%{border-left-color:#ffdd2a}50%{border-left-color:rgba(255,221,42,.3)}100%{border-left-color:#ffdd2a}}
+  .card.refreshing{animation:flash-border .5s ease}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="card-inner" id="content">
+    <div class="loading"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
+  </div>
+</div>
+<script>
+const p = new URLSearchParams(location.search);
+const PLAYER = p.get('name') || 'katat0nia';
+const PLATFORM = p.get('platform') || 'ea';
+const TOP = parseInt(p.get('top') || '5');
+const API = `${window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats'}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
+const EA_API = `${window.BF6_CONFIG?.api?.replace('/bf6/stats','/bf6/eastats')||'https://corillo.live/api/bf6/eastats'}?name=${encodeURIComponent(PLAYER)}`;
+const INTERVAL = 60000;
+let lastGoodData=null,lastUpdatedAt=null,ftTimer=null,isStale=false,eaDisplayName=null;
+function relTime(){if(!lastUpdatedAt)return'↻ ahora';const m=Math.floor((Date.now()-lastUpdatedAt)/60000);return m<1?'↻ ahora':m===1?'↻ 1 min':`↻ ${m} min`}
+function tickFooter(){if(isStale)return;const ft=document.querySelector('.footer-time');if(ft)ft.textContent=relTime()}
+
+function nowTime(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})}
+function fmt(n,d=0){if(n==null||isNaN(Number(n)))return'—';return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function kd(k,d){k=Number(k)||0;d=Number(d)||0;return d>0?(k/d).toFixed(2):(k>0?'∞':'0.00')}
+
+function renderClasses(data){
+  const name = eaDisplayName || data.userName || PLAYER;
+  const classes = (data.classes || [])
+    .filter(c => c.className !== 'All' && c.kills > 0)   // 'All' es un agregado, no una clase
+    .sort((a,b) => b.kills - a.kills)
+    .slice(0, TOP);
+  const maxKills = classes[0]?.kills || 1;
+
+  const rows = classes.map((c,i) => {
+    const pct = Math.round((c.kills / maxKills) * 100);
+    const imgSrc = c.image || c.altImage || '';   // 'image' es el SVG blanco (legible en fondo oscuro)
+    const imgEl = imgSrc
+      ? `<img class="class-icon" src="${imgSrc}" alt="${c.name}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'class-icon-err'}))">`
+      : `<div class="class-icon-err"></div>`;
+    return `
+    <div class="weapon-row">
+      <span class="weapon-rank">${i+1}</span>
+      ${imgEl}
+      <div class="weapon-info">
+        <span class="weapon-name">${c.name}</span>
+        <div class="weapon-bar-row">
+          <div class="weapon-bar-bg"><div class="weapon-bar-fill" style="width:${pct}%"></div></div>
+          <div class="weapon-meta">
+            <span class="weapon-kills">${fmt(c.kills)}</span>
+            <span class="weapon-hs">${kd(c.kills,c.deaths)} KD</span>
+            <span class="weapon-acc">${fmt(c.kpm,2)} KPM</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div class="header">
+      <span class="player-name">${name}</span>
+      <span class="section-label">CLASSES</span>
+    </div>
+    <div class="divider"></div>
+    ${rows || '<div class="error-msg">No class data</div>'}
+    <div class="footer"><span class="footer-brand">CORILLO.LIVE · BF6</span><span class="footer-time">↻ ahora</span></div>`;
+}
+
+function getErrType(status,data){
+  const msg=(data?.errors?.[0]?.message||data?.message||'').toLowerCase();
+  if(status===404||msg.includes('not found'))return'not_found';
+  if(status===504||status===502)return'timeout';
+  return'generic';
+}
+function renderError(type){
+  const icon=type==='not_found'?'⚠':'↻';
+  const line1=type==='not_found'?`Player "${PLAYER}" not found`:type==='timeout'?'API not responding':'Stats unavailable';
+  const sub=type==='not_found'?'Check name and platform in the URL':'Retrying in 60s';
+  document.getElementById('content').innerHTML=`<div class="error-msg"><div><div style="font-size:20px;margin-bottom:5px;opacity:.4">${icon}</div><div>${line1}</div><span class="err-sub">${sub}</span></div></div>`;
+}
+function markStale(){isStale=true;const ft=document.querySelector('.footer-time');if(!ft)return;ft.textContent='⚠ stale';ft.style.color='rgba(255,180,0,.65)'}
+function unmarkStale(){isStale=false;const ft=document.querySelector('.footer-time');if(!ft)return;ft.style.color='';ft.textContent=relTime()}
+async function fetchStats(isRefresh=false){
+  const card=document.getElementById('card');
+  if(isRefresh&&lastGoodData){card.classList.add('refreshing');setTimeout(()=>card.classList.remove('refreshing'),500)}
+  try{
+    const [res,eaRes]=await Promise.all([fetch(API),fetch(EA_API).catch(()=>null)]);
+    if(eaRes?.ok){const eaData=await eaRes.json().catch(()=>null);if(eaData?.displayName)eaDisplayName=eaData.displayName;}
+    const data=await res.json();
+    if(!res.ok||data.error){
+      if(isRefresh&&lastGoodData){markStale();return}
+      renderError(getErrType(res.status,data));return;
+    }
+    lastGoodData=data;lastUpdatedAt=Date.now();
+    if(!ftTimer)ftTimer=setInterval(tickFooter,30000);
+    if(isRefresh)unmarkStale();
+    renderClasses(data);
+  }catch(e){
+    if(isRefresh&&lastGoodData){markStale();return}
+    renderError('timeout');
+    console.warn('BF6 classes:',e.message);
+  }
+}
+fetchStats();
+setInterval(()=>fetchStats(true),INTERVAL);
+</script>
+</body>
+</html>
