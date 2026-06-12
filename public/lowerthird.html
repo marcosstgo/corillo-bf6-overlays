@@ -122,8 +122,8 @@ function fmt(n,d=0){if(n==null||isNaN(+n))return'—';return(+n).toLocaleString(
 function fmtWin(v){if(v==null)return'—';if(typeof v==='string')return v.includes('%')?v:v+'%';return(+v).toFixed(1)+'%'}
 function fmtObjTime(s){if(!s)return'0m';const m=Math.floor(+s/60);return m>=60?Math.floor(m/60)+'h '+(m%60)+'m':m+'m'}
 function fmtSecs(s){if(!s)return'0m';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h>=100?`${h}h`:h>0?`${h}h ${m}m`:`${m}m`}
-function calcDeaths(d){const k=Number(d.kills)||0,kd=Number(d.killDeath)||0;return kd>0?Math.round(k/kd):0}
-function calcWins(d){const m=Number(d.matchesPlayed)||0,wp=parseFloat(String(d.winPercent).replace('%',''))||0;return Math.round(m*wp/100)}
+function calcDeaths(d){if(d.deaths!=null&&d.deaths!=='')return Number(d.deaths)||0;const k=Number(d.kills)||0,kd=Number(d.killDeath)||0;return kd>0?Math.round(k/kd):0}
+function calcWins(d){if(d.wins!=null&&d.wins!=='')return Number(d.wins)||0;const m=Number(d.matchesPlayed)||0,wp=parseFloat(String(d.winPercent).replace('%',''))||0;return Math.round(m*wp/100)}
 function getBaseline(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||null}catch{return null}}
 function saveBaseline(d){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({kills:Number(d.kills)||0,deaths:calcDeaths(d),matches:Number(d.matchesPlayed)||0,wins:calcWins(d),seconds:Number(d.secondsPlayed)||0}))}catch{}}
 function startProgress(){const b=document.getElementById('pbar');b.style.transition='none';b.style.width='0%';b.offsetWidth;b.style.transition=`width ${ROTATE_MS}ms linear`;b.style.width='100%'}

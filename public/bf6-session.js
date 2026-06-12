@@ -27,10 +27,14 @@
 
     // ---- static helpers ----
     static calcDeaths(d) {
+      // gametools trae 'deaths' exacto; solo derivamos si falta (ej. fallback EA).
+      if (d.deaths != null && d.deaths !== '') return Number(d.deaths) || 0;
       const k = Number(d.kills) || 0, kd = Number(d.killDeath) || 0;
       return kd > 0 ? Math.round(k / kd) : 0;
     }
     static calcWins(d) {
+      // gametools trae 'wins' exacto; solo derivamos desde winPercent si falta.
+      if (d.wins != null && d.wins !== '') return Number(d.wins) || 0;
       const m  = Number(d.matchesPlayed) || 0;
       const wp = parseFloat(String(d.winPercent).replace('%', '')) || 0;
       return Math.round(m * wp / 100);
