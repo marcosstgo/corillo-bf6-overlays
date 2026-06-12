@@ -24,6 +24,11 @@
   .top-value{font-family:'Share Tech Mono',monospace;font-size:42px;line-height:1;color:#ffdd2a;letter-spacing:-.02em}
   .top-value.white{color:#fff}
 
+  .pro-row{display:flex;gap:8px;margin-bottom:12px}
+  .pro-stat{flex:1;display:flex;justify-content:space-between;align-items:baseline;background:rgba(255,221,42,.06);border:1px solid rgba(255,221,42,.14);border-radius:6px;padding:6px 11px}
+  .pro-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.42);text-transform:uppercase}
+  .pro-value{font-family:'Share Tech Mono',monospace;font-size:16px;color:#ffdd2a;letter-spacing:.02em}
+
   .shot-bar-wrap{margin-bottom:12px}
   .shot-bar-label{display:flex;justify-content:space-between;margin-bottom:5px}
   .shot-bar-label span{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.04em}
@@ -90,6 +95,10 @@ function renderAccuracy(data){
         <span class="top-label">Headshot %</span>
         <span class="top-value">${pct(data.headshots)}</span>
       </div>
+    </div>
+    <div class="pro-row">
+      <div class="pro-stat"><span class="pro-label">Inf K/D</span><span class="pro-value">${data.infantryKillDeath!=null?fmt(data.infantryKillDeath,2):'—'}</span></div>
+      <div class="pro-stat"><span class="pro-label">Human Acc</span><span class="pro-value">${pct(data.humanPrecentage)}</span></div>
     </div>
     <div class="shot-bar-wrap">
       <div class="shot-bar-label">
