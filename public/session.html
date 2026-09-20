@@ -32,6 +32,13 @@
   .stat-value-main.kills{color:#ffdd2a}
   .stat-value-main.kd{color:#fff}
 
+  .kd-trend-row{display:flex;align-items:baseline;gap:6px;margin-top:1px}
+  .kd-trend{font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.02em}
+  .kd-trend.up{color:#ff6b2b}
+  .kd-trend.down{color:#6db3ff}
+  .kd-trend.flat{color:rgba(255,255,255,.35)}
+  .kd-trend-sub{font-size:8px;font-weight:700;letter-spacing:.13em;color:rgba(255,255,255,.22);text-transform:uppercase}
+
   .bottom-row{display:flex;justify-content:space-between;background:rgba(255,255,255,.03);border-radius:6px;padding:7px 12px;margin-bottom:10px;border:1px solid rgba(255,255,255,.05)}
   .stat-minor{display:flex;flex-direction:column;align-items:center;gap:3px}
   .stat-minor-label{font-size:9px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.28);text-transform:uppercase}
@@ -151,6 +158,13 @@ function markStale() {
   if (ft) { ft.textContent = '⚠ stale'; ft.style.color = 'rgba(255,180,0,.65)'; }
 }
 
+function recentKD(history) {
+  if (!history.length) return null;
+  let k = 0, d = 0;
+  history.forEach(m => { k += m.kills; d += m.deaths; });
+  return d > 0 ? k / d : (k > 0 ? 99 : 0);
+}
+
 function renderSession({ baseline: bl, deltas: d, tier, displayName, history }) {
   const { kills, deaths, wins, losses, seconds, kdNum } = d;
   const kd      = deaths > 0 ? BF6Session.fmt(kdNum, 2) : kills > 0 ? '∞' : '—';
@@ -161,6 +175,20 @@ function renderSession({ baseline: bl, deltas: d, tier, displayName, history }) 
       ? `<div class="tile ${t.win ? 'win' : 'loss'}"><span class="tile-result">${t.win ? 'W' : 'L'}</span><span class="tile-kd">${t.kills}/${t.deaths}</span></div>`
       : `<div class="tile empty"><span class="tile-result">·</span><span class="tile-kd">—</span></div>`;
   }).join('');
+
+  const rKD = recentKD(history);
+  let trendHTML = '';
+  if (rKD !== null && (kills > 0 || deaths > 0)) {
+    const diff = rKD - kdNum;
+    const cls   = diff > 0.03 ? 'up' : diff < -0.03 ? 'down' : 'flat';
+    const arrow = cls === 'up' ? '▲' : cls === 'down' ? '▼' : '▬';
+    const sign  = diff > 0 ? '+' : '';
+    trendHTML = `
+      <div class="kd-trend-row">
+        <span class="kd-trend ${cls}">${arrow}${sign}${BF6Session.fmt(diff, 2)}</span>
+        <span class="kd-trend-sub">vs last ${history.length}</span>
+      </div>`;
+  }
 
   document.getElementById('content').innerHTML = `
     <div class="header">
@@ -176,6 +204,7 @@ function renderSession({ baseline: bl, deltas: d, tier, displayName, history }) 
       <div class="stat-main">
         <span class="stat-label-main">Session K/D</span>
         <span class="stat-value-main kd">${kd}</span>
+        ${trendHTML}
       </div>
     </div>
     <div class="bottom-row">
