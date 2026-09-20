@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const PORT = 3011;
+const PORT = process.env.PORT || 3011;
 const CACHE_TTL    = 5 * 60 * 1000;   // datos completos de gametools
 const FALLBACK_TTL = 60 * 1000;       // #1: datos degradados de EA — ventana corta para no envenenar la key
 const NEG_TTL      = 60 * 1000;       // #4: caché negativo de errores/timeouts
@@ -177,6 +177,78 @@ app.get('/bf6/eastats', async (req, res) => {
   } catch (err) {
     if (err.code === 'EA_TIMEOUT' || err.name === 'AbortError') return res.status(504).json({ error: 'EA page timeout' });
     res.status(502).json({ error: 'EA stats unavailable', detail: err.message });
+  }
+});
+
+
+// ── WARDOGS (Steam) ───────────────────────────────────────────────────────────
+// Bulkhead NO ofrece API pública de perfiles. Lo que sí hay:
+//   · jugadores simultáneos: endpoint público de Steam (sin llave)
+//   · horas/logros/stats de un jugador: Steam Web API, requiere STEAM_API_KEY (gratis) y perfil con detalles públicos
+const WD_APPID  = 1867240;
+const STEAM_KEY = process.env.STEAM_API_KEY || '';
+const WD_HISTORY = [];                       // { t, n } una muestra por minuto (se reinicia con el servicio)
+const WD_KEEP = 24 * 60;
+
+async function steamJson(url, ms = 8000) {
+  const c = new AbortController(); const t = setTimeout(() => c.abort(), ms);
+  try { const r = await fetch(url, { signal: c.signal }); if (!r.ok) { const e = new Error(`steam ${r.status}`); e.status = r.status; throw e; } return await r.json(); }
+  finally { clearTimeout(t); }
+}
+async function wdSample() {
+  try {
+    const j = await steamJson(`https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=${WD_APPID}`, 6000);
+    const n = j?.response?.player_count;
+    if (Number.isFinite(n)) { WD_HISTORY.push({ t: Date.now(), n }); if (WD_HISTORY.length > WD_KEEP) WD_HISTORY.shift(); }
+  } catch (e) { /* Steam intermitente: se conserva el último dato */ }
+}
+wdSample(); setInterval(wdSample, 60 * 1000);
+
+app.get('/bf6/wardogs/players', async (req, res) => {
+  if (!WD_HISTORY.length) await wdSample();
+  if (!WD_HISTORY.length) return res.status(502).json({ error: 'Steam unavailable' });
+  const now = WD_HISTORY[WD_HISTORY.length - 1];
+  const ago = WD_HISTORY.find(x => x.t >= now.t - 30 * 60 * 1000) || WD_HISTORY[0];
+  const peak24h = Math.max(...WD_HISTORY.map(x => x.n));
+  const step = Math.max(1, Math.floor(WD_HISTORY.length / 40));
+  const spark = WD_HISTORY.filter((_, i) => i % step === 0 || i === WD_HISTORY.length - 1).map(x => x.n);
+  res.json({ players: now.n, peak: peak24h, deltaPct: ago.n ? +(((now.n - ago.n) / ago.n) * 100).toFixed(1) : 0, spark, samples: WD_HISTORY.length, updatedAt: now.t });
+});
+
+function prettyAch(id) { return String(id).replace(/^ACH_/, '').split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' '); }
+
+app.get('/bf6/wardogs/profile', async (req, res) => {
+  const raw = String(req.query.steamid || '').trim();
+  if (!raw) return res.status(400).json({ error: 'steamid is required' });
+  if (!STEAM_KEY) return res.status(501).json({ error: 'steam_key_missing', message: 'El perfil de WARDOGS necesita una llave de Steam Web API en el servidor.' });
+  const ck = `wd:${raw.toLowerCase()}`; const hit = getCached(ck);
+  if (hit) return res.status(hit.status || 200).json(hit.data);
+  try {
+    let id = raw.match(/\d{17}/)?.[0];
+    if (!id) {
+      const vanity = (raw.match(/steamcommunity\.com\/id\/([^/?#]+)/i)?.[1]) || raw;
+      const v = await steamJson(`https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${STEAM_KEY}&vanityurl=${encodeURIComponent(vanity)}`);
+      id = v?.response?.steamid;
+      if (!id) { const out = { error: 'not_found', message: 'No encontramos ese perfil de Steam.' }; setCached(ck, out, NEG_TTL, 404); return res.status(404).json(out); }
+    }
+    const [sum, games, ach] = await Promise.all([
+      steamJson(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${STEAM_KEY}&steamids=${id}`),
+      steamJson(`https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_KEY}&steamid=${id}&include_played_free_games=1&appids_filter[0]=${WD_APPID}`).catch(() => null),
+      steamJson(`https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?key=${STEAM_KEY}&steamid=${id}&appid=${WD_APPID}&l=spanish`).catch(() => null),
+    ]);
+    const p = sum?.response?.players?.[0];
+    if (!p) { const out = { error: 'not_found', message: 'No encontramos ese perfil de Steam.' }; setCached(ck, out, NEG_TTL, 404); return res.status(404).json(out); }
+    if (p.communityvisibilitystate !== 3) { const out = { error: 'private_profile', message: 'El perfil de Steam es privado.', name: p.personaname }; setCached(ck, out, NEG_TTL, 403); return res.status(403).json(out); }
+    const g = games?.response?.games?.[0];
+    const list = ach?.playerstats?.achievements || [];
+    if (!g && !list.length) { const out = { error: 'game_details_private', message: 'Los detalles de juego de Steam no son públicos, o el jugador no tiene WARDOGS.', name: p.personaname, avatar: p.avatarfull }; setCached(ck, out, NEG_TTL, 403); return res.status(403).json(out); }
+    const done = list.filter(a => a.achieved);
+    const recent = [...done].sort((a, b) => b.unlocktime - a.unlocktime).slice(0, 3).map(a => ({ name: a.name || prettyAch(a.apiname), at: a.unlocktime }));
+    const out = { name: p.personaname, avatar: p.avatarfull, hours: g ? +(g.playtime_forever / 60).toFixed(1) : null, hours2w: g ? +((g.playtime_2weeks || 0) / 60).toFixed(1) : null, achievements: { done: done.length, total: list.length, recent } };
+    setCached(ck, out, CACHE_TTL); res.json(out);
+  } catch (e) {
+    if (e.name === 'AbortError') return res.status(504).json({ error: 'steam_timeout' });
+    res.status(502).json({ error: 'steam_unavailable', detail: e.message });
   }
 });
 

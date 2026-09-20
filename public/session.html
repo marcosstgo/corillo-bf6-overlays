@@ -10,7 +10,7 @@
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
 
-  .card{width:380px;background:rgba(0,0,0,0.85);border-radius:12px;border-left:3px solid #ffdd2a;overflow:hidden;backdrop-filter:blur(8px);box-shadow:0 4px 32px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.04);position:relative}
+  .card{width:380px;background:rgba(0,0,0,0.85);border-radius:12px;border-left:3px solid #ffd23f;overflow:hidden;backdrop-filter:blur(8px);box-shadow:0 4px 32px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.04);position:relative}
   .card::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;border-radius:12px;z-index:1}
   .card-inner{position:relative;z-index:2;padding:14px 16px 12px}
 
@@ -18,10 +18,10 @@
   .player-name{font-size:17px;font-weight:900;color:#fff;letter-spacing:.04em;text-transform:uppercase;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .perf-badge{font-size:10px;font-weight:800;letter-spacing:.1em;padding:3px 10px;border-radius:20px;text-transform:uppercase;white-space:nowrap;flex-shrink:0;transition:all .5s ease}
   .perf-badge.hot{background:rgba(255,100,30,.2);border:1px solid rgba(255,100,30,.5);color:#ff6b2b}
-  .perf-badge.avg{background:rgba(255,221,42,.15);border:1px solid rgba(255,221,42,.4);color:#ffdd2a}
+  .perf-badge.avg{background:rgba(255,106,61,.15);border:1px solid rgba(255,106,61,.4);color:#ffd23f}
   .perf-badge.cold{background:rgba(100,160,255,.15);border:1px solid rgba(100,160,255,.4);color:#6db3ff}
 
-  .divider{height:1px;background:linear-gradient(90deg,#ffdd2a 0%,rgba(255,221,42,.15) 60%,transparent 100%);margin-bottom:10px}
+  .divider{height:1px;background:linear-gradient(90deg,#ffd23f 0%,rgba(255,106,61,.15) 60%,transparent 100%);margin-bottom:10px}
 
   .center-stats{display:flex;gap:0;margin-bottom:12px}
   .stat-main{flex:1;display:flex;flex-direction:column;gap:2px}
@@ -29,7 +29,7 @@
   .stat-main:first-child{padding-right:20px}
   .stat-label-main{font-size:9px;font-weight:700;letter-spacing:.16em;color:rgba(255,255,255,.3);text-transform:uppercase}
   .stat-value-main{font-family:'Share Tech Mono',monospace;font-size:50px;line-height:1;letter-spacing:-.02em}
-  .stat-value-main.kills{color:#ffdd2a}
+  .stat-value-main.kills{color:#ffd23f}
   .stat-value-main.kd{color:#fff}
 
   .kd-trend-row{display:flex;align-items:baseline;gap:6px;margin-top:1px}
@@ -58,11 +58,11 @@
   .tile.empty .tile-kd{color:rgba(255,255,255,.1)}
 
   .footer{display:flex;justify-content:space-between;align-items:center}
-  .footer-brand{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(255,221,42,.35);text-transform:uppercase}
+  .footer-brand{font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(255,106,61,.35);text-transform:uppercase}
   .footer-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,.2);letter-spacing:.05em}
 
   .loading{display:flex;align-items:center;gap:8px;justify-content:center;min-height:160px}
-  .loading-dot{width:6px;height:6px;border-radius:50%;background:#ffdd2a;animation:pulse 1.2s ease-in-out infinite}
+  .loading-dot{width:6px;height:6px;border-radius:50%;background:#ffd23f;animation:pulse 1.2s ease-in-out infinite}
   .loading-dot:nth-child(2){animation-delay:.2s}
   .loading-dot:nth-child(3){animation-delay:.4s}
   @keyframes pulse{0%,80%,100%{opacity:.15;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
@@ -82,9 +82,9 @@
   .flash-result.loss{color:#ff6060}
   .flash-kd{font-family:'Share Tech Mono',monospace;font-size:24px;color:rgba(255,255,255,.85);letter-spacing:.04em;margin-bottom:4px}
   .flash-sub{font-size:9px;font-weight:700;letter-spacing:.2em;color:rgba(255,255,255,.25);text-transform:uppercase}
-  .flash-bar{position:absolute;bottom:0;left:0;height:3px;background:#ffdd2a;animation:flash-progress 8s linear forwards}
+  .flash-bar{position:absolute;bottom:0;left:0;height:3px;background:#ffd23f;animation:flash-progress 8s linear forwards}
   @keyframes flash-progress{from{width:100%}to{width:0%}}
-  @keyframes flash-border{0%{border-left-color:#ffdd2a}50%{border-left-color:rgba(255,221,42,.3)}100%{border-left-color:#ffdd2a}}
+  @keyframes flash-border{0%{border-left-color:#ffd23f}50%{border-left-color:rgba(255,106,61,.3)}100%{border-left-color:#ffd23f}}
   .card.refreshing{animation:flash-border .5s ease}
 
   /* streak badge */
@@ -97,10 +97,11 @@
   }
   .streak-badge.show{opacity:1;transform:translateY(0)}
   .streak-badge.fire  {background:rgba(255,100,30,.22);border:1px solid rgba(255,100,30,.55);color:#ff6b2b}
-  .streak-badge.streak{background:rgba(255,221,42,.15);border:1px solid rgba(255,221,42,.45);color:#ffdd2a}
+  .streak-badge.streak{background:rgba(255,106,61,.15);border:1px solid rgba(255,106,61,.45);color:#ffd23f}
   .streak-badge.clutch{background:rgba(80,220,100,.15);border:1px solid rgba(80,220,100,.45);color:#50dc64}
   .streak-badge.tilt  {background:rgba(100,160,255,.15);border:1px solid rgba(100,160,255,.45);color:#6db3ff}
 </style>
+<link rel="stylesheet" href="ov-theme.css">
 </head>
 <body>
 <div class="card" id="card">

@@ -76,3 +76,21 @@ data.sector.captured
 - Proxy corre como servicio: `sudo systemctl restart corillo-bf6-proxy`
 - Nginx sirve `public/` estático, no necesita restart al cambiar HTMLs
 - Verificar: `systemctl status corillo-bf6-proxy`
+
+## Rediseño Cobalto + WARDOGS (2026-09-20)
+
+- **Tema único:** `public/ov-theme.css` (paneles angulares, barra naranja→sol, cifras grandes). Cada overlay lo carga con
+  `<link rel="stylesheet" href="ov-theme.css">` DESPUÉS de su CSS propio y lo reemplaza sin tocar la lógica. Alturas medidas
+  con datos reales (iguales a las anteriores, no rompe fuentes de OBS existentes): overlay 240, weapons 300, classes 260,
+  accuracy 280, objective 280, session 275, season 225, recent 275, lowerthird 80. **No usar `color-scheme` en la página que
+  embebe overlays en iframe** (pinta el iframe con fondo opaco).
+- **`public/index.html`** es el generador nuevo (pestañas Battlefield 6 / WARDOGS, vista previa grande, URL copiable).
+  El catálogo de overlays y sus tamaños vive en el objeto `TYPES` del `<script>`.
+- **WARDOGS** (Steam app 1867240, Bulkhead/Team17, acceso anticipado 10-sep-2026): **no hay API pública de perfiles**.
+  - `GET /bf6/wardogs/players` — jugadores simultáneos (API pública de Steam, sin llave); el proxy muestrea cada minuto
+    y calcula tendencia 30 min y récord 24 h (historial en memoria; se reinicia con el servicio).
+  - `GET /bf6/wardogs/profile?steamid=` — horas, últimas 2 semanas y logros. **Requiere `STEAM_API_KEY`** (gratis en
+    steamcommunity.com/dev/apikey) en el entorno del servicio y perfil de Steam con "detalles del juego" públicos.
+    Sin llave responde 501 `steam_key_missing` (el overlay lo muestra como "no disponible").
+  - Overlays: `wardogs-pulse.html` (380×205) y `wardogs-profile.html` (380×258).
+  - Las estadísticas de combate (kills/K-D) NO están disponibles en ningún lado público.

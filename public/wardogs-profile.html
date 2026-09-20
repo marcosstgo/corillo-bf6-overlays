@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>WARDOGS · Perfil — CORILLO</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-serif}
+.card{width:380px}
+.header{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.ava{width:34px;height:34px;flex:none;background:#173383 center/cover;clip-path:polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%)}
+.player-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.subheader{display:flex;justify-content:space-between;margin-bottom:8px}
+.big{font-size:56px !important;line-height:.9}
+.row{display:flex;align-items:flex-end;gap:14px}
+.unit{font-size:20px;font-weight:800;color:#a4b6e6;letter-spacing:.06em;padding-bottom:6px}
+.meta{display:flex;gap:18px;margin-top:8px;padding:6px 12px;background:rgba(6,20,63,.55);clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%)}
+.meta div{display:flex;flex-direction:column}
+.meta small{font-size:9.5px;font-weight:800;letter-spacing:.18em;color:#a4b6e6;text-transform:uppercase}
+.meta b{font-size:19px;font-weight:800;color:#f5f8ff;font-variant-numeric:tabular-nums}
+.bar{height:5px;background:rgba(255,255,255,.12);margin-top:9px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#ff6a3d,#ffd23f);box-shadow:0 0 12px rgba(255,106,61,.6)}
+.recent{margin-top:6px;font-size:13px;font-weight:700;color:#a4b6e6;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recent b{color:#ffd23f}
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.footer-brand{font-size:9px;text-transform:uppercase}
+.err{min-height:120px;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 12px;color:#ffb4a6;font-size:14px;line-height:1.3;letter-spacing:.04em}
+</style>
+<link rel="stylesheet" href="ov-theme.css">
+</head>
+<body>
+<div class="card" id="card"><div class="card-inner" id="content"><div class="err">Cargando…</div></div></div>
+<script>
+const p = new URLSearchParams(location.search);
+const ID = p.get('steamid') || '';
+const API = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/profile') + '?steamid=' + encodeURIComponent(ID);
+const MSG = { steam_key_missing: 'Perfil de WARDOGS no disponible todavía', private_profile: 'El perfil de Steam es privado.<br>Ponlo en público para ver tus stats.', game_details_private: 'Activa los detalles del juego en público<br>en la privacidad de tu perfil de Steam.', not_found: 'No encontramos ese perfil de Steam.' };
+const fmt = (n, d = 0) => n == null ? '—' : Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+let good = false;
+async function load(refresh){
+  const card = document.getElementById('card');
+  if (!ID) { document.getElementById('content').innerHTML = '<div class="err">Falta ?steamid= en la URL</div>'; return; }
+  try {
+    const r = await fetch(API); const d = await r.json();
+    if (!r.ok) { if (!good) document.getElementById('content').innerHTML = `<div class="err">${MSG[d.error] || 'Datos no disponibles'}</div>`; return; }
+    good = true;
+    if (refresh) { card.classList.add('refreshing'); setTimeout(() => card.classList.remove('refreshing'), 600); }
+    const a = d.achievements || { done: 0, total: 0, recent: [] }; const pct = a.total ? Math.round(a.done / a.total * 100) : 0;
+    document.getElementById('content').innerHTML = `
+      <div class="header"><span class="ava" style="background-image:url('${d.avatar || ''}')"></span><span class="player-name">${d.name}</span><span class="platform-badge">STEAM</span></div>
+      <div class="subheader"><span></span><span class="section-label"><span>//</span> WARDOGS</span></div>
+      <div class="divider"></div>
+      <div class="row"><span class="stat-value-main kd big">${fmt(d.hours, 1)}</span><span class="unit">HORAS JUGADAS</span></div>
+      <div class="meta">
+        <div><small>Últimas 2 semanas</small><b>${fmt(d.hours2w, 1)} h</b></div>
+        <div><small>Logros</small><b>${a.done} / ${a.total}</b></div>
+        <div><small>Completado</small><b>${pct}%</b></div>
+      </div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      ${a.recent && a.recent[0] ? `<div class="recent">Último logro: <b>${a.recent[0].name}</b></div>` : ''}
+      <div class="footer"><span class="footer-brand">CORILLO.LIVE · WARDOGS</span><span class="footer-time">↻ ahora</span></div>`;
+  } catch (e) { if (!good) document.getElementById('content').innerHTML = '<div class="err">Datos no disponibles ahora</div>'; }
+}
+load(); setInterval(() => load(true), 5 * 60 * 1000);
+</script>
+</body>
+</html>

@@ -13,7 +13,7 @@
   .bar{
     width:1920px;height:275px;
     background:linear-gradient(180deg,rgba(0,0,0,.68) 0%,rgba(0,0,0,.94) 100%);
-    border-top:3px solid #ffdd2a;
+    border-top:3px solid #ffd23f;
     display:flex;align-items:stretch;
     position:relative;overflow:hidden;
   }
@@ -27,7 +27,7 @@
   }
   .bar::before{
     content:'';position:absolute;left:0;top:0;bottom:0;width:520px;
-    background:linear-gradient(90deg,rgba(255,221,42,.07) 0%,transparent 100%);
+    background:linear-gradient(90deg,rgba(255,106,61,.07) 0%,transparent 100%);
     pointer-events:none;z-index:0;
   }
   @keyframes hexscroll{from{background-position:0 0,0 0}to{background-position:0 0,56px 100px}}
@@ -36,17 +36,17 @@
   .identity{
     display:flex;flex-direction:column;justify-content:center;
     padding:0 28px 0 24px;
-    border-right:1px solid rgba(255,221,42,.2);
+    border-right:1px solid rgba(255,106,61,.2);
     position:relative;z-index:1;flex-shrink:0;
     min-width:310px;gap:10px;
   }
-  .tag{font-size:13px;font-weight:800;letter-spacing:.24em;color:rgba(255,221,42,.75);text-transform:uppercase}
+  .tag{font-size:13px;font-weight:800;letter-spacing:.24em;color:rgba(255,106,61,.75);text-transform:uppercase}
   .name{font-size:64px;font-weight:900;color:#fff;letter-spacing:.03em;text-transform:uppercase;line-height:.95}
   .badges{display:flex;align-items:center;gap:10px;margin-top:6px}
-  .season-pill{font-size:16px;font-weight:800;letter-spacing:.12em;color:#ffdd2a;text-transform:uppercase;background:rgba(255,221,42,.1);border:1px solid rgba(255,221,42,.3);padding:7px 18px;border-radius:20px;white-space:nowrap}
+  .season-pill{font-size:16px;font-weight:800;letter-spacing:.12em;color:#ffd23f;text-transform:uppercase;background:rgba(255,106,61,.1);border:1px solid rgba(255,106,61,.3);padding:7px 18px;border-radius:20px;white-space:nowrap}
   .perf-pill{font-size:16px;font-weight:800;letter-spacing:.1em;padding:7px 18px;border-radius:20px;text-transform:uppercase;white-space:nowrap;transition:all .5s}
   .perf-pill.hot{background:rgba(255,100,30,.18);border:1px solid rgba(255,100,30,.45);color:#ff6b2b}
-  .perf-pill.avg{background:rgba(255,221,42,.12);border:1px solid rgba(255,221,42,.35);color:#ffdd2a}
+  .perf-pill.avg{background:rgba(255,106,61,.12);border:1px solid rgba(255,106,61,.35);color:#ffd23f}
   .perf-pill.cold{background:rgba(100,160,255,.12);border:1px solid rgba(100,160,255,.35);color:#6db3ff}
 
   /* ---- MATCH TILES ---- */
@@ -86,21 +86,21 @@
   .stat:last-child{border-right:none}
   .stat-label{font-size:13px;font-weight:700;letter-spacing:.15em;color:rgba(255,255,255,.5);text-transform:uppercase;margin-bottom:8px}
   .stat-value{font-family:'Share Tech Mono',monospace;font-size:66px;color:#fff;line-height:1;letter-spacing:-.01em}
-  .stat-value.accent{color:#ffdd2a}
+  .stat-value.accent{color:#ffd23f}
   .stat-value.dim{color:rgba(255,255,255,.45);font-size:52px}
 
   /* ---- BRAND ---- */
   .brand{
     display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
-    padding:0 28px;border-left:1px solid rgba(255,221,42,.15);
+    padding:0 28px;border-left:1px solid rgba(255,106,61,.15);
     position:relative;z-index:1;flex-shrink:0;min-width:155px;
   }
-  .brand-name{font-size:14px;font-weight:800;letter-spacing:.2em;color:rgba(255,221,42,.75);text-transform:uppercase}
+  .brand-name{font-size:14px;font-weight:800;letter-spacing:.2em;color:rgba(255,106,61,.75);text-transform:uppercase}
   .brand-since{font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(255,255,255,.4);letter-spacing:.06em;margin-top:6px}
 
   /* loading */
   .bar-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;z-index:5}
-  .ld{width:8px;height:8px;border-radius:50%;background:#ffdd2a;animation:pulse 1.2s ease-in-out infinite}
+  .ld{width:8px;height:8px;border-radius:50%;background:#ffd23f;animation:pulse 1.2s ease-in-out infinite}
   .ld:nth-child(2){animation-delay:.2s}
   .ld:nth-child(3){animation-delay:.4s}
   @keyframes pulse{0%,80%,100%{opacity:.15;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
@@ -111,7 +111,7 @@
   .err-icon{font-size:32px;opacity:.4}
   .err-text{display:flex;flex-direction:column;gap:4px}
   .err-title{font-size:22px;font-weight:800;letter-spacing:.2em;color:rgba(255,255,255,.45);text-transform:uppercase}
-  .err-sub{font-family:'Share Tech Mono',monospace;font-size:13px;color:rgba(255,221,42,.4);letter-spacing:.1em}
+  .err-sub{font-family:'Share Tech Mono',monospace;font-size:13px;color:rgba(255,106,61,.4);letter-spacing:.1em}
 
   /* match flash */
   .match-flash{
@@ -128,7 +128,7 @@
   .mf-stats{display:flex;flex-direction:column;gap:6px}
   .mf-kd{font-family:'Share Tech Mono',monospace;font-size:52px;color:#fff;line-height:1}
   .mf-sub{font-size:14px;font-weight:700;letter-spacing:.22em;color:rgba(255,255,255,.3);text-transform:uppercase}
-  .mf-bar{position:absolute;bottom:0;left:0;height:3px;background:#ffdd2a;animation:mf-progress 8s linear forwards}
+  .mf-bar{position:absolute;bottom:0;left:0;height:3px;background:#ffd23f;animation:mf-progress 8s linear forwards}
   @keyframes mf-progress{from{width:100%}to{width:0%}}
 
   /* streak badge */
@@ -141,13 +141,14 @@
   }
   .streak-badge.show{opacity:1;transform:translateY(0)}
   .streak-badge.fire  {background:rgba(255,100,30,.22);border:1px solid rgba(255,100,30,.55);color:#ff6b2b}
-  .streak-badge.streak{background:rgba(255,221,42,.15);border:1px solid rgba(255,221,42,.45);color:#ffdd2a}
+  .streak-badge.streak{background:rgba(255,106,61,.15);border:1px solid rgba(255,106,61,.45);color:#ffd23f}
   .streak-badge.clutch{background:rgba(80,220,100,.15);border:1px solid rgba(80,220,100,.45);color:#50dc64}
   .streak-badge.tilt  {background:rgba(100,160,255,.15);border:1px solid rgba(100,160,255,.45);color:#6db3ff}
 
   /* bar content wrapper — fills remaining flex space */
   #barContent{display:flex;align-items:stretch;flex:1;width:100%}
 </style>
+<link rel="stylesheet" href="ov-theme.css">
 </head>
 <body>
 <div id="streakBadge" class="streak-badge"></div>

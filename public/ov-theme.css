@@ -1,0 +1,86 @@
+/* ============================================================================
+   CORILLO HUD — tema Cobalto para los overlays de OBS (Battlefield 6 y WARDOGS).
+   Se carga DESPUÉS del CSS propio de cada overlay y lo reemplaza sin tocar su lógica.
+   Fondo transparente siempre (OBS). Paneles angulares, barra de acento naranja→sol,
+   cifras enormes con brillo, entrada animada. Paleta idéntica a corillo.live.
+   ============================================================================ */
+:root {
+  --ov-ink: #06143f; --ov-panel: #0a1c52; --ov-raise: #173383;
+  --ov-bone: #f5f8ff; --ov-mute: #a4b6e6;
+  --ov-hot: #ff6a3d; --ov-sun: #ffd23f; --ov-mint: #35e0a1; --ov-live: #ff2d55;
+  --ov-cut: 18px;
+}
+html, body { background: transparent !important; }
+body { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif !important; -webkit-font-smoothing: antialiased; filter: drop-shadow(0 14px 26px rgba(0, 8, 32, .55)); }
+
+/* ── panel principal ─────────────────────────────────────────────────── */
+.card {
+  position: relative; border: 0 !important; border-radius: 0 !important; overflow: hidden !important; box-shadow: none !important;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(255, 106, 61, .22), transparent 55%),
+    linear-gradient(140deg, rgba(23, 51, 131, .96) 0%, rgba(10, 28, 82, .95) 45%, rgba(6, 20, 63, .96) 100%) !important;
+  clip-path: polygon(0 0, calc(100% - var(--ov-cut)) 0, 100% var(--ov-cut), 100% 100%, var(--ov-cut) 100%, 0 calc(100% - var(--ov-cut)));
+  animation: ov-in .7s cubic-bezier(.2, .75, .2, 1) both;
+}
+.card::before {                         /* textura de rayas diagonales */
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .55;
+  background: repeating-linear-gradient(115deg, transparent 0 7px, rgba(255, 255, 255, .035) 7px 8px) !important;
+}
+.card::after {                          /* barra de acento vertical con brillo */
+  content: ''; position: absolute; left: 0; top: 0; bottom: var(--ov-cut); width: 6px; z-index: 3;
+  background: linear-gradient(180deg, var(--ov-hot), var(--ov-sun)); box-shadow: 0 0 22px rgba(255, 106, 61, .7);
+}
+.card-inner { position: relative; z-index: 2; padding: 11px 16px 9px 21px !important; }
+@keyframes ov-in { from { opacity: 0; transform: translateX(-26px) skewX(-4deg); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes ov-flash { 0% { box-shadow: inset 0 0 0 0 rgba(255, 210, 63, 0); } 40% { box-shadow: inset 0 0 0 3px rgba(255, 210, 63, .8); } 100% { box-shadow: inset 0 0 0 0 rgba(255, 210, 63, 0); } }
+.card.refreshing { animation: ov-flash .6s ease !important; }
+
+/* ── cabecera ────────────────────────────────────────────────────────── */
+.player-name { font-family: 'Barlow Condensed', sans-serif !important; font-size: 21px !important; font-weight: 800 !important; letter-spacing: .015em !important; color: var(--ov-bone) !important; text-shadow: 0 2px 14px rgba(0, 0, 0, .4); }
+.platform-badge, .game-tag {
+  background: var(--ov-hot) !important; border: 0 !important; border-radius: 0 !important; color: var(--ov-ink) !important;
+  font-weight: 800 !important; letter-spacing: .1em !important; padding: 4px 11px 4px 9px !important;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 100%, 0 100%);
+}
+.time-played, .footer-time { color: var(--ov-mute) !important; font-family: 'Barlow Condensed', sans-serif !important; font-weight: 600; }
+.section-label { color: var(--ov-sun) !important; font-weight: 800 !important; letter-spacing: .2em !important; }
+.section-label span { color: var(--ov-hot) !important; opacity: 1 !important; }
+.divider { height: 2px !important; background: linear-gradient(90deg, var(--ov-hot) 0%, var(--ov-sun) 38%, transparent 100%) !important; margin-bottom: 8px !important; }
+
+/* ── cifras ──────────────────────────────────────────────────────────── */
+.stat-label-main, .stat-minor-label, .sl { color: var(--ov-mute) !important; font-weight: 800 !important; letter-spacing: .18em !important; font-size: 10.5px !important; }
+.stat-value-main { font-family: 'Barlow Condensed', sans-serif !important; font-weight: 800 !important; font-size: 52px !important; letter-spacing: -.015em !important; line-height: .92 !important; color: var(--ov-bone) !important; font-variant-numeric: tabular-nums; }
+.stat-value-main.kd, .stat-value-main.g { color: var(--ov-sun) !important; text-shadow: 0 0 30px rgba(255, 210, 63, .5); }
+.stat-main.kd-col { background: linear-gradient(135deg, rgba(255, 106, 61, .26), rgba(255, 210, 63, .1)) !important; border: 0 !important; border-left: 4px solid var(--ov-hot) !important; border-radius: 0 !important; }
+.bottom-row { background: rgba(6, 20, 63, .55) !important; border: 0 !important; border-radius: 0 !important; padding: 6px 12px !important; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
+.stat-minor-value { font-family: 'Barlow Condensed', sans-serif !important; font-weight: 800 !important; font-size: 17px !important; color: var(--ov-bone) !important; }
+.footer-brand { color: rgba(255, 210, 63, .7) !important; font-weight: 800 !important; letter-spacing: .2em !important; }
+
+/* ── armas / clases / barras ─────────────────────────────────────────── */
+.weapon-row { background: rgba(6, 20, 63, .5) !important; border: 0 !important; border-left: 3px solid var(--ov-hot) !important; border-radius: 0 !important; }
+.weapon-name, .weapon-kills { font-family: 'Barlow Condensed', sans-serif !important; font-weight: 800 !important; color: var(--ov-bone) !important; }
+.weapon-meta, .weapon-acc, .weapon-hs, .weapon-rank { color: var(--ov-mute) !important; }
+.weapon-bar-bg { background: rgba(255, 255, 255, .1) !important; border-radius: 0 !important; height: 5px !important; }
+.weapon-bar-fill { background: linear-gradient(90deg, var(--ov-hot), var(--ov-sun)) !important; border-radius: 0 !important; box-shadow: 0 0 12px rgba(255, 106, 61, .6); }
+.weapon-img { filter: brightness(1.05) drop-shadow(0 4px 10px rgba(0, 0, 0, .5)) !important; }
+
+/* ── estados ─────────────────────────────────────────────────────────── */
+.loading-dot, .ld { background: var(--ov-hot) !important; }
+.error-msg, .err-panel span { color: #ffb4a6 !important; }
+
+/* ── lower third 1920×80 ─────────────────────────────────────────────── */
+.bar {
+  background: linear-gradient(90deg, rgba(23, 51, 131, .97) 0%, rgba(10, 28, 82, .96) 30%, rgba(6, 20, 63, .95) 100%) !important;
+  border-top: 0 !important; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  box-shadow: inset 0 4px 0 var(--ov-hot);
+}
+.bar::before { content: ''; position: absolute; left: 0; top: 0; width: 360px; height: 4px; z-index: 11; background: linear-gradient(90deg, var(--ov-hot), var(--ov-sun)); box-shadow: 0 0 20px var(--ov-hot); }
+.left { border-right: 0 !important; background: linear-gradient(100deg, rgba(255, 106, 61, .28), transparent) !important; }
+.sv, .wk { font-family: 'Barlow Condensed', sans-serif !important; font-weight: 800 !important; font-size: 30px !important; color: var(--ov-bone) !important; }
+.sv.g { color: var(--ov-sun) !important; text-shadow: 0 0 22px rgba(255, 210, 63, .5); }
+.wn { color: var(--ov-mute) !important; font-weight: 800 !important; }
+.wh, .blbl { color: rgba(255, 210, 63, .8) !important; }
+.prog-fill { background: linear-gradient(90deg, var(--ov-hot), var(--ov-sun)) !important; }
+.dot.on { background: var(--ov-sun) !important; }
+.sc { border-right: 1px solid rgba(255, 255, 255, .08) !important; }
+@media (prefers-reduced-motion: reduce) { .card { animation: none; } }
