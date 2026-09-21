@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>WARDOGS · Barra inferior — CORILLO</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent}
+body{width:1920px;height:80px;overflow:hidden;font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased}
+.bar{position:relative;width:1920px;height:80px;display:flex;background:linear-gradient(90deg,rgba(23,51,131,.96),rgba(10,28,82,.95) 40%,rgba(6,20,63,.96));border-top:3px solid #ffd23f;overflow:hidden}
+.bar::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 7px,rgba(255,255,255,.035) 7px 8px);pointer-events:none}
+.left{position:relative;z-index:2;display:flex;align-items:center;gap:14px;width:340px;flex:none;padding:0 24px;border-right:1px solid rgba(255,255,255,.12)}
+.left::after{content:'';position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,#ff6a3d,#ffd23f);box-shadow:0 0 18px rgba(255,106,61,.6)}
+.ava{width:46px;height:46px;flex:none;background:#173383 center/cover;clip-path:polygon(0 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%)}
+.who{min-width:0;display:flex;flex-direction:column;gap:3px}
+.name{font-size:24px;font-weight:800;color:#f5f8ff;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1}
+.tag{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.18em;color:#ffd23f;text-transform:uppercase;line-height:1}
+.live{display:none;align-items:center;gap:5px;padding:1px 8px 1px 6px;background:rgba(255,45,85,.24);color:#ff7a92;font-size:11px;letter-spacing:.14em}
+.live.on{display:inline-flex}
+.live i{width:6px;height:6px;border-radius:50%;background:#ff2d55;box-shadow:0 0 8px #ff2d55;animation:lv 1.2s ease-in-out infinite}
+@keyframes lv{50%{opacity:.3}}
+.right{position:relative;flex:1;z-index:2}
+.blk{position:absolute;inset:0;display:flex;align-items:stretch;opacity:0;transform:translateX(24px);transition:opacity .45s ease,transform .45s ease;pointer-events:none}
+.blk.on{opacity:1;transform:none}
+.blk.out{opacity:0;transform:translateX(-24px)}
+.sc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 10px;border-right:1px solid rgba(255,255,255,.07);min-width:0}
+.sc:last-child{border-right:0}
+.sl{font-size:12px;font-weight:800;letter-spacing:.16em;color:#a4b6e6;text-transform:uppercase;white-space:nowrap}
+.sv{font-size:34px;font-weight:800;color:#f5f8ff;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sv.g{color:#ffd23f}.sv.m{color:#35e0a1}
+.prog{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.06);z-index:3}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff6a3d,#ffd23f)}
+.ld{position:absolute;inset:0;display:grid;place-items:center;color:#a4b6e6;font-size:15px;letter-spacing:.14em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="left"><span class="ava" id="ava"></span><div class="who"><span class="name" id="name">WARDOGS</span><span class="tag">WARDOGS <span class="live" id="live"><i></i>JUGANDO</span></span></div></div>
+  <div class="right" id="right"><div class="ld" id="ld">Cargando…</div></div>
+  <div class="prog"><i id="prog"></i></div>
+</div>
+<script>
+// Barra de 1920×80 que rota bloques: tu jugador, el juego en vivo y tus logros.
+// Con ?steamid= muestra tus datos; sin él, solo el bloque del juego.
+const q = new URLSearchParams(location.search);
+const ID = q.get('steamid') || '';
+const HOLD = Math.max(4, +q.get('t') || 7) * 1000;
+const BASE = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/');
+const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (n, d = 0) => n == null ? '—' : Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+const pc = n => n == null ? '—' : (n < 10 ? n.toFixed(1) : Math.round(n)) + '%';
+const get = async p => { const r = await fetch(BASE + p); if (!r.ok) throw new Error(r.status); return r.json(); };
+const S = { me: null, players: null, game: null };
+const refresh = {
+  me:      () => ID && get('profile?steamid=' + encodeURIComponent(ID)).then(d => S.me = d).catch(() => {}),
+  players: () => get('players').then(d => S.players = d).catch(() => {}),
+  game:    () => get('game').then(d => S.game = d).catch(() => {}),
+};
+function blocks(){
+  const out = [], m = S.me, a = m && m.achievements, pl = S.players, g = S.game;
+  if (m) {
+    document.getElementById('name').textContent = m.name; document.getElementById('ava').style.backgroundImage = `url('${(m.avatar || '').replace(/'/g, '')}')`;
+    document.getElementById('live').classList.toggle('on', !!m.playingNow);
+    out.push([['Horas jugadas', fmt(m.hours, 1) + ' h', 'g'], ['Últimas 2 semanas', fmt(m.hours2w, 1) + ' h'], ['Logros', a ? `${a.done} / ${a.total}` : '—'], ['Completado', a && a.total ? Math.round(a.done / a.total * 100) + '%' : '—']]);
+    const s = m.session || {};
+    const ach = [];
+    if (a && a.rarest) ach.push(['Logro más raro', a.rarest.name, 'g'], ['Lo tiene solo', pc(a.rarest.pct), 'm']);
+    if (a && a.recent && a.recent[0]) ach.push(['Último logro', a.recent[0].name]);
+    if (s.achievements > 0 || s.hours > 0) ach.push(['Esta sesión', [s.achievements > 0 ? '+' + s.achievements + ' logro' + (s.achievements > 1 ? 's' : '') : '', s.hours > 0 ? '+' + s.hours + ' h' : ''].filter(Boolean).join(' · ')]);
+    if (ach.length) out.push(ach);
+  }
+  if (pl || g) {
+    const c = [];
+    if (pl) c.push(['Jugando ahora', fmt(pl.players), 'g'], ['Récord 24 h', fmt(pl.peak)]);
+    if (g && g.reviews) c.push(['Reseñas positivas', g.reviews.pct + '%', 'm']);
+    if (g && g.reviewsEs) c.push(['En español', g.reviewsEs.pct + '%', 'm']);
+    if (c.length) out.push(c);
+  }
+  return out;
+}
+const right = document.getElementById('right'), prog = document.getElementById('prog');
+let idx = 0, timer = null, cur = null;
+function render(list){
+  return Object.assign(document.createElement('div'), { className: 'blk', innerHTML: list.map(([l, v, k]) => `<div class="sc"><span class="sl">${esc(l)}</span><span class="sv ${k || ''}">${esc(v)}</span></div>`).join('') });
+}
+function cycle(){
+  const bl = blocks(); if (!bl.length) { timer = setTimeout(cycle, 1500); return; }
+  document.getElementById('ld')?.remove();
+  const next = render(bl[idx % bl.length]); idx++;
+  right.appendChild(next);
+  if (cur) { const old = cur; old.classList.remove('on'); old.classList.add('out'); setTimeout(() => old.remove(), 600); }
+  requestAnimationFrame(() => requestAnimationFrame(() => next.classList.add('on'))); cur = next;
+  prog.style.transition = 'none'; prog.style.width = '0'; requestAnimationFrame(() => requestAnimationFrame(() => { prog.style.transition = `width ${HOLD}ms linear`; prog.style.width = '100%'; }));
+  timer = setTimeout(cycle, HOLD);
+}
+(async () => { await Promise.all([refresh.me(), refresh.players(), refresh.game()]); cycle(); })();
+setInterval(refresh.me, 5 * 60 * 1000); setInterval(refresh.players, 60 * 1000); setInterval(refresh.game, 10 * 60 * 1000);
+</script>
+</body>
+</html>

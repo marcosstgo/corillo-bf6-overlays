@@ -3,125 +3,54 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Overlays para OBS — Battlefield 6 y WARDOGS · CORILLO</title>
-<meta name="description" content="Overlays de estadísticas para tu stream en OBS: Battlefield 6 y WARDOGS. Gratis, con fondo transparente y diseño Corillo.">
-<meta property="og:title" content="Overlays para OBS — CORILLO">
-<meta property="og:description" content="Estadísticas de Battlefield 6 y WARDOGS en tu stream. Gratis, en un clic.">
-<meta property="og:image" content="https://corillo.live/overlay/bf6/og-bf6.png">
+<title>Battlefield 6: overlays para OBS · Corillo</title>
+<meta name="description" content="Overlays gratis de Battlefield 6 para tu stream: K/D, armas, clases, sesión y más, con fondo transparente para OBS. Además, servidores activos en vivo.">
+<meta property="og:title" content="Battlefield 6: overlays para OBS · Corillo">
+<meta property="og:description" content="Tus estadísticas de Battlefield 6 en tu stream, en vivo y gratis. Con servidores activos.">
+<meta property="og:image" content="https://corillo.live/overlay/assets/og-bf6.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Corillo">
+<meta property="og:locale" content="es_PR">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Overlays de Battlefield 6 para OBS: K/D, armas y sesión">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Battlefield 6: overlays para OBS · Corillo">
+<meta name="twitter:description" content="Tus estadísticas de Battlefield 6 en tu stream, en vivo y gratis. Con servidores activos.">
+<meta name="twitter:image" content="https://corillo.live/overlay/assets/og-bf6.png">
+<meta property="og:url" content="https://corillo.live/overlay/bf6/">
+<link rel="canonical" href="https://corillo.live/overlay/bf6/">
 <meta name="theme-color" content="#06143f">
 <script src="config.js"></script>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
 <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
-<style>
-:root{--ink:#06143f;--panel:#0a1c52;--raise:#173383;--bone:#f5f8ff;--mute:#a4b6e6;--hot:#ff6a3d;--sun:#ffd23f;--mint:#35e0a1;--live:#ff2d55;
-  --line:rgba(245,248,255,.1);--hov:color-mix(in srgb,var(--bone) 9%,transparent);--display:'Bricolage Grotesque','DM Sans',system-ui,sans-serif;--body:'DM Sans',system-ui,sans-serif}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{color-scheme:normal}
-body{background:var(--ink);color:var(--bone);font-family:var(--body);min-height:100vh;-webkit-font-smoothing:antialiased;
-  background-image:radial-gradient(70% 40% at 85% -5%,rgba(255,106,61,.22),transparent 60%),radial-gradient(60% 40% at 0% 0%,rgba(23,51,131,.9),transparent 70%)}
-a{color:inherit}
-button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
-:focus-visible{outline:3px solid var(--hot);outline-offset:3px}
-
-/* barra superior */
-.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px clamp(18px,4vw,56px)}
-.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font:800 1.2rem var(--display);letter-spacing:-.02em}
-.brand i{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--hot);color:var(--ink);font-size:1rem}
-.back{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 18px;border-radius:999px;background:var(--hov);text-decoration:none;font:700 .9rem var(--body);transition:background .15s}
-.back:hover{background:color-mix(in srgb,var(--bone) 16%,transparent)}
-
-/* hero */
-.hero{padding:clamp(20px,4vw,48px) clamp(18px,4vw,56px) 8px;max-width:1700px;margin:0 auto}
-.hero h1{font:800 clamp(2.6rem,7.5vw,6.4rem)/.9 var(--display);letter-spacing:-.045em;max-width:14ch}
-.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--hot),var(--sun));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{margin-top:18px;max-width:58ch;color:var(--mute);font:500 clamp(1rem,1.5vw,1.2rem)/1.5 var(--body)}
-.games{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
-.game{display:flex;align-items:center;gap:14px;padding:12px 22px 12px 12px;border-radius:22px;background:var(--hov);box-shadow:inset 0 0 0 1px var(--line);transition:background .18s,transform .18s,box-shadow .18s;text-align:left}
-.game:hover{transform:translateY(-2px);background:color-mix(in srgb,var(--bone) 13%,transparent)}
-.game[aria-pressed="true"]{background:var(--bone);color:var(--ink);box-shadow:0 12px 34px -10px rgba(255,106,61,.7)}
-.game .g-ico{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:1.3rem;background:color-mix(in srgb,var(--tc) 22%,transparent);color:var(--tc)}
-.game[aria-pressed="true"] .g-ico{background:var(--tc);color:var(--ink)}
-.game b{display:block;font:800 1.15rem/1.1 var(--display);letter-spacing:-.02em}
-.game small{display:block;margin-top:4px;font:600 .8rem var(--body);opacity:.7}
-
-/* área principal */
-.main{max-width:1700px;margin:0 auto;padding:28px clamp(18px,4vw,56px) 70px;display:grid;gap:28px;grid-template-columns:minmax(0,1fr)}
-@media(min-width:1100px){.main{grid-template-columns:minmax(0,560px) minmax(0,1fr);align-items:start}}
-.panel{border-radius:28px;background:color-mix(in srgb,var(--bone) 6%,transparent);box-shadow:inset 0 0 0 1px var(--line);padding:22px}
-.step{display:flex;align-items:center;gap:12px;margin-bottom:14px;font:800 1.15rem var(--display);letter-spacing:-.02em}
-.step b{width:32px;height:32px;border-radius:11px;display:grid;place-items:center;background:var(--hot);color:var(--ink);font:800 .95rem var(--display)}
-.field{display:block;width:100%;height:52px;padding:0 18px;border-radius:16px;border:1.5px solid var(--line);background:var(--ink);color:var(--bone);font:600 1.05rem var(--body);transition:border-color .15s}
-.field:focus{outline:none;border-color:var(--hot)}
-.field::placeholder{color:color-mix(in srgb,var(--mute) 70%,transparent)}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.chip{height:40px;padding:0 16px;border-radius:999px;background:var(--hov);font:700 .88rem var(--body);transition:background .15s,color .15s}
-.chip:hover{background:color-mix(in srgb,var(--bone) 16%,transparent)}
-.chip[aria-pressed="true"]{background:var(--bone);color:var(--ink)}
-.hint{margin-top:12px;color:var(--mute);font:500 .86rem/1.45 var(--body)}
-.hint a{color:var(--sun)}
-details.help{margin-top:12px;border-radius:16px;background:rgba(6,20,63,.6);padding:12px 16px}
-details.help summary{cursor:pointer;font:700 .88rem var(--body);color:var(--sun)}
-details.help p{margin-top:8px;color:var(--mute);font:500 .85rem/1.5 var(--body)}
-.prow{display:grid;grid-template-columns:1fr 132px 42px;gap:8px;margin-bottom:8px}
-.prow select{height:52px;border-radius:16px;border:1.5px solid var(--line);background:var(--ink);color:var(--bone);font:600 .95rem var(--body);padding:0 12px}
-.prow .rm{border-radius:14px;background:var(--hov);font-size:1rem}
-.add{margin-top:4px;height:44px;padding:0 18px;border-radius:999px;background:var(--hov);font:700 .9rem var(--body)}
-
-/* tarjetas de overlay */
-.grp{margin:18px 0 10px;color:var(--mute);font:700 .78rem var(--body);letter-spacing:.12em;text-transform:uppercase}
-.types{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
-.type{--tc:var(--hot);display:flex;gap:14px;align-items:flex-start;padding:14px;border-radius:20px;background:var(--hov);text-align:left;transition:background .18s,transform .18s,box-shadow .18s;box-shadow:inset 0 0 0 1px transparent}
-.type:hover{transform:translateY(-2px);background:color-mix(in srgb,var(--bone) 13%,transparent)}
-.type[aria-pressed="true"]{background:color-mix(in srgb,var(--tc) 16%,transparent);box-shadow:inset 0 0 0 2px var(--tc)}
-.type .t-ico{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:1.05rem;background:color-mix(in srgb,var(--tc) 22%,transparent);color:var(--tc)}
-.type[aria-pressed="true"] .t-ico{background:var(--tc);color:var(--ink)}
-.type b{display:block;font:800 1.02rem/1.15 var(--display);letter-spacing:-.015em}
-.type small{display:block;margin-top:4px;color:var(--mute);font:500 .8rem/1.35 var(--body)}
-.type .sz{display:inline-block;margin-top:7px;padding:3px 8px;border-radius:8px;background:rgba(6,20,63,.7);font:700 .72rem var(--body);font-variant-numeric:tabular-nums;color:var(--sun)}
-
-/* vista previa */
-.preview{position:relative;border-radius:28px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
-@media(min-width:1100px){.preview-col{position:sticky;top:18px}}
-.stage{position:relative;min-height:340px;display:grid;place-items:center;padding:28px;overflow:hidden;
-  background:linear-gradient(120deg,rgba(6,20,63,.55),rgba(6,20,63,.85)),
-  repeating-linear-gradient(115deg,#0d2a6b 0 22px,#0a2260 22px 44px)}
-.stage::before{content:'VISTA PREVIA · así se verá sobre tu juego';position:absolute;top:14px;left:18px;z-index:2;font:700 .72rem var(--body);letter-spacing:.14em;color:rgba(245,248,255,.55)}
-.stage::after{content:'';position:absolute;inset:0;background:radial-gradient(60% 60% at 50% 50%,transparent,rgba(6,20,63,.65));pointer-events:none}
-.frame-box{position:relative;z-index:3;transform-origin:top left}
-.frame-box iframe{border:0;background:transparent;display:block}
-.empty{position:relative;z-index:3;text-align:center;max-width:32ch;color:var(--mute);font:500 1rem/1.5 var(--body)}
-.empty b{display:block;margin-bottom:6px;color:var(--bone);font:800 1.5rem var(--display);letter-spacing:-.02em}
-.output{padding:20px;display:grid;gap:14px;background:color-mix(in srgb,var(--bone) 5%,transparent)}
-.urlrow{display:flex;gap:8px}
-.urlrow input{flex:1;min-width:0;height:52px;padding:0 16px;border-radius:16px;border:1.5px solid var(--line);background:var(--ink);color:var(--sun);font:600 .85rem 'Space Mono',ui-monospace,monospace}
-.copy{flex:none;height:52px;padding:0 26px;border-radius:16px;background:var(--hot);color:var(--ink);font:800 1rem var(--display);transition:transform .15s,box-shadow .15s}
-.copy:hover{box-shadow:0 0 0 4px rgba(255,106,61,.35)}
-.copy:active{transform:scale(.97)}
-.copy.ok{background:var(--mint)}
-.obs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-.obs div{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:16px;background:rgba(6,20,63,.6);font:500 .88rem/1.4 var(--body);color:var(--mute)}
-.obs b.n{flex:none;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;background:var(--hov);color:var(--bone);font:800 .8rem var(--display)}
-.obs strong{color:var(--bone)}
-footer{max-width:1700px;margin:0 auto;padding:10px clamp(18px,4vw,56px) 40px;color:var(--mute);font:500 .85rem var(--body)}
-footer a{color:var(--bone)}
-[hidden]{display:none!important}
-</style>
+<link rel="stylesheet" href="/overlay/assets/site.css">
+<style>:root{--tc:var(--sun)}</style>
 </head>
 <body>
 
-<header class="top">
+<nav class="nav" aria-label="Navegación">
   <a class="brand" href="https://corillo.live/"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>Corillo</a>
-  <a class="back" href="https://corillo.live/software/"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Volver al sitio</a>
-</header>
-
-<section class="hero">
-  <h1>Tus estadísticas, <em>en tu stream.</em></h1>
-  <p>Overlays gratis para OBS con fondo transparente. Elige tu juego, escribe tu usuario, copia el enlace y pégalo como fuente de navegador. Sin instalar nada.</p>
-  <div class="games" role="group" aria-label="Juego">
-    <button class="game" data-game="bf6" style="--tc:var(--sun)" aria-pressed="true"><span class="g-ico"><i class="fa-solid fa-crosshairs" aria-hidden="true"></i></span><span><b>Battlefield 6</b><small>Stats, armas, clases, sesión y más</small></span></button>
-    <button class="game" data-game="wardogs" style="--tc:var(--mint)" aria-pressed="false"><span class="g-ico"><i class="fa-solid fa-dog" aria-hidden="true"></i></span><span><b>WARDOGS</b><small>Jugadores en vivo y tu perfil de Steam</small></span></button>
+  <div class="crumb"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i><a href="/overlay/">Overlays</a><i class="fa-solid fa-chevron-right" aria-hidden="true"></i><span>Battlefield 6</span></div>
+  <div class="seg" role="group" aria-label="Elegir juego">
+    <a href="/overlay/bf6/" style="--tc:var(--sun)" aria-current="page"><i class="fa-solid fa-crosshairs" aria-hidden="true"></i>Battlefield 6</a>
+    <a href="/overlay/wardogs/" style="--tc:var(--mint)"><i class="fa-solid fa-dog" aria-hidden="true"></i>WARDOGS</a>
   </div>
-</section>
+</nav>
+
+<header class="wrap" style="padding-top:clamp(14px,3vw,36px)">
+  <div class="h-hero" style="padding-top:0">
+    <h1>Battlefield 6 en tu stream.</h1>
+    <p>Tu K/D, tus armas, tus clases y tu sesión, en vivo y con el fondo transparente para OBS. Escribe tu EA ID, copia el enlace y pégalo.</p>
+    <div style="display:flex;gap:22px;flex-wrap:wrap;margin-top:22px">
+      <span class="livetag"><i class="pulse-dot" aria-hidden="true"></i><span><b id="hSteam">—</b> jugando en Steam ahora</span></span>
+      <span class="livetag"><i class="fa-solid fa-server" aria-hidden="true" style="color:var(--sun)"></i><span><b id="hSrv">—</b> servidores con jugadores</span></span>
+      <a class="livetag" href="#servidores" style="text-decoration:underline">Ver servidores</a>
+    </div>
+  </div>
+</header>
 
 <div class="main">
   <div class="cfg">
@@ -165,8 +94,21 @@ footer a{color:var(--bone)}
   </div>
 </div>
 
-<footer>
-  <a href="https://corillo.live/">corillo.live</a> · Datos de Battlefield 6 vía <a href="https://gametools.network" target="_blank" rel="noopener">gametools.network</a> y EA · Datos de WARDOGS vía Steam · Código en <a href="https://github.com/marcosstgo/corillo-bf6-overlays" target="_blank" rel="noopener">GitHub</a>
+
+<section class="wrap sec" id="servidores" style="--tc:var(--sun)">
+  <h2>Servidores en vivo</h2>
+  <p class="lead">Los servidores de Battlefield 6 con más jugadores ahora mismo. Es una muestra de hasta 100 servidores que entrega gametools.network, actualizada cada minuto.</p>
+  <div class="srvbar">
+    <input class="field" id="srvQ" type="search" placeholder="Buscar un servidor por nombre" autocomplete="off" spellcheck="false" aria-label="Buscar un servidor por nombre">
+    <div class="chips" id="regChips" role="group" aria-label="Región" style="margin-top:0"></div>
+  </div>
+  <div class="chips" id="modeChips" role="group" aria-label="Modo de juego"></div>
+  <div class="srvgrid" id="srvGrid" aria-live="polite"></div>
+  <div style="margin-top:18px"><button class="btn ghost small" id="srvMore" type="button" hidden>Ver más servidores</button></div>
+</section>
+
+<footer class="wrap" style="padding-top:34px;padding-bottom:40px">
+  <a href="https://corillo.live/">corillo.live</a> · Datos de Battlefield 6 vía <a href="https://gametools.network" target="_blank" rel="noopener">gametools.network</a> y EA · <a href="/overlay/wardogs/">WARDOGS</a> · Código en <a href="https://github.com/marcosstgo/corillo-bf6-overlays" target="_blank" rel="noopener">GitHub</a>
 </footer>
 
 <script>
@@ -189,12 +131,6 @@ const TYPES = {
       { id:'dashboard',n:'Panel completo',   d:'Combate, precisión, objetivo, armas y sesión',      w:1920,h:1080,ic:'table-columns',  c:'var(--mint)' }]},
     { g:'Escuadrón', items:[
       { id:'multi',    n:'Multijugador',     d:'Stats lado a lado de 2 a 4 jugadores',              w:548, h:260, ic:'people-group',   c:'var(--sun)', mode:'multi' }]}
-  ],
-  wardogs: [
-    { g:'Sin usuario necesario', items:[
-      { id:'wardogs-pulse',  n:'Jugadores en vivo', d:'Cuántos juegan WARDOGS ahora mismo, con récord y tendencia', w:380, h:170, ic:'users', c:'var(--mint)', noName:true }]},
-    { g:'Con tu perfil de Steam', items:[
-      { id:'wardogs-profile',n:'Tu perfil',  d:'Horas jugadas, últimas 2 semanas y logros', w:380, h:260, ic:'id-card', c:'var(--sun)', steam:true }]}
   ]
 };
 const state = { game:'bf6', type:'overlay', plat:'ea', w:380, h:240, mode:'single' };
@@ -226,7 +162,7 @@ function applyType(t, render = true){
   $('stepTitle').textContent = multi ? 'Tu escuadrón' : (t.steam ? 'Tu perfil de Steam' : 'Tu usuario');
   const h = $('wdHint');
   h.hidden = !t.steam;
-  if (t.steam) h.innerHTML = 'Tu perfil de Steam debe tener los <strong>detalles del juego en público</strong> (Steam → Perfil → Editar perfil → Privacidad). Las estadísticas dependen de lo que Steam exponga de WARDOGS: <strong>Bulkhead no ofrece una API pública</strong> de perfiles.';
+  if (t.steam) h.innerHTML = 'Tu perfil de Steam debe tener los <strong>detalles del juego en público</strong> (Steam → Perfil → Editar perfil → Privacidad). Steam expone de WARDOGS <strong>horas jugadas, logros y si estás jugando ahora</strong>; kills, K/D y partidas no están disponibles porque Bulkhead no ofrece una API pública.';
   if (multi && rows === 0){ addRow(); addRow(); }
   if (render) renderTypes();
   schedule(true);
@@ -245,7 +181,7 @@ function multiPlayers(){ const names = [], plats = []; document.querySelectorAll
 function buildURL(){
   const t = findType(state.type);
   if (state.mode === 'multi'){ const { names, plats } = multiPlayers(); if (names.length < 2) return null; state.w = Math.max(names.length,2) * 270 + (Math.max(names.length,2) - 1) * 8; return `${BASE}multi.html?names=${names.map(encodeURIComponent).join(',')}&platforms=${plats.join(',')}`; }
-  if (t.noName) return `${BASE}${t.id}.html`;
+  if (t.noName) return `${BASE}${t.file || t.id}.html`;
   const name = $('nameInput').value.trim(); if (!name) return null;
   if (t.steam) return `${BASE}${t.id}.html?steamid=${encodeURIComponent(name)}`;
   if (t.ea) return `${BASE}${t.id}.html?name=${encodeURIComponent(name)}`;
@@ -277,7 +213,48 @@ $('copyBtn').addEventListener('click', () => navigator.clipboard.writeText($('ur
 window.addEventListener('resize', fit);
 
 renderPlats(); renderTypes(); applyType(findType('overlay'), false);
-const q = new URLSearchParams(location.search); if (q.get('game') === 'wardogs'){ state.game = 'wardogs'; applyGame(); }
+if (new URLSearchParams(location.search).get('game') === 'wardogs') location.replace('/overlay/wardogs/');   // enlaces viejos
+</script>
+
+<script src="/overlay/assets/site.js"></script>
+<script>
+/* ── hero en vivo ── */
+OV.json('players').then(d => OV.$('#hSteam').textContent = OV.fmt(d.players)).catch(() => {});
+setInterval(() => OV.json('players').then(d => OV.$('#hSteam').textContent = OV.fmt(d.players)).catch(() => {}), 60000);
+
+/* ── servidores ── */
+const SV = { region: 'all', mode: 'all', q: '', shown: 12, data: null };
+const REG_ES = { 'North America': 'Norteamérica', 'South America': 'Sudamérica', Europe: 'Europa', Asia: 'Asia', Oceania: 'Oceanía' };
+const PLAT = { steam: 'Steam', pc: 'EA App', ps5: 'PS5', ps4: 'PS4', xboxseries: 'Xbox Series', xboxone: 'Xbox One', xbox: 'Xbox' };
+async function loadServers(){
+  try {
+    const d = await OV.json('servers?region=' + encodeURIComponent(SV.region) + (SV.q ? '&q=' + encodeURIComponent(SV.q) : ''));
+    SV.data = d; OV.$('#hSrv').textContent = OV.fmt(d.withPlayers); drawServers();
+  } catch (e) { OV.$('#srvGrid').innerHTML = '<div class="empty-note"><b>No pudimos cargar los servidores</b>El listado no respondió. Se vuelve a intentar solo en un minuto.</div>'; }
+}
+function chip(k, v, label, on){ return `<button class="chip" type="button" data-k="${k}" data-v="${OV.esc(v)}" aria-pressed="${on}">${OV.esc(label)}</button>`; }
+function drawServers(){
+  const d = SV.data; if (!d) return;
+  OV.$('#regChips').innerHTML = chip('region', 'all', 'Todas', SV.region === 'all') + Object.keys(REG_ES).filter(r => d.regions[r] || SV.region === r).map(r => chip('region', r, REG_ES[r], SV.region === r)).join('');
+  const modes = Object.entries(d.modes).sort((a, b) => b[1] - a[1]);
+  OV.$('#modeChips').innerHTML = chip('mode', 'all', 'Todos los modos', SV.mode === 'all') + modes.map(([m, n]) => chip('mode', m, `${m} (${n})`, SV.mode === m)).join('');
+  const list = d.servers.filter(x => SV.mode === 'all' || x.mode === SV.mode);
+  const shown = list.slice(0, SV.shown);
+  OV.$('#srvGrid').innerHTML = shown.length ? shown.map(x => {
+    const full = x.max && x.players >= x.max, pct = x.max ? Math.min(100, x.players / x.max * 100) : 0;
+    const img = x.img ? `background-image:url('${OV.esc(x.img)}')` : '';
+    return `<article class="srv hud"><div class="pic" style="${img}"><span class="map">${OV.esc(x.map || 'Mapa desconocido')}</span>${full ? '<span class="full">LLENO</span>' : ''}</div>
+      <div class="s-body"><h3 title="${OV.esc(x.name)}">${OV.esc(x.name)}</h3>
+      <div class="tags"><span>${OV.esc(x.mode || '')}</span><span>${OV.esc(REG_ES[x.region] || x.region || '')}</span>${x.platform ? `<span>${OV.esc(PLAT[x.platform] || x.platform)}</span>` : ''}</div>
+      <div class="cnt"><span>${x.players}<small> de ${x.max} jugadores</small></span></div><div class="bar"><i style="width:${pct}%"></i></div></div></article>`;
+  }).join('') : '<div class="empty-note"><b>No hay servidores con ese filtro</b>Prueba otra región, otro modo o borra la búsqueda.</div>';
+  OV.$('#srvMore').hidden = list.length <= SV.shown;
+}
+document.addEventListener('click', e => { const b = e.target.closest('#regChips .chip, #modeChips .chip'); if (!b) return;
+  SV[b.dataset.k] = b.dataset.v; SV.shown = 12; if (b.dataset.k === 'region') loadServers(); else drawServers(); });
+OV.$('#srvMore').addEventListener('click', () => { SV.shown += 12; drawServers(); });
+let qt; OV.$('#srvQ').addEventListener('input', e => { clearTimeout(qt); qt = setTimeout(() => { SV.q = e.target.value.trim(); SV.shown = 12; loadServers(); }, 500); });
+loadServers(); setInterval(loadServers, 60000);
 </script>
 </body>
 </html>

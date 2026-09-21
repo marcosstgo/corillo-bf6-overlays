@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>WARDOGS · Alerta de logro — CORILLO</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:transparent;width:480px;height:130px;overflow:hidden;font-family:'Barlow Condensed',sans-serif}
+#slot{position:absolute;left:0;top:0;width:480px}
+.card{width:480px;transform:translateX(-520px);opacity:0;transition:transform .55s cubic-bezier(.2,.8,.2,1),opacity .4s}
+.card.in{transform:none;opacity:1}
+.card-inner{display:flex;align-items:center;gap:16px}
+.ic{width:76px;height:76px;flex:none;background:#173383 center/cover;clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);box-shadow:0 0 0 2px #ffd23f inset}
+.txt{min-width:0;flex:1}
+.kick{font-size:12px;font-weight:800;letter-spacing:.2em;color:#ffd23f;text-transform:uppercase}
+.name{font-size:32px;font-weight:800;line-height:1;color:#f5f8ff;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.desc{font-size:15px;font-weight:600;color:#a4b6e6;line-height:1.15;margin-top:3px;max-height:34px;overflow:hidden}
+.rare{margin-top:5px;font-size:12px;font-weight:800;letter-spacing:.08em;color:#35e0a1;text-transform:uppercase}
+.rare.hot{color:#ff6a3d}
+.ex{font-size:10px;font-weight:800;letter-spacing:.14em;color:#ff7a92;margin-left:8px}
+</style>
+<link rel="stylesheet" href="ov-theme.css">
+</head>
+<body>
+<!-- Aparece sola cuando desbloqueas un logro. ?test=1 repite un ejemplo para que lo coloques en OBS. -->
+<div id="slot"></div>
+<script>
+const q = new URLSearchParams(location.search);
+const ID = q.get('steamid') || '', TEST = q.get('test') === '1';
+const API = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/achievements') + '?steamid=' + encodeURIComponent(ID);
+const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const SAMPLE = { name: 'Long Shot', desc: 'Get a kill from over 950m away', pct: 7.8, icon: 'https://shared.fastly.steamstatic.com/community_assets/images/apps/1867240/a9e1bdbc330a7afdb19083c1c179514c5d87e8ab.jpg', sample: true };
+const slot = document.getElementById('slot'); const queue = []; let busy = false;
+const pct = n => n == null ? '' : (n < 10 ? n.toFixed(1) : Math.round(n)) + '%';
+function show(a){
+  busy = true;
+  const rare = a.pct != null && a.pct < 5;
+  slot.innerHTML = `<div class="card" id="c"><div class="card-inner">
+    <span class="ic" style="background-image:url('${esc(a.icon)}')"></span>
+    <div class="txt"><div class="kick">Logro desbloqueado${a.sample ? '<span class="ex">EJEMPLO</span>' : ''}</div><div class="name">${esc(a.name)}</div>
+    <div class="desc">${esc(a.desc)}</div>${a.pct != null ? `<div class="rare ${rare ? 'hot' : ''}">${rare ? 'Muy raro: ' : ''}solo el ${pct(a.pct)} de los jugadores lo tiene</div>` : ''}</div></div></div>`;
+  const c = document.getElementById('c'); requestAnimationFrame(() => requestAnimationFrame(() => c.classList.add('in')));
+  setTimeout(() => { c.classList.remove('in'); setTimeout(() => { slot.innerHTML = ''; busy = false; next(); }, 700); }, 8000);
+}
+function next(){ if (!busy && queue.length) show(queue.shift()); }
+if (TEST) { const t = () => { queue.push(SAMPLE); next(); }; setTimeout(t, 1200); setInterval(t, 13000); }
+if (ID) {
+  let seen = null;   // la primera lectura es la línea base: solo se anuncia lo que se desbloquea DESPUÉS
+  const poll = async () => {
+    try {
+      const r = await fetch(API); if (!r.ok) return; const d = await r.json();
+      const ids = new Set(d.unlocked.map(a => a.id));
+      if (seen === null) seen = ids;
+      else for (const a of d.unlocked.slice().reverse()) if (!seen.has(a.id)) { seen.add(a.id); queue.push(a); }
+      next();
+    } catch (e) {}
+  };
+  poll(); setInterval(poll, 30000);
+}
+</script>
+</body>
+</html>

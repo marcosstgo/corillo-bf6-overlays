@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WARDOGS: overlays para OBS · Corillo</title>
+<meta name="description" content="Overlays gratis de WARDOGS para tu stream: jugadores en vivo, reseñas, logros y tu perfil de Steam. Fondo transparente para OBS.">
+<meta property="og:title" content="WARDOGS: overlays para OBS · Corillo">
+<meta property="og:description" content="Jugadores en vivo, reseñas, logros y tu perfil de Steam en tu stream. Gratis.">
+<meta property="og:image" content="https://corillo.live/overlay/assets/og-wardogs.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Corillo">
+<meta property="og:locale" content="es_PR">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Overlays de WARDOGS para OBS: jugadores en vivo, reseñas y logros">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WARDOGS: overlays para OBS · Corillo">
+<meta name="twitter:description" content="Jugadores en vivo, reseñas, logros y tu perfil de Steam en tu stream. Gratis.">
+<meta name="twitter:image" content="https://corillo.live/overlay/assets/og-wardogs.png">
+<meta property="og:url" content="https://corillo.live/overlay/wardogs/">
+<meta name="theme-color" content="#06143f">
+<link rel="canonical" href="https://corillo.live/overlay/wardogs/">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="/overlay/assets/site.css">
+<style>:root{--tc:var(--mint)}.grp2{margin:34px 0 0;font:800 1.3rem var(--display);letter-spacing:-.025em}.grp2p{margin-top:4px;color:var(--mute);font:500 .95rem/1.5 var(--body);max-width:70ch}.ovcard.wide{grid-column:1/-1}</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Navegación">
+  <a class="brand" href="https://corillo.live/"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>Corillo</a>
+  <div class="crumb"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i><a href="/overlay/">Overlays</a><i class="fa-solid fa-chevron-right" aria-hidden="true"></i><span>WARDOGS</span></div>
+  <div class="seg" role="group" aria-label="Elegir juego">
+    <a href="/overlay/bf6/" style="--tc:var(--sun)"><i class="fa-solid fa-crosshairs" aria-hidden="true"></i>Battlefield 6</a>
+    <a href="/overlay/wardogs/" style="--tc:var(--mint)" aria-current="page"><i class="fa-solid fa-dog" aria-hidden="true"></i>WARDOGS</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="g-hero">
+    <div>
+      <h1>WARDOGS en tu stream.</h1>
+      <p class="sub">Jugadores en vivo, reseñas, logros y tu perfil de Steam, con el fondo transparente para OBS. Pega tu Steam y la tarjeta de arriba se convierte en la tuya.</p>
+      <form class="steamform" id="steamForm" autocomplete="off">
+        <input class="field" id="steamIn" type="text" placeholder="Tu usuario o enlace de Steam" spellcheck="false" aria-label="Tu usuario o enlace de Steam">
+        <button class="btn" type="submit" id="steamBtn">Ver mi perfil</button>
+      </form>
+      <p class="formmsg" id="steamMsg" role="status" aria-live="polite">Ejemplo: steamcommunity.com/id/tu-usuario. Tu perfil y los detalles del juego deben estar en público.</p>
+    </div>
+    <div class="hero-stack">
+      <div class="backdrop hud" style="padding:24px 16px"><div style="display:grid;gap:14px;width:100%;justify-items:center"><div id="hfProfile" style="width:100%"></div><div id="hfPulse" style="width:100%"></div></div></div>
+    </div>
+  </header>
+
+  <section class="sec" id="overlays">
+    <h2>Elige tu overlay</h2>
+    <p class="lead">Cada uno es un enlace. En OBS agrega una Fuente de navegador, pega el enlace y usa el tamaño que indica la tarjeta.</p>
+    <h3 class="grp2">Sin usuario</h3><p class="grp2p">Solo copia el enlace y pégalo en OBS.</p>
+    <div class="ovgrid" id="cards1"></div>
+    <h3 class="grp2">Con tu perfil de Steam</h3><p class="grp2p">Escribe tu Steam arriba y estas tarjetas se llenan con tus datos. Tu perfil y los detalles del juego deben estar en público.</p>
+    <div class="ovgrid" id="cards2"></div>
+  </section>
+
+  <section class="sec" id="ahora">
+    <h2>WARDOGS ahora mismo</h2>
+    <p class="lead" id="nowLead">Datos de Steam, actualizados cada minuto.</p>
+    <div class="now">
+      <div class="chartcard hud">
+        <span class="livetag"><i class="pulse-dot" aria-hidden="true"></i><span>Jugando ahora</span></span>
+        <div class="big" id="bigPlayers">—</div>
+        <div class="cap" id="chartCap">Jugadores conectados en Steam</div>
+        <div id="chart"></div>
+        <div class="ax"><span id="axL"></span><span id="axR"></span></div>
+      </div>
+      <div class="kpis">
+        <div class="kpi hud"><small>Reseñas positivas en Steam</small><b id="rvPct">—</b><div class="bar"><i id="rvBar" style="width:0"></i></div><div class="sub" id="rvSub">&nbsp;</div></div>
+        <div class="kpi hud"><small>Precio</small><b id="price">—</b><div class="sub" id="priceSub">&nbsp;</div></div>
+        <div class="kpi hud"><small>Récord registrado (24 h)</small><b id="peak">—</b><div class="sub" id="peakSub">&nbsp;</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="logros">
+    <h2>Los 10 logros, del más difícil al más fácil</h2>
+    <p class="lead" id="achLead">El porcentaje es la parte de los jugadores que ya lo desbloqueó, según Steam.</p>
+    <div class="board" id="board"></div>
+  </section>
+
+  <section class="sec" id="noticias">
+    <h2>Anuncios oficiales</h2>
+    <p class="lead">Lo último que publicó el estudio en Steam.</p>
+    <div class="newsl" id="news"></div>
+  </section>
+
+  <p class="note sec" style="margin-top:44px"><strong>Qué puede mostrar Steam y qué no.</strong> De WARDOGS, Steam entrega las horas jugadas, los logros, si estás en partida y los datos públicos del juego. Kills, K/D y partidas no están disponibles: el estudio no ofrece una API pública de perfiles. Si tu perfil o los detalles del juego son privados, los overlays personales no pueden leerlos.</p>
+</main>
+
+<footer class="wrap" style="padding-top:30px;padding-bottom:40px;color:var(--mute);font:500 .85rem var(--body)">
+  <a href="https://corillo.live/">corillo.live</a> · <a href="/overlay/">Todos los overlays</a> · Datos de Steam · <a href="https://github.com/marcosstgo/corillo-bf6-overlays" target="_blank" rel="noopener">Código en GitHub</a>
+</footer>
+
+<script src="/overlay/assets/site.js"></script>
+<script>
+const { $, esc, fmt, json, frame, watch } = OV;
+const BASE = OV.ORIGIN + '/overlay/wardogs/';
+const CARDS = [
+  { g:1, id:'pulse',     file:'pulse.html',        n:'Jugadores en vivo', d:'Cuántos juegan WARDOGS ahora mismo, con el récord y la tendencia de la última media hora.', w:380, h:210 },
+  { g:1, id:'community', file:'community.html',    n:'Comunidad',         d:'El porcentaje de reseñas positivas en Steam, los jugadores conectados y el precio.', w:380, h:225 },
+  { g:1, id:'comm-es',   file:'community.html', q:'?lang=es', n:'Comunidad en español', d:'Solo las reseñas escritas en español. Suelen ser más positivas que el total.', w:380, h:225 },
+  { g:1, id:'ach-game',  file:'achievements.html', n:'Logros del juego',  d:'Los 10 logros con el porcentaje de jugadores que ya lo tiene.', w:380, h:395 },
+  { g:2, id:'profile',   file:'profile.html',      n:'Tu perfil',         d:'Tus horas, tus logros y una señal de "Jugando" cuando estás en partida.', w:380, h:260, steam:true },
+  { g:2, id:'ach-mine',  file:'achievements.html', n:'Tus logros',        d:'Los que ya tienes a color y los pendientes en gris, con su rareza.', w:380, h:400, steam:true },
+  { g:2, id:'steamcard', file:'steam.html',        n:'Tarjeta de Steam',  d:'Tu nivel y tu XP, cuánto tiempo llevas en Steam, tus juegos y tus horas totales.', w:380, h:262, steam:true },
+  { g:2, id:'alert',     file:'alert.html',        n:'Alerta de logro',   d:'Aparece sola en tu pantalla cuando desbloqueas un logro, con su rareza. La vista previa repite un ejemplo.', w:480, h:130, steam:true, prevQ:'?test=1', always:true },
+  { g:2, id:'lower',     file:'lowerthird.html',   n:'Barra inferior',    d:'Una barra de pantalla completa que rota tu jugador, tus logros y el juego en vivo.', w:1920, h:80, steam:true, wide:true },
+];
+let steam = '', me = null;   // steam = texto normalizado para la URL; me = respuesta del perfil
+
+/* ── overlays ─────────────────────────────────────────────────────────── */
+const urlOf = c => BASE + c.file + (c.steam ? '?steamid=' + encodeURIComponent(steam) : (c.q || ''));
+const prevOf = c => c.prevQ ? BASE + c.file + c.prevQ : urlOf(c);
+function renderCards(){
+  const one = c => `
+    <article class="ovcard hud${c.wide ? ' wide' : ''}">
+      <div class="backdrop"><div id="cf-${c.id}" style="width:100%"></div></div>
+      <div class="o-body">
+        <h3>${c.n}</h3><p>${c.d}</p>
+        <div class="o-row"><button class="btn small" type="button" data-copy="${c.id}">Copiar enlace</button><span class="size">${c.w} × ${c.h} px</span></div>
+      </div>
+    </article>`;
+  $('#cards1').innerHTML = CARDS.filter(c => c.g === 1).map(one).join('');
+  $('#cards2').innerHTML = CARDS.filter(c => c.g === 2).map(one).join('');
+  syncCards();
+}
+function syncCards(){
+  for (const c of CARDS) {
+    const box = $('#cf-' + c.id), btn = document.querySelector(`[data-copy="${c.id}"]`);
+    if (c.steam && !steam) {
+      btn.disabled = true; btn.style.opacity = .45; btn.style.cursor = 'not-allowed';
+      if (c.always) { frame(box, prevOf(c), c.w, c.h); watch(box); continue; }
+      box.className = ''; box.style.maxWidth = ''; box.style.height = ''; box.replaceChildren();
+      box.innerHTML = '<div class="needs"><span><b>Escribe tu Steam arriba</b>Aquí verás este overlay con tus datos reales.</span></div>';
+    } else {
+      if (box.querySelector('.needs')) box.replaceChildren();
+      frame(box, prevOf(c), c.w, c.h); watch(box);
+      btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = '';
+    }
+  }
+}
+document.querySelector('#overlays').addEventListener('click', e => {
+  const b = e.target.closest('[data-copy]'); if (!b || b.disabled) return;
+  OV.copy(b, urlOf(CARDS.find(c => c.id === b.dataset.copy)));
+});
+
+/* ── tu perfil de Steam ───────────────────────────────────────────────── */
+function normSteam(t){
+  t = t.trim(); const m = t.match(/steamcommunity\.com\/(?:id|profiles)\/([^/?#\s]+)/i);
+  return m ? m[1] : t.replace(/^@/, '');
+}
+const say = (t, k) => { const m = $('#steamMsg'); m.textContent = t; m.className = 'formmsg' + (k ? ' ' + k : ''); };
+async function loadMe(raw, quiet){
+  const v = normSteam(raw); if (!v) return;
+  $('#steamBtn').disabled = true; if (!quiet) say('Buscando tu perfil…');
+  try {
+    const d = await json('wardogs/profile?steamid=' + encodeURIComponent(v));
+    steam = v; me = d; try { localStorage.setItem('wd-steam', v); } catch (e) {}
+    const url = new URL(location.href); url.searchParams.set('steam', v); history.replaceState(null, '', url);
+    say(`Perfil encontrado: ${d.name}. ${d.hours != null ? fmt(d.hours) + ' h en WARDOGS' : ''}${d.achievements ? ', ' + d.achievements.done + ' de ' + d.achievements.total + ' logros.' : '.'}`, 'good');
+    syncCards(); renderBoard(); heroProfile();
+  } catch (e) {
+    const d = e.data || {};
+    // el perfil existe pero no es legible: aun así se puede usar el enlace, así que se conserva
+    if (d.error === 'private_profile' || d.error === 'game_details_private') say(d.message + ' Ábrelo en Steam: Perfil, Editar perfil, Privacidad.', 'err');
+    else if (d.error === 'not_found') say('No encontramos ese perfil de Steam. Revisa el usuario o pega el enlace de tu perfil.', 'err');
+    else say('Steam no respondió. Intenta de nuevo en un momento.', 'err');
+  } finally { $('#steamBtn').disabled = false; }
+}
+$('#steamForm').addEventListener('submit', e => { e.preventDefault(); loadMe($('#steamIn').value); });
+
+/* ── el juego ahora ───────────────────────────────────────────────────── */
+async function loadPlayers(){
+  try {
+    const d = await json('wardogs/players');
+    $('#bigPlayers').textContent = fmt(d.players);
+    $('#chart').innerHTML = OV.spark(d.spark, '#35e0a1');
+    const span = d.sinceMin >= 90 ? 'hace ' + Math.round(d.sinceMin / 60) + ' h' : 'hace ' + d.sinceMin + ' min';
+    $('#axL').textContent = d.spark.length > 1 ? span : ''; $('#axR').textContent = d.spark.length > 1 ? 'ahora' : '';
+    $('#peak').textContent = fmt(d.peak);
+    $('#peakSub').textContent = d.sinceMin < 1380 ? `Desde que empezamos a registrar, hace ${d.sinceMin >= 90 ? Math.round(d.sinceMin / 60) + ' h' : d.sinceMin + ' min'}.` : 'El máximo de las últimas 24 horas.';
+    const up = d.deltaPct >= 0; $('#chartCap').innerHTML = `Jugadores conectados en Steam. En la última media hora ${up ? 'subió' : 'bajó'} <strong style="color:var(--${up ? 'mint' : 'live'})">${Math.abs(d.deltaPct)}%</strong>.`;
+  } catch (e) {}
+}
+async function loadGame(){
+  try {
+    const g = await json('wardogs/game'); window.__g = g;
+    if (g.reviews) { $('#rvPct').textContent = g.reviews.pct + '%'; $('#rvBar').style.width = g.reviews.pct + '%'; $('#rvSub').textContent = `${g.reviews.label || ''}, de ${fmt(g.reviews.total)} reseñas.`; }
+    $('#price').textContent = g.price ? g.price.replace(/\s*USD$/, '') : '—';
+    $('#priceSub').textContent = [g.developer && 'Desarrolla ' + g.developer, g.released && 'salió el ' + g.released].filter(Boolean).join(', ') || '';
+    renderBoard();
+    $('#news').innerHTML = (g.news || []).map(n => `<a href="${esc(n.url)}" target="_blank" rel="noopener"><b>${esc(n.title)}</b><span>${new Date(n.at * 1000).toLocaleDateString('es-PR', { day: 'numeric', month: 'long' })}</span></a>`).join('') || '<p class="lead">No hay anuncios recientes.</p>';
+  } catch (e) { $('#board').innerHTML = '<p class="lead">Steam no respondió. Recarga la página en un momento.</p>'; }
+}
+function renderBoard(){
+  const g = window.__g; if (!g || !g.achievements) return;
+  const mine = me && me.achievements ? new Map(me.achievements.list.map(a => [a.id, a])) : null;
+  const list = g.achievements.slice().sort((a, b) => (a.pct == null) - (b.pct == null) || a.pct - b.pct);
+  $('#achLead').textContent = mine ? `Los que ya tienes salen resaltados. El porcentaje es la parte de los jugadores que lo desbloqueó.` : 'El porcentaje es la parte de los jugadores que ya lo desbloqueó, según Steam.';
+  const top = Math.max(...list.map(a => a.pct || 0), 1);
+  $('#board').innerHTML = list.map(a => {
+    const got = mine && mine.get(a.id)?.unlocked; const cls = mine ? (got ? 'got' : 'no') : '';
+    const p = a.pct == null ? null : a.pct;
+    return `<div class="arow ${cls} ${p != null && p < 5 ? 'rare' : ''}">
+      <span class="ic" style="background-image:url('${esc(mine && !got ? (a.iconGray || a.icon) : a.icon)}')"></span>
+      <div><h3>${esc(a.name)}</h3><p>${esc(a.desc || 'Logro oculto')}</p><div class="meter"><i style="width:${p == null ? 0 : Math.max(2, p / top * 100)}%"></i></div></div>
+      <div class="pct">${p == null ? '—' : (p < 10 ? p.toFixed(1) : Math.round(p)) + '%'}<small>${got ? 'lo tienes' : 'lo tiene'}</small></div></div>`;
+  }).join('');
+}
+
+/* ── arranque ─────────────────────────────────────────────────────────── */
+function heroProfile(){ frame($('#hfProfile'), BASE + 'profile.html?' + (steam ? 'steamid=' + encodeURIComponent(steam) : 'demo=1'), 380, 260); }
+watch($('#hfProfile')); watch($('#hfPulse'));
+frame($('#hfPulse'), BASE + 'pulse.html', 380, 210); heroProfile();
+renderCards(); loadPlayers(); loadGame();
+setInterval(loadPlayers, 60000); setInterval(loadGame, 10 * 60000);
+(function(){
+  let s = new URL(location.href).searchParams.get('steam'); if (!s) { try { s = localStorage.getItem('wd-steam'); } catch (e) {} }
+  if (s) { $('#steamIn').value = s; loadMe(s, true); }
+})();
+</script>
+</body>
+</html>

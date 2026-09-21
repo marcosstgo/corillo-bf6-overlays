@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>WARDOGS · Logros — CORILLO</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-serif}
+.card{width:380px}
+.header{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.ava{width:34px;height:34px;flex:none;background:#173383 center/cover;clip-path:polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%)}
+.player-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+.subheader{display:flex;justify-content:space-between;margin-bottom:8px}
+.row{display:flex;align-items:flex-end;gap:12px}
+.big{font-size:52px !important;line-height:.9}
+.unit{font-size:18px;font-weight:800;color:#a4b6e6;letter-spacing:.06em;padding-bottom:5px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px 7px;margin-top:11px}
+.ach{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.ach .ic{width:100%;aspect-ratio:1;background:#0a1c52 center/cover;clip-path:polygon(0 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%);position:relative}
+.ach.no .ic{opacity:.42;filter:grayscale(1)}
+.ach.yes .ic{box-shadow:0 0 0 2px #ffd23f inset}
+.ach.yes .ic::after{content:'';position:absolute;right:0;bottom:0;width:0;height:0}
+.ach b{font-size:14px;font-weight:800;color:#f5f8ff;font-variant-numeric:tabular-nums;letter-spacing:.02em;line-height:1}
+.ach.no b{color:#a4b6e6}
+.ach.rare b{color:#ffd23f}
+.ach small{font-size:8.5px;font-weight:700;letter-spacing:.06em;color:#a4b6e6;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;line-height:1}
+.note{margin-top:9px;font-size:13px;font-weight:700;color:#a4b6e6;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note b{color:#ffd23f}
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.footer-brand{font-size:9px;text-transform:uppercase}
+.err{min-height:120px;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 12px;color:#ffb4a6;font-size:14px;line-height:1.3;letter-spacing:.04em}
+</style>
+<link rel="stylesheet" href="ov-theme.css">
+</head>
+<body>
+<div class="card" id="card"><div class="card-inner" id="content"><div class="err">Cargando…</div></div></div>
+<script>
+// Con ?steamid= muestra tus logros (los desbloqueados a color, los pendientes en gris).
+// Sin steamid muestra el catálogo del juego con el % global de jugadores que tiene cada uno.
+const p = new URLSearchParams(location.search);
+const ID = p.get('steamid') || '';
+const BASE = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/');
+const API = ID ? BASE + 'profile?steamid=' + encodeURIComponent(ID) : BASE + 'game';
+const MSG = { steam_key_missing: 'Logros de WARDOGS no disponibles todavía', private_profile: 'El perfil de Steam es privado.<br>Ponlo en público para ver tus logros.', game_details_private: 'Activa los detalles del juego en tu privacidad de Steam<br>(o esta cuenta no tiene WARDOGS).', not_found: 'No encontramos ese perfil de Steam.' };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pctTxt = n => n == null ? '—' : (n < 10 ? n.toFixed(1) : Math.round(n)) + '%';
+let good = false;
+async function load(refresh){
+  const card = document.getElementById('card'), box = document.getElementById('content');
+  try {
+    const r = await fetch(API); const d = await r.json();
+    if (!r.ok) { if (!good) box.innerHTML = `<div class="err">${MSG[d.error] || 'Datos no disponibles'}</div>`; return; }
+    good = true;
+    if (refresh) { card.classList.add('refreshing'); setTimeout(() => card.classList.remove('refreshing'), 600); }
+    const mine = !!ID;
+    const list = ((mine ? d.achievements.list : d.achievements) || []).slice().sort((a, b) => (a.pct == null) - (b.pct == null) || a.pct - b.pct);
+    const done = mine ? list.filter(a => a.unlocked).length : 0;
+    const rarest = mine ? d.achievements.rarest : (list.find(a => a.pct != null) || null);
+    const cells = list.map(a => {
+      const on = mine && a.unlocked, rare = a.pct != null && a.pct < 5;
+      const img = (mine && !on ? a.iconGray || a.icon : a.icon) || '';
+      return `<div class="ach ${mine ? (on ? 'yes' : 'no') : ''} ${rare ? 'rare' : ''}" title="${esc(a.name)}: ${esc(a.desc)}"><span class="ic" style="background-image:url('${esc(img)}')"></span><b>${pctTxt(a.pct)}</b><small>${esc(a.name)}</small></div>`;
+    }).join('');
+    const head = mine
+      ? `<div class="header"><span class="ava" style="background-image:url('${esc(d.avatar || '')}')"></span><span class="player-name">${esc(d.name)}</span><span class="platform-badge">STEAM</span></div>`
+      : `<div class="header"><span class="player-name">WARDOGS</span><span class="platform-badge">STEAM</span></div>`;
+    const big = mine
+      ? `<span class="stat-value-main kd big">${done}<span style="opacity:.55"> / ${list.length}</span></span><span class="unit">LOGROS</span>`
+      : `<span class="stat-value-main kd big">${list.length}</span><span class="unit">LOGROS EN EL JUEGO</span>`;
+    const note = rarest
+      ? (mine ? `Más rara que tienes: <b>${esc(rarest.name)}</b> · solo el ${pctTxt(rarest.pct)} de los jugadores` : `Más difícil: <b>${esc(rarest.name)}</b> · solo el ${pctTxt(rarest.pct)} de los jugadores`)
+      : '';
+    box.innerHTML = `${head}
+      <div class="subheader"><span></span><span class="section-label"><span>//</span> LOGROS · % DE JUGADORES</span></div>
+      <div class="divider"></div>
+      <div class="row">${big}</div>
+      <div class="grid">${cells}</div>
+      ${note ? `<div class="note">${note}</div>` : ''}
+      <div class="footer"><span class="footer-brand">CORILLO.LIVE · WARDOGS</span><span class="footer-time">↻ ahora</span></div>`;
+  } catch (e) { if (!good) box.innerHTML = '<div class="err">Datos no disponibles ahora</div>'; }
+}
+load(); setInterval(() => load(true), 5 * 60 * 1000);
+</script>
+</body>
+</html>

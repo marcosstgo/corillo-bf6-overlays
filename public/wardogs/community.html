@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>WARDOGS · Comunidad — CORILLO</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-serif}
+.card{width:380px}
+.header{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.player-name{flex:1;text-transform:uppercase;white-space:nowrap}
+.subheader{display:flex;justify-content:space-between;margin-bottom:8px}
+.section-label{font-size:10px;text-transform:uppercase}
+.row{display:flex;align-items:flex-end;gap:12px}
+.big{font-size:62px !important;line-height:.9}
+.unit{display:flex;flex-direction:column;padding-bottom:6px;min-width:0}
+.unit b{font-size:19px;font-weight:800;color:#f5f8ff;letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.unit small{font-size:10px;font-weight:800;letter-spacing:.16em;color:#a4b6e6;text-transform:uppercase;margin-top:3px}
+.meta{display:flex;gap:18px;margin-top:8px;padding:6px 12px;background:rgba(6,20,63,.55);clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%)}
+.meta div{display:flex;flex-direction:column}
+.meta small{font-size:9.5px;font-weight:800;letter-spacing:.18em;color:#a4b6e6;text-transform:uppercase}
+.meta b{font-size:19px;font-weight:800;color:#f5f8ff;font-variant-numeric:tabular-nums}
+.bar{height:5px;background:rgba(255,255,255,.12);margin-top:9px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#ff6a3d,#ffd23f);box-shadow:0 0 12px rgba(255,106,61,.6)}
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:7px}
+.footer-brand{font-size:9px;text-transform:uppercase}
+.err{min-height:110px;display:flex;align-items:center;justify-content:center;color:#ffb4a6;font-size:14px;letter-spacing:.06em}
+</style>
+<link rel="stylesheet" href="ov-theme.css">
+</head>
+<body>
+<div class="card" id="card"><div class="card-inner" id="content"><div class="err">Cargando…</div></div></div>
+<script>
+// Cómo le va al juego: % de reseñas positivas en Steam, jugadores ahora y precio. No necesita usuario.
+const BASE = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/');
+const ES = new URLSearchParams(location.search).get('lang') === 'es';   // reseñas escritas en español
+const fmt = n => n == null ? '—' : Number(n).toLocaleString('en-US');
+let game = null, players = null, last = 0, good = false;
+async function getJSON(u){ const r = await fetch(u); const d = await r.json(); if (!r.ok) throw new Error(d.error || r.status); return d; }
+async function load(refresh){
+  const card = document.getElementById('card');
+  try {
+    const [g, pl] = await Promise.all([game && refresh && Date.now() - last < 9 * 60 * 1000 ? game : getJSON(BASE + 'game'), getJSON(BASE + 'players').catch(() => null)]);
+    if (g !== game) last = Date.now(); game = g; players = pl; good = true;
+    if (refresh) { card.classList.add('refreshing'); setTimeout(() => card.classList.remove('refreshing'), 600); }
+    const rv = ES && g.reviewsEs ? g.reviewsEs : g.reviews;
+    document.getElementById('content').innerHTML = `
+      <div class="header"><span class="player-name">WARDOGS</span><span class="platform-badge">STEAM</span></div>
+      <div class="subheader"><span></span><span class="section-label"><span>//</span> LO QUE DICE LA COMUNIDAD</span></div>
+      <div class="divider"></div>
+      <div class="row">
+        <span class="stat-value-main kd big">${rv ? rv.pct + '%' : '—'}</span>
+        <span class="unit"><b>${rv && rv.label ? rv.label : 'Sin reseñas'}</b><small>${ES ? 'reseñas positivas en español' : 'reseñas positivas'}</small></span>
+      </div>
+      <div class="meta">
+        <div><small>Reseñas</small><b>${rv ? fmt(rv.total) : '—'}</b></div>
+        <div><small>Jugando ahora</small><b>${fmt(players ? players.players : g.players)}</b></div>
+        <div><small>Precio</small><b>${g.price ? g.price.replace(/\s*USD$/, '') : '—'}</b></div>
+      </div>
+      <div class="bar"><i style="width:${rv ? rv.pct : 0}%"></i></div>
+      <div class="footer"><span class="footer-brand">CORILLO.LIVE · WARDOGS</span><span class="footer-time">STEAM</span></div>`;
+  } catch (e) { if (!good) document.getElementById('content').innerHTML = '<div class="err">WARDOGS: datos no disponibles ahora</div>'; }
+}
+load(); setInterval(() => load(true), 60000);
+</script>
+</body>
+</html>

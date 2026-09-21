@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overlays para OBS · Corillo</title>
+<meta name="description" content="Overlays gratis para OBS con datos en vivo de Battlefield 6 y WARDOGS. Fondo transparente, sin instalar nada.">
+<meta property="og:title" content="Overlays para OBS · Corillo">
+<meta property="og:description" content="Estadísticas de Battlefield 6 y WARDOGS en tu stream, en vivo y gratis.">
+<meta property="og:image" content="https://corillo.live/overlay/assets/og-overlays.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Corillo">
+<meta property="og:locale" content="es_PR">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Overlays de Battlefield 6 y WARDOGS para OBS, con datos en vivo">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Overlays para OBS · Corillo">
+<meta name="twitter:description" content="Estadísticas de Battlefield 6 y WARDOGS en tu stream, en vivo y gratis.">
+<meta name="twitter:image" content="https://corillo.live/overlay/assets/og-overlays.png">
+<meta property="og:url" content="https://corillo.live/overlay/">
+<meta name="theme-color" content="#06143f">
+<link rel="canonical" href="https://corillo.live/overlay/">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="/overlay/assets/site.css">
+</head>
+<body>
+
+<nav class="nav" aria-label="Navegación">
+  <a class="brand" href="https://corillo.live/"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>Corillo</a>
+  <div class="crumb"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i><span>Overlays</span></div>
+  <div class="seg" role="group" aria-label="Elegir juego">
+    <a href="/overlay/bf6/" style="--tc:var(--sun)"><i class="fa-solid fa-crosshairs" aria-hidden="true"></i>Battlefield 6</a>
+    <a href="/overlay/wardogs/" style="--tc:var(--mint)"><i class="fa-solid fa-dog" aria-hidden="true"></i>WARDOGS</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="h-hero">
+    <h1>Tus juegos, en tu stream, en vivo.</h1>
+    <p>Overlays gratis para OBS con fondo transparente. Escoge el juego, copia el enlace y pégalo como fuente de navegador. No hay que instalar nada.</p>
+  </header>
+
+  <section class="doors" aria-label="Juegos disponibles">
+    <a class="door hud" href="/overlay/bf6/" style="--tc:var(--sun)">
+      <div class="d-top">
+        <h2>Battlefield 6</h2>
+        <p>Estadísticas, armas, clases y sesión con tu EA ID, más los servidores activos en este momento.</p>
+      </div>
+      <div class="backdrop"><div id="frBf6"></div></div>
+      <div class="d-foot">
+        <span class="livetag"><i class="pulse-dot" aria-hidden="true"></i><span><b id="nBf6">—</b> jugando ahora en Steam</span></span>
+        <span class="btn" style="--tc:var(--sun)">Ver overlays de Battlefield 6</span>
+      </div>
+    </a>
+
+    <a class="door hud" href="/overlay/wardogs/" style="--tc:var(--mint)">
+      <div class="d-top">
+        <h2>WARDOGS</h2>
+        <p>Jugadores en vivo, reseñas, logros y tu perfil de Steam, con datos oficiales de Steam.</p>
+      </div>
+      <div class="backdrop"><div id="frWd"></div></div>
+      <div class="d-foot">
+        <span class="livetag"><i class="pulse-dot" aria-hidden="true"></i><span><b id="nWd">—</b> jugando ahora en Steam</span></span>
+        <span class="btn" style="--tc:var(--mint)">Ver overlays de WARDOGS</span>
+      </div>
+    </a>
+  </section>
+
+  <ol class="steps" style="padding:0" aria-label="Cómo se usa">
+    <li style="--tc:var(--hot)"><b class="n">1</b><span><strong>Elige el overlay</strong> que quieres ver en pantalla y escribe tu usuario.</span></li>
+    <li style="--tc:var(--hot)"><b class="n">2</b><span><strong>Copia el enlace</strong> que te damos. Ya trae tu usuario.</span></li>
+    <li style="--tc:var(--hot)"><b class="n">3</b><span>En OBS agrega una <strong>Fuente de navegador</strong> y pega el enlace. El fondo ya es transparente.</span></li>
+  </ol>
+</main>
+
+<footer class="wrap" style="padding-top:34px;padding-bottom:40px;color:var(--mute);font:500 .85rem var(--body)">
+  <a href="https://corillo.live/">corillo.live</a> · Datos de Battlefield 6 de gametools.network, EA y Steam · Datos de WARDOGS de Steam · <a href="https://github.com/marcosstgo/corillo-bf6-overlays" target="_blank" rel="noopener">Código en GitHub</a>
+</footer>
+
+<script src="/overlay/assets/site.js"></script>
+<script>
+  // Vistas en vivo: los overlays reales, no capturas. Battlefield usa una cuenta de ejemplo de Corillo.
+  OV.frame(OV.$('#frBf6'), OV.ORIGIN + '/overlay/bf6/overlay.html?name=katat0nia&platform=ea', 380, 240); OV.watch(OV.$('#frBf6'));
+  OV.frame(OV.$('#frWd'),  OV.ORIGIN + '/overlay/wardogs/pulse.html', 380, 210); OV.watch(OV.$('#frWd'));
+  const num = (id, path) => OV.json(path).then(d => { OV.$(id).textContent = OV.fmt(d.players); }).catch(() => {});
+  num('#nBf6', 'players'); num('#nWd', 'wardogs/players');
+  setInterval(() => { num('#nBf6', 'players'); num('#nWd', 'wardogs/players'); }, 60000);
+</script>
+</body>
+</html>
