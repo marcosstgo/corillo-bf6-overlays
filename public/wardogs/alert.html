@@ -29,7 +29,7 @@ body{background:transparent;width:480px;height:130px;overflow:hidden;font-family
 <script>
 const q = new URLSearchParams(location.search);
 const ID = q.get('steamid') || '', TEST = q.get('test') === '1';
-const API = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/achievements') + '?steamid=' + encodeURIComponent(ID);
+const API = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://api.corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/achievements') + '?steamid=' + encodeURIComponent(ID);
 const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const SAMPLE = { name: 'Long Shot', desc: 'Get a kill from over 950m away', pct: 7.8, icon: 'https://shared.fastly.steamstatic.com/community_assets/images/apps/1867240/a9e1bdbc330a7afdb19083c1c179514c5d87e8ab.jpg', sample: true };
 const slot = document.getElementById('slot'); const queue = []; let busy = false;

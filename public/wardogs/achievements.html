@@ -41,7 +41,7 @@ body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-seri
 // Sin steamid muestra el catálogo del juego con el % global de jugadores que tiene cada uno.
 const p = new URLSearchParams(location.search);
 const ID = p.get('steamid') || '';
-const BASE = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/');
+const BASE = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://api.corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/');
 const API = ID ? BASE + 'profile?steamid=' + encodeURIComponent(ID) : BASE + 'game';
 const MSG = { steam_key_missing: 'Logros de WARDOGS no disponibles todavía', private_profile: 'El perfil de Steam es privado.<br>Ponlo en público para ver tus logros.', game_details_private: 'Activa los detalles del juego en tu privacidad de Steam<br>(o esta cuenta no tiene WARDOGS).', not_found: 'No encontramos ese perfil de Steam.' };
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

@@ -53,7 +53,7 @@
 <script>
 const p=new URLSearchParams(location.search);
 const PLAYER=p.get('name')||'katat0nia';
-const BASE_API=window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats';
+const BASE_API=window.BF6_CONFIG?.api||'https://api.corillo.live/api/bf6/stats';
 const API=`${BASE_API.replace('/bf6/stats','/bf6/eastats')}?name=${encodeURIComponent(PLAYER)}`;
 const INTERVAL=60000;
 let lastGoodData=null,lastUpdatedAt=null,ftTimer=null,isStale=false;

@@ -1,0 +1,25 @@
+# Proxy de stats de BF6 y WARDOGS para los overlays (corillo.live/overlay/). Corre en corillo-vps desde 31-oct-2026
+# (antes en el corillo-server viejo, /opt/corillo/bf6-proxy). nginx de api.corillo.live: /api/bf6/ → 127.0.0.1:3011.
+# Llave de Steam (opcional; sin ella WARDOGS solo da jugadores en vivo y datos del juego): /etc/corillo-bf6-proxy.env
+#   STEAM_API_KEY=...
+[Unit]
+Description=Corillo BF6/WARDOGS stats proxy
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=corillo-adm
+WorkingDirectory=/home/corillo-adm/corillo-bf6-overlays
+ExecStart=/usr/bin/node server.js
+EnvironmentFile=-/etc/corillo-bf6-proxy.env
+Environment=PORT=3011 NODE_ENV=production
+StateDirectory=corillo-bf6-proxy
+Restart=always
+RestartSec=5
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target

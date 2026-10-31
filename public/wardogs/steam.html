@@ -36,7 +36,7 @@ body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-seri
 // Tarjeta de tu cuenta de Steam: nivel, XP, antigüedad, biblioteca y horas totales.
 const p = new URLSearchParams(location.search);
 const ID = p.get('steamid') || '';
-const API = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/profile') + '?steamid=' + encodeURIComponent(ID);
+const API = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://api.corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/profile') + '?steamid=' + encodeURIComponent(ID);
 const MSG = { steam_key_missing: 'Tarjeta de Steam no disponible todavía', private_profile: 'El perfil de Steam es privado.<br>Ponlo en público para ver tu tarjeta.', game_details_private: 'Activa los detalles del juego en tu privacidad de Steam<br>(o esta cuenta no tiene WARDOGS).', not_found: 'No encontramos ese perfil de Steam.' };
 const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fmt = n => n == null ? '—' : Number(n).toLocaleString('en-US');

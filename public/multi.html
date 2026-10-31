@@ -49,7 +49,7 @@ const NAMES=(q.get('names')||'katat0nia').split(',').map(s=>s.trim()).filter(Boo
 const PLATS=(q.get('platforms')||'ea').split(',').map(s=>s.trim()||'ea');
 const PLAT_LABEL={ea:'EA',steam:'STEAM',psn:'PSN',xbox:'XBOX',ps5:'PS5',epic:'EPIC'};
 const INTERVAL=60000;
-const BASE_API=window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats';
+const BASE_API=window.BF6_CONFIG?.api||'https://api.corillo.live/api/bf6/stats';
 
 function fmt(n,d=0){if(n==null||isNaN(+n))return'—';return(+n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function fmtWin(v){if(v==null)return'—';if(typeof v==='string')return v.includes('%')?v:v+'%';return(+v).toFixed(1)+'%'}

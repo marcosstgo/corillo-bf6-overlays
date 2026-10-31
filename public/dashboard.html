@@ -140,7 +140,7 @@ const p=new URLSearchParams(location.search);
 const PLAYER=p.get('name')||'katat0nia';
 const PLATFORM=p.get('platform')||'ea';
 const PLAT_LABEL={ea:'EA',steam:'STEAM',psn:'PSN',xbox:'XBOX',ps5:'PS5',epic:'EPIC'}[PLATFORM]||PLATFORM.toUpperCase();
-const BASE_API=window.BF6_CONFIG?.api||'https://corillo.live/api/bf6/stats';
+const BASE_API=window.BF6_CONFIG?.api||'https://api.corillo.live/api/bf6/stats';
 const API=`${BASE_API}?name=${encodeURIComponent(PLAYER)}&platform=${encodeURIComponent(PLATFORM)}`;
 const EA_API=`${BASE_API.replace('/bf6/stats','/bf6/eastats')}?name=${encodeURIComponent(PLAYER)}`;
 const INTERVAL=60000;

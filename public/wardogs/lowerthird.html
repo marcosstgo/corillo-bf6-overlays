@@ -47,7 +47,7 @@ body{width:1920px;height:80px;overflow:hidden;font-family:'Barlow Condensed',san
 const q = new URLSearchParams(location.search);
 const ID = q.get('steamid') || '';
 const HOLD = Math.max(4, +q.get('t') || 7) * 1000;
-const BASE = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/');
+const BASE = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://api.corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/');
 const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fmt = (n, d = 0) => n == null ? '—' : Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 const pc = n => n == null ? '—' : (n < 10 ? n.toFixed(1) : Math.round(n)) + '%';

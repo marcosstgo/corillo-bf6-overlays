@@ -34,7 +34,7 @@ body{background:transparent;width:380px;font-family:'Barlow Condensed',sans-seri
 <div class="card" id="card"><div class="card-inner" id="content"><div class="err">Cargando…</div></div></div>
 <script>
 // Cómo le va al juego: % de reseñas positivas en Steam, jugadores ahora y precio. No necesita usuario.
-const BASE = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/');
+const BASE = ((window.BF6_CONFIG && window.BF6_CONFIG.api) || 'https://api.corillo.live/api/bf6/stats').replace('/bf6/stats', '/bf6/wardogs/');
 const ES = new URLSearchParams(location.search).get('lang') === 'es';   // reseñas escritas en español
 const fmt = n => n == null ? '—' : Number(n).toLocaleString('en-US');
 let game = null, players = null, last = 0, good = false;
