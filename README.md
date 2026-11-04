@@ -2,6 +2,8 @@
 
 Overlays de stats en vivo para OBS: **Battlefield 6** y **WARDOGS**. Gratis, sin registro.
 
+> **4-nov-2026:** las portadas (`/overlay/`, `/overlay/bf6/`, `/overlay/wardogs/`) ahora son páginas del sitio, en `src/pages/overlay/` del repo `corillo`. `publicar_corillo.sh` descarta `hub/index.html`, `public/index.html` y `public/wardogs/index.html` de este repo, así que esos tres ya no se publican. Los overlays para OBS siguen saliendo de aquí.
+
 **Live:** [corillo.live/overlay/](https://corillo.live/overlay/) — portada con los dos juegos
 - [corillo.live/overlay/bf6/](https://corillo.live/overlay/bf6/) — generador de BF6 + servidores en vivo
 - [corillo.live/overlay/wardogs/](https://corillo.live/overlay/wardogs/) — generador de WARDOGS + datos del juego
