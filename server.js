@@ -4,6 +4,7 @@ const PORT = process.env.PORT || 3011;
 const CACHE_TTL    = 5 * 60 * 1000;   // datos completos de gametools
 const FALLBACK_TTL = 60 * 1000;       // #1: datos degradados de EA — ventana corta para no envenenar la key
 const NEG_TTL      = 60 * 1000;       // #4: caché negativo de errores/timeouts
+const NOTFOUND_TTL = 10 * 60 * 1000;  // jugador que no existe: no cambia de un minuto a otro
 // #2: budget de timeout cabe en el proxy_read_timeout 15s de nginx.
 // Peor caso = gametools (9s) + fallback EA (5s) = 14s, con ~1s de margen para parseo.
 const TIMEOUT_MS    = 9000;           // gametools
@@ -51,7 +52,7 @@ async function fetchEAData(name) {
   if (!match) throw new Error('Could not parse EA stats page');
   const nextData = JSON.parse(match[1]);
   const summary = nextData?.props?.pageProps?.statsResponse?.playerStatsSummary;
-  if (!summary) throw new Error('Player not found on EA');
+  if (!summary) { const nf = new Error('Player not found on EA'); nf.code = 'NOT_FOUND'; throw nf; }
 
   const flat = {};
   for (const section of summary.basicStats || []) {
@@ -129,6 +130,13 @@ app.get('/bf6/stats', async (req, res) => {
     return res.json(eaStats);
   } catch (err) {
     // #4: gametools y EA fallaron — caché negativo para no martillar upstream.
+    // Jugador inexistente → 404, para que el overlay diga «revisa nombre y plataforma»
+    // en vez de «API not responding» (antes salía 502 y el streamer culpaba al servidor).
+    if (err.code === 'NOT_FOUND') {
+      const payload = { error: 'not found', detail: `Player not found: ${name} (${platform})` };
+      setCached(cacheKey, payload, NOTFOUND_TTL, 404);
+      return res.status(404).json(payload);
+    }
     const status  = err.code === 'EA_TIMEOUT' ? 504 : 502;
     const payload = { error: 'stats unavailable', detail: err.message };
     setCached(cacheKey, payload, NEG_TTL, status);
@@ -176,6 +184,11 @@ app.get('/bf6/eastats', async (req, res) => {
     res.json(result);
   } catch (err) {
     if (err.code === 'EA_TIMEOUT' || err.name === 'AbortError') return res.status(504).json({ error: 'EA page timeout' });
+    if (err.code === 'NOT_FOUND') {
+      const payload = { error: 'not found', detail: `Player not found on EA: ${name}` };
+      setCached(cacheKey, payload, NOTFOUND_TTL, 404);
+      return res.status(404).json(payload);
+    }
     res.status(502).json({ error: 'EA stats unavailable', detail: err.message });
   }
 });
