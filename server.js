@@ -116,6 +116,10 @@ app.get('/bf6/stats', async (req, res) => {
       matchesPlayed: parseNum(flat['total_matches_played']),
       winPercent: flat['matches_win_rate'] || '0%',
       secondsPlayed: Math.round(hours * 3600),
+      timePlayed:    Math.round(hours * 3600),     // overlay.html lee timePlayed (antes salía «0h» con datos de EA)
+      damage:        parseNum(flat['total_damage_dealt']),
+      killsPerMinute:  hours > 0 ? +(parseNum(flat['total_kills']) / (hours * 60)).toFixed(2) : null,
+      damagePerMinute: hours > 0 ? Math.round(parseNum(flat['total_damage_dealt']) / (hours * 60)) : null,
       // Campos extra para accuracy.html / objective.html (mismo shape que gametools).
       // EA no expone shotsHit/shotsFired/weapons[]/sector → esos overlays quedan parciales.
       accuracy:      flat['shot_accuracy'] || null,   // "18%" string, lo maneja pct()
